@@ -1,11 +1,14 @@
 ---
+  # Parameters:
+  #  {{root_dir}}
+
   - name: Tor | Check if installed
     action: shell [ -f /usr/sbin/tor ] && echo 'found!' || echo ''
     register: tor_present
     tags: tor
 
   - name: Tor | Add apt repository
-    action: copy src=$root/components/worky/files/tor-apt-source dest=/etc/apt/sources.list.d/tor.list mode=644
+    action: copy src={{root_dir}}/components/worky/files/tor-apt-source dest=/etc/apt/sources.list.d/tor.list mode=644
     only_if: " '${tor_present.stdout}' == '' "
     tags: tor
 
