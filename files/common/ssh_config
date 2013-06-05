@@ -1,19 +1,9 @@
-Host sa.github.com
+Host example1.github.com
 HostName github.com
 User git
-IdentityFile ~/.ssh/id_rsa_sa
+IdentityFile ~/.ssh/id_rsa_example1
 
-Host ui.github.com
+Host example2.github.com
 HostName github.com
 User git
-IdentityFile ~/.ssh/id_rsa_ui
-
-Host orchy.github.com
-HostName github.com
-User git
-IdentityFile ~/.ssh/id_rsa_orchy
-
-Host worky.github.com
-HostName github.com
-User git
-IdentityFile ~/.ssh/id_rsa_worky
+IdentityFile ~/.ssh/id_rsa_example2

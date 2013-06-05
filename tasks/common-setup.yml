@@ -11,14 +11,14 @@
   - name: Common setup | Message of the day explaining server is under Ansible control
     action: copy src=$root/files/common/etc-update-motd-d-95-ansible dest=/etc/update-motd.d/95-ansible mode=755
 
+  - name: Look for keys to authorize
+    action:
+    register: keys_list
+
   - name: Common setup | Authorize keys
     authorized_key: user=$user key='$FILE($item)'
     with_items:
-      - $root/files/common/tiziano_hubskip-ws.pub
-      - $root/files/common/tiziano_ubuntu-air.pub
-      - $root/files/common/tiziano_mac-air.pub
-      - $root/files/common/jurg.pub
-      - $root/files/common/jasper.pub
+      - $root/files/common/
     only_if: "not $testing"
 
   - name: Common setup | Install common apt packages
