@@ -1,2 +1,2 @@
 *.iml
-*.pub
+id_rsa*

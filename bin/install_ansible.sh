@@ -7,6 +7,7 @@ then
 fi
 
 OS=$(uname -s)
+ANSIBLE_VER=1.1
 
 if [[ "${OS}" == *Linux* ]]
 then
@@ -38,24 +39,28 @@ then
     else
         # http://www.pyrosoft.co.uk/blog/2012/06/26/installing-ansible-on-osx-lion/
 
+        echo ""
         easy_install paramiko
         wait $!
         easy_install PyYAML
         wait $!
         easy_install jinja2
         wait $!
+        echo ""
 
-        if [ ! -d /tmp/ansible ]
+        if [ -d /tmp/ansible ]
         then
-            cd /tmp
-            git clone git://github.com/ansible/ansible.git -b release1.0
-            cd ansible
-        else
-            cd /tmp/ansible
+            echo "Found temporary ansible dir, removing ..."
+            rm -rf /tmp/ansible
         fi
+
+        cd /tmp
+        git clone git://github.com/ansible/ansible.git -b release${ANSIBLE_VER}
+        cd ansible
 
         make install
 
-        echo "Ansible installed correctly."
+        echo ""
+        echo "Ansible ${ANSIBLE_VER} installed correctly."
     fi
 fi
