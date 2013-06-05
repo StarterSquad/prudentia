@@ -1,0 +1,10 @@
+---
+  testing: "'$user' == 'vagrant'"
+
+  # register variables default to changed: false
+  # so we are able to run a playbook in mode 'share' or 'build'
+  ui_checkout: {'changed': False}
+  search_api_conf: {'changed': False}
+  search_api_checkout: {'changed': False}
+  search_api_upstart: {'changed': False}
+  database_copy_dump: {'changed': False}

@@ -1,0 +1,9 @@
+---
+  - name: Git | Install git-core
+    action: apt update-cache=yes pkg=git-core state=present
+    tags: git
+
+  - name: Git | Configure bash custom prompt
+    action: lineinfile dest=/home/vagrant/.bashrc regexp="^PS1.*git_ps1.*" line="PS1='\u@\h:\[\033[0;33m\]\w\[\033[0;31m\]$(__git_ps1 \" (%s)\")\[\e[0m\]\$ '"
+    tags: git
+    only_if: "$testing"

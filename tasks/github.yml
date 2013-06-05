@@ -1,0 +1,16 @@
+---
+  - include: $root/tasks/git.yml
+
+  - name: GitHub | Read known_hosts content
+    action: shell [ -f $ssh_dir/.ssh/known_hosts ] && [ -n "$(grep github $ssh_dir/.ssh/known_hosts)" ] && echo 'found!' || echo ''
+    register: github_known
+    tags: github
+
+  - name: GitHub | Add github.com to known_hosts
+    action: shell ssh-keyscan github.com >> $ssh_dir/.ssh/known_hosts
+    only_if: " '${github_known.stdout}' == '' "
+    tags: github
+
+  - name: GitHub | Copy multi-repository configuration
+    action: copy src=$root/files/common/ssh_config dest=$ssh_dir/.ssh/config
+    tags: github

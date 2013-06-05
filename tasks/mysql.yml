@@ -1,0 +1,30 @@
+---
+  # used only for testing
+
+  - name: MySQL | Check if installed
+    action: shell [ -f /usr/bin/mysql ] && echo 'found!' || echo ''
+    register: mysql_present
+    tags: mysql
+
+  - name: MySQL | Preset root password
+    action: shell echo mysql-server-5.5 mysql-server/$item password root | debconf-set-selections
+    with_items:
+      - root_password
+      - root_password_again
+    only_if: " '${mysql_present.stdout}' == '' "
+    tags: mysql
+
+  - name: MySQL | Install MySQL server
+    action: apt update-cache=yes force=yes state=present pkg=mysql-server
+    only_if: " '${mysql_present.stdout}' == '' "
+    tags: mysql
+
+  - name: MySQL | Copy configuration file
+    action: copy src=$root/files/mysql/my.cnf dest=/etc/mysql/my.cnf backup=yes
+    register: mysql_conf
+    tags: mysql
+
+  - name: MySQL | Restart
+    action: service name=mysql state=restarted
+    when_changed: $mysql_conf
+    tags: mysql

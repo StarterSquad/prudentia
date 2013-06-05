@@ -1,0 +1,28 @@
+---
+  - name: Tor | Check if installed
+    action: shell [ -f /usr/sbin/tor ] && echo 'found!' || echo ''
+    register: tor_present
+    tags: tor
+
+  - name: Tor | Add apt repository
+    action: copy src=$root/components/worky/files/tor-apt-source dest=/etc/apt/sources.list.d/tor.list mode=644
+    only_if: " '${tor_present.stdout}' == '' "
+    tags: tor
+
+  - name: Tor | Get GPG key
+    action: command gpg --keyserver keys.gnupg.net --recv 886DDD89
+    only_if: " '${tor_present.stdout}' == '' "
+    tags: tor
+
+  - name: Tor | Add GPG key to apt keyring
+    action: shell gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | apt-key add -
+    only_if: " '${tor_present.stdout}' == '' "
+    tags: tor
+
+  - name: Tor | Install
+    action: apt update-cache=yes pkg=$item state=present
+    with_items:
+      - deb.torproject.org-keyring
+      - tor
+    only_if: " '${tor_present.stdout}' == '' "
+    tags: tor

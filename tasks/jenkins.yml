@@ -1,0 +1,12 @@
+---
+  - name: Jenkins | Add GPG key to apt keyring
+    action: shell wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -
+    tags: jenkins
+
+  - name: Jenkins | Add apt repository
+    action: copy src=$root/files/jenkins/apt-source dest=/etc/apt/sources.list.d/jenkins.list mode=644
+    tags: jenkins
+
+  - name: Jenkins | Install
+    action: apt update-cache=yes force=yes state=present pkg=jenkins
+    tags: jenkins

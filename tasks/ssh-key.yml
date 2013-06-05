@@ -1,0 +1,20 @@
+---
+  - name: SSH $ssh_user | Create $ssh_dir/.ssh directory
+    action: file dest=$ssh_dir/.ssh state=directory mode=700 owner=$ssh_user group=$ssh_group
+    tags: ssh
+
+  - name: SSH $ssh_user | Copy private key
+    action: copy src=$files_dir/$private_key dest=$ssh_dir/.ssh/$private_key mode=600 owner=$ssh_user group=$ssh_group
+    tags: ssh
+
+  - name: SSH $ssh_user | Copy public key
+    action: copy src=$files_dir/$public_key dest=$ssh_dir/.ssh/$public_key mode=644 owner=$ssh_user group=$ssh_group
+    tags: ssh
+
+  - name: SSH $ssh_user | Touch known_hosts
+    action: command touch $ssh_dir/.ssh/known_hosts
+    tags: ssh
+
+  - name: SSH $ssh_user | Set permission known_hosts
+    action: file path=$ssh_dir/.ssh/known_hosts mode=644 state=file owner=$ssh_user group=$ssh_group
+    tags: ssh

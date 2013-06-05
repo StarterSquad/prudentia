@@ -1,0 +1,8 @@
+---
+  - name: Ruby | Install 1.8
+    action: apt update-cache=yes pkg=ruby1.8 state=present
+    tags: ruby
+
+  - name: Ruby | Install RubyGems
+    action: apt update-cache=yes pkg=rubygems state=present
+    tags: ruby

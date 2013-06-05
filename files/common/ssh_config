@@ -1,0 +1,19 @@
+Host sa.github.com
+HostName github.com
+User git
+IdentityFile ~/.ssh/id_rsa_sa
+
+Host ui.github.com
+HostName github.com
+User git
+IdentityFile ~/.ssh/id_rsa_ui
+
+Host orchy.github.com
+HostName github.com
+User git
+IdentityFile ~/.ssh/id_rsa_orchy
+
+Host worky.github.com
+HostName github.com
+User git
+IdentityFile ~/.ssh/id_rsa_worky
