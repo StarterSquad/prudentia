@@ -7,7 +7,7 @@ then
 fi
 
 OS=$(uname -s)
-ANSIBLE_VER=1.1
+ANSIBLE_VERSION=1.1
 
 if [[ "${OS}" == *Linux* ]]
 then
@@ -55,12 +55,12 @@ then
         fi
 
         cd /tmp
-        git clone git://github.com/ansible/ansible.git -b release${ANSIBLE_VER}
+        git clone git://github.com/ansible/ansible.git -b release${ANSIBLE_VERSION}
         cd ansible
 
         make install
 
         echo ""
-        echo "Ansible ${ANSIBLE_VER} installed correctly."
+        echo "Ansible ${ANSIBLE_VERSION} installed correctly."
     fi
 fi

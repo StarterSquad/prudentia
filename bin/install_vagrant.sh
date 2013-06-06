@@ -7,6 +7,7 @@ then
 fi
 
 OS=$(uname -s)
+VAGRANT_VERSION=1.2.2
 
 if [[ "${OS}" == *Linux* ]]
 then
@@ -21,11 +22,12 @@ then
     fi
 elif [[ "${OS}" == *Darwin* ]]
 then
-    if [[ -z "$( which VirtualBox )" ]] 
+    if [[ -z "$( which VirtualBox )" ]]
     then
-        curl http://download.virtualbox.org/virtualbox/4.1.24/VirtualBox-4.1.24-82872-OSX.dmg -o VirtualBox.dmg
-        hdid VirtualBox.dmg
+        curl http://download.virtualbox.org/virtualbox/4.2.12/VirtualBox-4.2.12-84980-OSX.dmg -o VirtualBox.dmg
+        hdiutil attach VirtualBox.dmg
         sudo installer -pkg /Volumes/VirtualBox/VirtualBox.pkg -target /
+        hdiutil detach /Volumes/VirtualBox
         rm VirtualBox.dmg
     fi
 fi
@@ -38,9 +40,9 @@ if [[ "${OS}" == *Linux* ]]
 then
     if [ -z "$( which vagrant )" ]
     then
-        wget http://files.vagrantup.com/packages/476b19a9e5f499b5d0b9d4aba5c0b16ebe434311/vagrant_x86_64.deb
-        sudo dpkg -i vagrant_x86_64.deb
-        rm vagrant_x86_64.deb
+        wget http://files.vagrantup.com/packages/7e400d00a3c5a0fdf2809c8b5001a035415a607b/vagrant_${VAGRANT_VERSION}_x86_64.deb -O vagrant.deb
+        sudo dpkg -i vagrant.deb
+        rm vagrant.deb
 
         sudo ln -s /opt/vagrant/bin/vagrant /usr/bin/vagrant
     fi
@@ -49,33 +51,19 @@ elif [[ "${OS}" == *Darwin* ]]
 then
     if [ -z "$( which Vagrant )" ]
     then
-        curl http://files.vagrantup.com/packages/476b19a9e5f499b5d0b9d4aba5c0b16ebe434311/Vagrant.dmg -o Vagrant.dmg
-        hdid Vagrant.dmg
+        curl http://files.vagrantup.com/packages/7e400d00a3c5a0fdf2809c8b5001a035415a607b/Vagrant-${VAGRANT_VERSION}.dmg -o Vagrant.dmg
+        hdiutil attach Vagrant.dmg
+        sudo /Volumes/Vagrant/uninstall.tool
         sudo installer -pkg /Volumes/Vagrant/Vagrant.pkg -target /
+        hdiutil detach /Volumes/Vagrant
         rm Vagrant.dmg
+    else
+        vagrant -v
     fi
-    VAGRANT_EXE="Vagrant"
+    VAGRANT_EXE="vagrant"
 fi
 
 echo -e "\nVagrant installed correctly.\n"
-
-if [ -z "$( ${VAGRANT_EXE} gem list | grep ansible )" ]; then
-    ${VAGRANT_EXE} gem install vagrant-ansible
-    wait $!
-
-    # TODO issue with vagrant-ansible in multi-vm environment
-    if [[ "${OS}" == *Linux* ]]
-    then
-        sed -i 's/#{forward}/#{ssh.port}/g' ~/.vagrant.d/gems/gems/vagrant-ansible-0.0.5/lib/vagrant-ansible/provisioner.rb
-    elif [[ "${OS}" == *Darwin* ]]
-    then
-        sed -i '' 's/#{forward}/#{ssh.port}/g' ~/.vagrant.d/gems/gems/vagrant-ansible-0.0.5/lib/vagrant-ansible/provisioner.rb
-    fi
-
-    echo -e "\nVagrant-Ansible module installed correctly.\n"
-fi
-
-${VAGRANT_EXE} gem update
 
 DEFAULT_BOX_NAME="precise_base"
 if [ -z "$( vagrant box list | grep ${DEFAULT_BOX_NAME} )" ]; then
