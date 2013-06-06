@@ -6,7 +6,7 @@
     tags: update
 
   - name: Database | Copy run script
-    action: copy src=$root/components/database/files/run.sh dest=$install_dir/run.sh mode=744
+    action: copy src=$root/components/database/files/upgrade.sh dest=$install_dir/upgrade.sh mode=744
     tags: update
 
   - name: Database | Copy SQL files
@@ -16,7 +16,7 @@
     tags: update
 
   - name: Database | Run SQL files
-    action: command ./run.sh $database_user $database_pwd $database_host chdir=$install_dir
+    action: command ./upgrade.sh $database_user $database_pwd $database_host chdir=$install_dir
     tags: update
 
   - name: Database | Copy dump
