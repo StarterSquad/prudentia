@@ -1,7 +1,7 @@
 ---
   # Parameters:
   #  $root_password
-  #  $root_dir
+  #  $prudentia_dir
 
   - name: MySQL | Check if installed
     action: shell [ -f /usr/bin/mysql ] && echo 'found!' || echo ''
@@ -24,7 +24,7 @@
     sudo: yes
 
   - name: MySQL | Copy configuration file
-    action: copy src=$root_dir/files/mysql/my.cnf dest=/etc/mysql/my.cnf backup=yes
+    action: copy src=$prudentia_dir/files/mysql/my.cnf dest=/etc/mysql/my.cnf backup=yes
     register: mysql_conf_changed
     tags: mysql
     sudo: yes

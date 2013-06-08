@@ -1,9 +1,9 @@
 ---
   # Parameters:
-  #  $root_dir
+  #  $prudentia_dir
   #  $ssh_dir
   
-  - include: $root_dir/tasks/git.yml
+  - include: $prudentia_dir/tasks/git.yml
 
     # If known_hosts does not exists, make sure to use the ssh_key task
   - name: GitHub | Read known_hosts content

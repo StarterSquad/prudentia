@@ -17,6 +17,7 @@
     action: get_url url=http://scalasbt.artifactoryonline.com/scalasbt/sbt-native-packages/org/scala-sbt/sbt/0.12.1/sbt.deb dest=/opt/sbt.0.12.1.deb
     only_if: " '${sbt_present.stdout}' == '' "
     tags: sbt
+    sudo: yes
 
   - name: SBT | Install
     action: command dpkg -i /opt/sbt.0.12.1.deb

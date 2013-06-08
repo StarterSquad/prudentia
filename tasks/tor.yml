@@ -1,6 +1,6 @@
 ---
   # Parameters:
-  #  $root_dir
+  #  $prudentia_dir
 
   - name: Tor | Check if installed
     action: shell [ -f /usr/sbin/tor ] && echo 'found!' || echo ''
@@ -8,7 +8,7 @@
     tags: tor
 
   - name: Tor | Add apt repository
-    action: copy src=$root_dir/components/worky/files/tor-apt-source dest=/etc/apt/sources.list.d/tor.list mode=644
+    action: copy src=$prudentia_dir/components/worky/files/tor-apt-source dest=/etc/apt/sources.list.d/tor.list mode=644
     only_if: " '${tor_present.stdout}' == '' "
     tags: tor
     sudo: yes

@@ -25,3 +25,7 @@
   - name: SSH $ssh_user | Set permission known_hosts
     file: path=$ssh_dir/.ssh/known_hosts mode=644 state=file owner=$ssh_user group=$ssh_group
     tags: ssh
+
+#  - name: SSH $ssh_user | Copy multi-repository configuration
+#    action: copy src=$files_dir/ssh_config dest=$ssh_dir/.ssh/config
+#    tags: ssh
