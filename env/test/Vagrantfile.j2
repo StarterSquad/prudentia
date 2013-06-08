@@ -1,75 +1,25 @@
-require 'vagrant-ansible'
+Vagrant.configure("2") do |config|
 
-Vagrant::Config.run do |config|
+    config.vm.define :{{box_name}} do |box|
+        box.vm.box = "precise_base"
+        box.vm.hostname = "box"
 
-    config.vm.define :fe_dev do |fe_dev|
-        fe_dev.vm.box = "precise_base"
-        fe_dev.vm.host_name = "fe-dev"
+        box.ssh.port = 3337
+        box.vm.network :forwarded_port, guest: 22, host: 3337
+        box.vm.network :private_network, ip: "10.20.30.40"
 
-        fe_dev.ssh.port = 3337
-        fe_dev.vm.forward_port  22, 3337
-        fe_dev.vm.network :hostonly, "10.20.30.40"
+        box.vm.provider :virtualbox do |vb|
+            vb.customize ["modifyvm", :id, "--memory", "1024"]
+            vb.customize ["modifyvm", :id, "--vtxvpid", "off"]
+            vb.customize ["modifyvm", :id, "--cpus", "1"]
+        end
 
-        fe_dev.vm.share_folder "hubskip-ui", "/home/vagrant/hubskip-ui", "{{hubskip_ui_dir}}"
-
-        fe_dev.vm.customize ["modifyvm", :id, "--memory", "1024"]
-        fe_dev.vm.customize ["modifyvm", :id, "--vtxvpid", "off"]
-        fe_dev.vm.customize ["modifyvm", :id, "--cpus", "1"]
-
-        fe_dev.vm.provision :ansible do |ansible|
-            ansible.playbook = "boxes/fe_dev.yml"
-            ansible.hosts = "fe_dev"
-
-            ansible.options = '--extra-vars="user=vagrant"', '-vv'
+        box.vm.provision :ansible do |ansible|
+            ansible.playbook = "{{ansible_playbook_path}}"
+            ansible.inventory_file = "{{ansible_hosts_path}}"
+            ansible.extra_vars = { user: "vagrant", prudentia_dir: "{{prudentia_root_dir}}" }
+            ansible.verbose = true
         end
     end
-    
-    config.vm.define :fe_be_dev do |fe_be_dev|
-        fe_be_dev.vm.box = "precise_base"
-        fe_be_dev.vm.host_name = "fe-be-dev"
 
-        fe_be_dev.ssh.port = 3340
-        fe_be_dev.vm.forward_port  22, 3340
-        fe_be_dev.vm.network :hostonly, "10.20.30.42"
-
-        fe_be_dev.vm.share_folder "hubskip-ui", "/home/vagrant/hubskip-ui", "{{hubskip_ui_dir}}"
-        fe_be_dev.vm.share_folder "search-api", "/home/vagrant/search-api", "{{search_api_dir}}"
-        fe_be_dev.vm.share_folder "home_dir", "{{home_dir}}", "{{home_dir}}"
-
-        fe_be_dev.vm.customize ["modifyvm", :id, "--memory", "1024"]
-        fe_be_dev.vm.customize ["modifyvm", :id, "--vtxvpid", "off"]
-        fe_be_dev.vm.customize ["modifyvm", :id, "--cpus", "1"]
-
-        fe_be_dev.vm.provision :ansible do |ansible|
-            ansible.playbook = "boxes/fe_be_dev.yml"
-            ansible.hosts = "fe_be_dev"
-
-            ansible.options = '--extra-vars="user=vagrant"', '-vv'
-        end
-    end
-    
-    config.vm.define :scraper_dev do |scraper_dev|
-        scraper_dev.vm.box = "precise_base"
-        scraper_dev.vm.host_name = "scraper-dev"
-
-        scraper_dev.ssh.port = 3342
-        scraper_dev.vm.forward_port  22, 3342
-        scraper_dev.vm.network :hostonly, "10.20.30.44"
-
-        scraper_dev.vm.share_folder "hubscraper-worker", "/home/vagrant/hubscraper-worker", "{{hubscraper_worker_dir}}"
-        scraper_dev.vm.share_folder "hubscraper-orchestrator", "/home/vagrant/hubscraper-orchestrator", "{{hubscraper_orchestrator_dir}}"
-        scraper_dev.vm.share_folder "home_dir", "{{home_dir}}", "{{home_dir}}"
-
-        scraper_dev.vm.customize ["modifyvm", :id, "--memory", "1024"]
-        scraper_dev.vm.customize ["modifyvm", :id, "--vtxvpid", "off"]
-        scraper_dev.vm.customize ["modifyvm", :id, "--cpus", "1"]
-
-        scraper_dev.vm.provision :ansible do |ansible|
-            ansible.playbook = "boxes/scraper_dev.yml"
-            ansible.hosts = "scraper_dev"
-
-            ansible.options = '--extra-vars="user=vagrant"', '-vv'
-        end
-    end
-    
 end

@@ -1,5 +1,5 @@
 import readline
-import rlcompleter
+
 if 'libedit' in readline.__doc__:
     readline.parse_and_bind("bind ^I rl_complete")
 else:
@@ -9,26 +9,26 @@ import cmd
 import logging
 import sys
 import traceback
+import os
+import re
 from datetime import datetime
 from subprocess import PIPE, Popen
 from threading  import Thread
-from jinja2 import  Environment, PackageLoader
+from jinja2 import  Environment, PackageLoader, meta
 
 class CLI(cmd.Cmd):
-    BOXES = ['fe_dev', 'fe_be_dev', 'scraper_dev']
-
     def setup(self):
-        self.prompt = '(Cli) '
+        self.prompt = '(Prudentia) '
         self.vagrant = Vagrant()
         # TODO install ansible and vagrant
 
 
     def complete_box_names(self, text, line, begidx, endidx):
         if not text:
-            completions = self.BOXES[:]
+            completions = self.vagrant.BOXES[:]
         else:
             completions = [f
-                           for f in self.BOXES
+                           for f in self.vagrant.BOXES
                            if f.startswith(text)
             ]
         return completions
@@ -39,7 +39,6 @@ class CLI(cmd.Cmd):
 
     def do_configure(self, line):
         self.vagrant.configure()
-
 
     def help_status(self):
         print "Show current boxes status\n"
@@ -112,25 +111,55 @@ class CLI(cmd.Cmd):
 
 
 class Vagrant:
+    CONF_FILE = 'Vagrantfile'
+
     def __init__(self):
         self.template_env = Environment(loader=PackageLoader('cli', '.'), auto_reload=True)
+        if not os.path.isfile(self.CONF_FILE):
+            print "\nPlease run 'configure' to create a valid %s\n" % self.CONF_FILE
+        else:
+            self.BOXES = self.find_current_boxes()
+
+    def find_current_boxes(self):
+        f = open(self.CONF_FILE, 'r')
+        text = f.read()
+        f.close()
+        pattern = re.compile("config\.vm\.define :(.*) do")
+
+        boxes = []
+        for match in pattern.finditer(text):
+            boxes.append(match.group(1))
+
+        print "\nBoxes found: %s\n" % boxes
+        return boxes
 
     def configure(self):
-        # TODO read those variables from the template
-        home = raw_input('Please enter the full path of your home directory: ')
-        parent = raw_input('Please enter the full path of the directory where you keep all your GitHub repositories: ')
-        ui = parent + '/hubskip-ui'
-        search_api = parent + '/search-api'
-        hubscraper_worker = parent + '/hubscraper-worker'
-        hubscraper_orchestrator = parent + '/hubscraper-orchestrator'
-        #
-        template = self.template_env.get_template('Vagrantfile.j2')
-        template.stream(hubskip_ui_dir=ui,
-            search_api_dir=search_api,
-            home_dir=home,
-            hubscraper_worker_dir=hubscraper_worker,
-            hubscraper_orchestrator_dir=hubscraper_orchestrator
-        ).dump('Vagrantfile')
+        # TODO should use partials to configure multiple boxes
+        # TODO the ip in the hosts file should match the private_network ip
+        env = self.template_env
+        template_name = self.CONF_FILE + '.j2'
+
+        template_source = env.loader.get_source(env, template_name)[0]
+        parsed_content = env.parse(template_source)
+        undeclared_variables = meta.find_undeclared_variables(parsed_content)
+
+        declared_variables = {}
+        for v in undeclared_variables:
+            if 'prudentia_root_dir' in v:
+                #find the root dir of prudentia
+                cwd = os.path.realpath(__file__)
+                components = cwd.split(os.sep)
+                prudentia_root_dir = str.join(os.sep, components[:components.index("prudentia") + 1])
+                declared_variables[v] = prudentia_root_dir
+            else:
+                var_value = raw_input('Please specify the %s: ' % v)
+                declared_variables[v] = var_value
+                if 'box_name' in v:
+                    # TODO for now only one box is handled
+                    self.BOXES = [var_value]
+
+        template = env.get_template(template_name)
+        template.stream(declared_variables).dump('Vagrantfile')
         print "\nVagrantfile created."
 
     def status(self):
@@ -207,4 +236,4 @@ if __name__ == "__main__":
 
     cli = CLI()
     cli.setup()
-    cli.cmdloop("\nWelcome to the Deployment Cli!\n")
+    cli.cmdloop()
