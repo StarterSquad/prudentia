@@ -1,15 +1,18 @@
 ---
   # Parameters:
-  #  {{root_dir}}
+  #  $root_dir
 
   - name: Jenkins | Add GPG key to apt keyring
     action: shell wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -
     tags: jenkins
+    sudo: yes
 
   - name: Jenkins | Add apt repository
-    action: copy src={{root_dir}}/files/jenkins/apt-source dest=/etc/apt/sources.list.d/jenkins.list mode=644
+    action: copy src=$root_dir/files/jenkins/apt-source dest=/etc/apt/sources.list.d/jenkins.list mode=644
     tags: jenkins
+    sudo: yes
 
   - name: Jenkins | Install
     action: apt update-cache=yes force=yes state=present pkg=jenkins
     tags: jenkins
+    sudo: yes

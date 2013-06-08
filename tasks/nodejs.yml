@@ -2,7 +2,9 @@
   - name: Node.js | Add apt repository
     action: apt_repository repo=ppa:chris-lea/node.js-legacy
     tags: nodejs
+    sudo: yes
 
   - name: Node.js | Install
     action: apt update-cache=yes force=yes state=present pkg=npm
     tags: nodejs
+    sudo: yes

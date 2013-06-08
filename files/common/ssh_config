@@ -1,9 +1,0 @@
-Host example1.github.com
-HostName github.com
-User git
-IdentityFile ~/.ssh/id_rsa_example1
-
-Host example2.github.com
-HostName github.com
-User git
-IdentityFile ~/.ssh/id_rsa_example2

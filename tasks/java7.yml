@@ -1,12 +1,23 @@
 ---
+  - name: Java 7 | Check if installed
+    action: shell [ -f /usr/bin/java ] && echo 'found!' || echo ''
+    register: java_present
+    tags: java
+
   - name: Java 7 | Add apt repository
     action: apt_repository repo=ppa:webupd8team/java
+    only_if: " '${java_present.stdout}' == '' "
     tags: java
+    sudo: yes
 
   - name: Java 7 | Accept the Oracle license before the installation
     action: shell echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+    only_if: " '${java_present.stdout}' == '' "
     tags: java
+    sudo: yes
 
   - name: Java 7 | Install
     action: apt update-cache=yes force=yes state=present pkg=oracle-java7-installer
+    only_if: " '${java_present.stdout}' == '' "
     tags: java
+    sudo: yes
