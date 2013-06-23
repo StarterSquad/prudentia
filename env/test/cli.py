@@ -27,10 +27,7 @@ class CLI(cmd.Cmd):
         if not text:
             completions = self.vagrant.BOXES[:]
         else:
-            completions = [f
-                           for f in self.vagrant.BOXES
-                           if f.startswith(text)
-            ]
+            completions = [f for f in self.vagrant.BOXES if f.startswith(text)]
         return completions
 
 
@@ -72,13 +69,14 @@ class CLI(cmd.Cmd):
         print "\nTook {0} seconds\n".format(diff.seconds)
 
 
-    def help_reload(self):
+    def help_restart(self):
         print "Reload the box\n"
 
-    def complete_reload(self, text, line, begidx, endidx):
+    def complete_restart(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
 
-    def do_reload(self, line):
+    def do_restart(self, line):
+        # will halt and the up the box
         self.vagrant.reload(line)
 
 
@@ -155,7 +153,7 @@ class Vagrant:
                 var_value = raw_input('Please specify the %s: ' % v)
                 declared_variables[v] = var_value
                 if 'box_name' in v:
-                    # TODO for now only one box is handled
+                    # TODO for now only one box is supported
                     self.BOXES = [var_value]
 
         template = env.get_template(template_name)
@@ -178,6 +176,7 @@ class Vagrant:
         self.action("halt", box_name)
 
     def destroy(self, box_name):
+        self.halt(box_name)
         self.action("destroy", "-f", box_name)
 
     def action(self, action, *args):
