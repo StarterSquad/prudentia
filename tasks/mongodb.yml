@@ -1,0 +1,18 @@
+---
+  # Parameters:
+  #  $prudentia_dir
+
+  - name: MongoDB | Add GPG key to apt keyring
+    action: shell apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+    tags: mongodb
+    sudo: yes
+
+  - name: MongoDB | Add apt repository
+    action: copy src=$prudentia_dir/files/mongodb/apt-source dest=/etc/apt/sources.list.d/mongodb.list mode=644
+    tags: mongodb
+    sudo: yes
+
+  - name: MongoDB | Install
+    action: apt update-cache=yes force=yes state=present pkg=mongodb-10gen
+    tags: jenkins
+    sudo: yes
