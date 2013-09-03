@@ -14,5 +14,5 @@
 
   - name: MongoDB | Install
     action: apt update-cache=yes force=yes state=present pkg=mongodb-10gen
-    tags: jenkins
+    tags: mongodb
     sudo: yes
