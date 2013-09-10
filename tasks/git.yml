@@ -1,5 +1,6 @@
 ---
   # Parameters:
+  #  $prudentia_dir
   #  $ssh_dir
 
   - name: Git | Install git-core

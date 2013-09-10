@@ -1,0 +1,14 @@
+---
+  # Parameters:
+  #  $prudentia_dir
+
+  - name: Ruby | Check if RVM is present
+    command: test -x /home/$user/.rvm/scripts/rvm
+    ignore_errors: yes
+    register: rvm_present
+    tags: ruby
+
+  - name: Ruby | Install last stable
+    shell: curl -L https://get.rvm.io | bash -s stable --ruby
+    when_failed: $rvm_present
+    tags: ruby

@@ -1,10 +1,21 @@
 ---
-  - name: Node.js | Add apt repository
-    action: apt_repository repo=ppa:chris-lea/node.js-legacy
-    tags: nodejs
-    sudo: yes
+  # Parameters:
+  #  $prudentia_dir
 
-  - name: Node.js | Install
-    action: apt update-cache=yes force=yes state=present pkg=npm
+  - name: Node.js | Check if is present
+    command: test -x /usr/bin/nodejs
+    ignore_errors: yes
+    register: nodejs_present
     tags: nodejs
+
+  - name: Node.js | Add apt repository
+    action: apt_repository repo=ppa:chris-lea/node.js
     sudo: yes
+    when_failed: $nodejs_present
+    tags: nodejs
+
+  - name: Node.js | Install last stable
+    action: apt update-cache=yes force=yes state=present pkg=nodejs
+    sudo: yes
+    when_failed: $nodejs_present
+    tags: nodejs
