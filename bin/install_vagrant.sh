@@ -61,7 +61,7 @@ else
     then
         echo ${CURRENT_VERSION}
     else
-        echo -e "Vagrant exists but we'll update it ...\n"
+        echo -e "Vagrant exists but we'll update it ... (and answer Yes to the next question)\n"
         install_vagrant
     fi
 fi
