@@ -23,6 +23,8 @@
       - python-software-properties
       - reptyr
       - htop
+      - curl
+      - build-essential
     sudo: yes
 
   - name: Common setup | Authorize keys
