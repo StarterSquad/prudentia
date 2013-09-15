@@ -7,7 +7,7 @@ then
 fi
 
 OS=$(uname -s)
-VAGRANT_VERSION=1.2.2
+VAGRANT_VERSION="1.3.1"
 
 if [[ "${OS}" == *Linux* ]]
 then
@@ -34,33 +34,36 @@ fi
 
 echo -e "\nVirtualbox installed correctly.\n"
 
-VAGRANT_EXE=""
-
-if [[ "${OS}" == *Linux* ]]
-then
-    if [ -z "$( which vagrant )" ]
+function install_vagrant {
+   if [[ "${OS}" == *Linux* ]]
     then
-        wget http://files.vagrantup.com/packages/7e400d00a3c5a0fdf2809c8b5001a035415a607b/vagrant_${VAGRANT_VERSION}_x86_64.deb -O vagrant.deb
+        wget http://files.vagrantup.com/packages/b12c7e8814171c1295ef82416ffe51e8a168a244/vagrant_${VAGRANT_VERSION}_x86_64.deb -O vagrant.deb
         sudo dpkg -i vagrant.deb
         rm vagrant.deb
-
         sudo ln -s /opt/vagrant/bin/vagrant /usr/bin/vagrant
-    fi
-    VAGRANT_EXE="vagrant"
-elif [[ "${OS}" == *Darwin* ]]
-then
-    if [ -z "$( which Vagrant )" ]
+    elif [[ "${OS}" == *Darwin* ]]
     then
-        curl http://files.vagrantup.com/packages/7e400d00a3c5a0fdf2809c8b5001a035415a607b/Vagrant-${VAGRANT_VERSION}.dmg -o Vagrant.dmg
+        curl http://files.vagrantup.com/packages/b12c7e8814171c1295ef82416ffe51e8a168a244/Vagrant-${VAGRANT_VERSION}.dmg -o Vagrant.dmg
         hdiutil attach Vagrant.dmg
         sudo /Volumes/Vagrant/uninstall.tool
         sudo installer -pkg /Volumes/Vagrant/Vagrant.pkg -target /
         hdiutil detach /Volumes/Vagrant
         rm Vagrant.dmg
-    else
-        vagrant -v
     fi
-    VAGRANT_EXE="vagrant"
+}
+
+if [ -z "$( which vagrant )" ]
+then
+    install_vagrant
+else
+    CURRENT_VERSION=$(vagrant -v)
+    if [ "${CURRENT_VERSION}" == "Vagrant ${VAGRANT_VERSION}" ]
+    then
+        echo ${CURRENT_VERSION}
+    else
+        echo -e "Vagrant exists but we'll update it ...\n"
+        install_vagrant
+    fi
 fi
 
 echo -e "\nVagrant installed correctly.\n"
@@ -71,6 +74,6 @@ if [ -z "$( vagrant box list | grep ${DEFAULT_BOX_NAME} )" ]; then
 
     if [ "${answer}" = "y" ]; then
         # http://www.vagrantbox.es/
-        ${VAGRANT_EXE} box add ${DEFAULT_BOX_NAME} http://files.vagrantup.com/precise64.box
+        vagrant box add ${DEFAULT_BOX_NAME} http://files.vagrantup.com/precise64.box
     fi
 fi
