@@ -44,6 +44,18 @@ class CLI(cmd.Cmd):
         self.vagrant.status()
 
 
+    def help_phoenix(self):
+        print "Destroys and recreates the box\n"
+
+    def complete_phoenix(self, text, line, begidx, endidx):
+        return self.complete_box_names(text, line, begidx, endidx)
+
+    def do_phoenix(self, line):
+        self.do_destroy(line)
+        self.do_up(line)
+        self.do_provision(line)
+
+
     def help_up(self):
         print "Starts the box\n"
 
