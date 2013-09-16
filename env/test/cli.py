@@ -192,6 +192,8 @@ class Vagrant:
 
     def action(self, tags, action, *args):
         cmd = BashCmd("vagrant", action, *args)
+        # for debugging
+        # cmd.set_env_var("VAGRANT_LOG", "INFO")
         if tags:
             cmd.set_env_var("TAGS", tags)
         cmd.execute()

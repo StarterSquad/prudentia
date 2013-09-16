@@ -20,7 +20,7 @@ Vagrant.configure("2") do |config|
 
             extra_vars = {
                 user: "vagrant",
-                prudentia_dir: "/Users/tiziano/Development/Work-My/prudentia"
+                prudentia_dir: "{{prudentia_root_dir}}"
             }
             ansible.raw_arguments = "--extra-vars=" + extra_vars.map { |k,v| "#{k}=#{v}" }.join(" ")
             # ansible.extra_vars = extra_vars
