@@ -8,12 +8,16 @@ class BashCmd:
     def __init__(self, *cmd_args):
         self.cmd_args = cmd_args
         self.env = os.environ.copy()
+        self.cwd = os.getcwd()
         self.output_stdout = []
         self.output_stderr = []
         self.ON_POSIX = 'posix' in sys.builtin_module_names
 
     def set_env_var(self, var, value):
         self.env[var] = value
+
+    def set_cwd(self, cwd):
+        self.cwd = cwd
 
     def print_output(self, out, err):
         for line in iter(out.readline, b''):
@@ -26,7 +30,7 @@ class BashCmd:
 
     def execute(self):
         try:
-            p = Popen(args=self.cmd_args, bufsize=1, stdout=PIPE, stderr=PIPE, close_fds=self.ON_POSIX, env=self.env)
+            p = Popen(args=self.cmd_args, bufsize=1, stdout=PIPE, stderr=PIPE, close_fds=self.ON_POSIX, env=self.env, cwd=self.cwd)
             t = Thread(target=self.print_output, args=(p.stdout, p.stderr))
             t.daemon = True # thread dies with the program
             t.start()
