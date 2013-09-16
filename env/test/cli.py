@@ -45,40 +45,35 @@ class CLI(cmd.Cmd):
 
 
     def help_phoenix(self):
-        print "Destroys and recreates the box\n"
+        print "Destroys and re-provisions the box\n"
 
     def complete_phoenix(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_phoenix(self, line):
         self.do_destroy(line)
-        self.do_up(line)
         self.do_provision(line)
 
 
-    def help_up(self):
-        print "Starts the box\n"
-
-    def complete_up(self, text, line, begidx, endidx):
-        return self.complete_box_names(text, line, begidx, endidx)
-
-    def do_up(self, line):
-        self.vagrant.up(line)
-
-
     def help_provision(self):
-        print "Provisions the box\n"
+        print "Starts and provisions the box\n"
 
     def complete_provision(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_provision(self, line):
-        # TODO provision <box_name> <comma separated tags> (does up if the box is not running)
-        start = datetime.now()
-        self.vagrant.provision(line)
-        end = datetime.now()
-        diff = end - start
-        print "\nTook {0} seconds\n".format(diff.seconds)
+        self.vagrant.up(line)
+        self.vagrant.provision(line, None)
+
+
+    def help_update(self):
+        print "Provisions the box with only updates\n"
+
+    def complete_update(self, text, line, begidx, endidx):
+        return self.complete_box_names(text, line, begidx, endidx)
+
+    def do_update(self, line):
+        self.vagrant.provision(line, 'update')
 
 
     def help_restart(self):
@@ -116,7 +111,7 @@ class CLI(cmd.Cmd):
         print "\n\nExiting ..."
         return True
 
-    def emptyline(self):
+    def emptyline(self, *args, **kwargs):
         return ""
 
 
@@ -173,26 +168,32 @@ class Vagrant:
         print "\nVagrantfile created."
 
     def status(self):
-        self.action("status")
+        self.action(None, "status")
 
-    def provision(self, box_name):
-        self.action("provision", box_name)
+    def provision(self, box_name, tags):
+        start = datetime.now()
+        self.action(tags, "provision", box_name)
+        end = datetime.now()
+        diff = end - start
+        print "Took {0} seconds\n".format(diff.seconds)
 
     def up(self, box_name):
-        self.action("up", "--no-provision", box_name)
+        self.action(None, "up", "--no-provision", box_name)
 
     def reload(self, box_name):
-        self.action("reload", "--no-provision", box_name)
+        self.action(None, "reload", "--no-provision", box_name)
 
     def halt(self, box_name):
-        self.action("halt", box_name)
+        self.action(None, "halt", box_name)
 
     def destroy(self, box_name):
         self.halt(box_name)
-        self.action("destroy", "-f", box_name)
+        self.action(None, "destroy", "-f", box_name)
 
-    def action(self, action, *args):
+    def action(self, tags, action, *args):
         cmd = BashCmd("vagrant", action, *args)
+        if tags:
+            cmd.set_env_var("TAGS", tags)
         cmd.execute()
         if not cmd.isOk():
             print "ERROR while running: {0}".format(cmd.cmd_args)
@@ -201,9 +202,13 @@ class Vagrant:
 class BashCmd:
     def __init__(self, *cmd_args):
         self.cmd_args = cmd_args
+        self.env = os.environ.copy()
         self.output_stdout = []
         self.output_stderr = []
         self.ON_POSIX = 'posix' in sys.builtin_module_names
+
+    def set_env_var(self, var, value):
+        self.env[var] = value
 
     def print_output(self, out, err):
         for line in iter(out.readline, b''):
@@ -216,7 +221,7 @@ class BashCmd:
 
     def execute(self):
         try:
-            p = Popen(args=self.cmd_args, bufsize=1, stdout=PIPE, stderr=PIPE, close_fds=self.ON_POSIX)
+            p = Popen(args=self.cmd_args, bufsize=1, stdout=PIPE, stderr=PIPE, close_fds=self.ON_POSIX, env=self.env)
             t = Thread(target=self.print_output, args=(p.stdout, p.stderr))
             t.daemon = True # thread dies with the program
             t.start()

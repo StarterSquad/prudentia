@@ -16,9 +16,17 @@ Vagrant.configure("2") do |config|
 
         box.vm.provision :ansible do |ansible|
             ansible.playbook = "{{ansible_playbook_path}}"
-            ansible.inventory_file = "{{ansible_hosts_path}}"
-            ansible.extra_vars = { user: "vagrant", prudentia_dir: "{{prudentia_root_dir}}" }
+            ansible.inventory_path = "{{ansible_hosts_path}}"
+
+            extra_vars = {
+                user: "vagrant",
+                prudentia_dir: "/Users/tiziano/Development/Work-My/prudentia"
+            }
+            ansible.raw_arguments = "--extra-vars=" + extra_vars.map { |k,v| "#{k}=#{v}" }.join(" ")
+            # ansible.extra_vars = extra_vars
+
             ansible.verbose = true
+            ansible.tags = ENV['TAGS']
         end
     end
 
