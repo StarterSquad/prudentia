@@ -4,7 +4,7 @@ Prudentia (often associated with wisdom) is the ability to govern and discipline
 
 Operationally talking when deploying and orchestrating systems, prudence is used in the sense of reluctance to take risks.
 
-Our CLI learns (knowledge) and reasons (judge) about components or services within a specific architecture or environment.
+Our CLI learns (knowledge) and reasons (judge) about components or services within a specific architecture.
 
 
 # What can you do with it for now?

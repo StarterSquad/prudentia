@@ -3,3 +3,7 @@ id_rsa*
 *.pub
 Vagrantfile
 .vagrant
+.DS_Store
+.idea
+*.pyc
+*.pyc
