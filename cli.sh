@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PRJ_DIR="$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
-cd ${PRJ_DIR}
+cd ${PRJ_DIR}/env/test
 #echo 'Project directory: ' ${PRJ_DIR}
 
-python cli.py "$@" 2>&1
+python ../../src/cli.py "$@" 2>&1

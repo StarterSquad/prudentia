@@ -15,12 +15,6 @@ Our CLI learns (knowledge) and reasons (judge) about components or services with
 
     $ ./bin/install_vagrant.sh
 
-## Test provisioning
+## Provisioning the test environment
 
-Change your current directory in ./env/test and follow the other README :)
-
-## AWS Provisioning
-
-Change your current directory in ./env/aws and run:
-
-    $ ./deploy.sh
+    $ ./cli.sh
