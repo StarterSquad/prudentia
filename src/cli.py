@@ -8,20 +8,26 @@ import cmd
 from vagrant import Vagrant
 
 class CLI(cmd.Cmd):
+    boxes = None
+
     def setup(self):
         self.prompt = '(Prudentia) '
         self.vagrant = Vagrant()
-        if self.vagrant.BOXES:
-            print "\nCurrent boxes: %s\n" % ', '.join([b.name for b in self.vagrant.BOXES])
+        self.update_current_boxes()
+
+    def update_current_boxes(self):
+        if self.vagrant.boxes:
+            self.boxes = [b.name for b in self.vagrant.boxes]
+            print "\nCurrent boxes: %s\n" % ', '.join(self.boxes)
         else:
             print "\nNo boxes found, add one using 'add_box'.\n"
 
 
     def complete_box_names(self, text, line, begidx, endidx):
         if not text:
-            completions = self.vagrant.BOXES[:]
+            completions = self.boxes[:]
         else:
-            completions = [f for f in self.vagrant.BOXES if f.startswith(text)]
+            completions = [f for f in self.boxes if f.startswith(text)]
         return completions
 
 
@@ -30,6 +36,18 @@ class CLI(cmd.Cmd):
 
     def do_add_box(self, line):
         self.vagrant.add_box()
+        self.update_current_boxes()
+
+    def help_remove_box(self):
+        print "Add a box.\n"
+
+    def complete_remove_box(self, text, line, begidx, endidx):
+        return self.complete_box_names(text, line, begidx, endidx)
+
+    def do_remove_box(self, line):
+        self.vagrant.remove_box(line)
+        self.update_current_boxes()
+
 
     def help_status(self):
         print "Show current boxes status.\n"

@@ -14,9 +14,8 @@ class Vagrant:
     VAGRANT_FILE_NAME = 'Vagrantfile'
     CONF_FILE = ENV_DIR + VAGRANT_FILE_NAME
 
-    BOXES = []
     BOXES_FILE = ENV_DIR + '.boxes'
-
+    boxes = []
 
     def __init__(self):
         cwd = os.path.realpath(__file__)
@@ -29,7 +28,7 @@ class Vagrant:
         f = None
         try:
             f = open(self.BOXES_FILE, 'r')
-            self.BOXES = pickle.load(f)
+            self.boxes = pickle.load(f)
         except IOError:
             pass
         finally:
@@ -40,31 +39,36 @@ class Vagrant:
         f = None
         try:
             f = open(self.BOXES_FILE, 'w')
-            pickle.dump(self.BOXES, f)
+            pickle.dump(self.boxes, f)
         except IOError:
             pass
         finally:
             if f:
                 f.close()
+        self.generate_vagrant_file()
 
-    def add_box(self):
+    def generate_vagrant_file(self):
         env = self.template_env
         template_name = self.VAGRANT_FILE_NAME + '.j2'
+        template = env.get_template(template_name)
+        template.stream({
+            'boxes': self.boxes,
+            'prudentia_root_dir': self.prudentia_root_dir
+        }).dump(self.CONF_FILE)
 
+    def add_box(self):
         vars = []
         for v in Box._fields:
             var_value = raw_input('Please enter the %s: ' % v)
             vars.append(var_value)
-
-        self.BOXES.append(Box._make(vars))
+        self.boxes.append(Box._make(vars))
         self.save_current_boxes()
-
-        template = env.get_template(template_name)
-        template.stream({
-            'boxes': self.BOXES,
-            'prudentia_root_dir': self.prudentia_root_dir
-        }).dump(self.CONF_FILE)
         print "\nBox added."
+
+    def remove_box(self, box_name):
+        self.boxes = [b for b in self.boxes if b.name != box_name]
+        self.save_current_boxes()
+        print "\nBox %s removed." % box_name
 
     def status(self):
         self.action(None, "status")
