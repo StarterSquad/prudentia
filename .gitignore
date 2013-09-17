@@ -7,3 +7,4 @@ Vagrantfile
 .idea
 *.pyc
 *.pyc
+.boxes

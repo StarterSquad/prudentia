@@ -1,33 +1,35 @@
 Vagrant.configure("2") do |config|
 
-    config.vm.define :{{box_name}} do |box|
-        box.vm.box = "precise_base"
-        box.vm.hostname = "box"
+    {% for b in boxes %}
+        config.vm.define :{{b.name}} do |box|
+            box.vm.box = "precise_base"
+            box.vm.hostname = "box"
 
-        box.ssh.port = 3337
-        box.vm.network :forwarded_port, guest: 22, host: 3337
-        box.vm.network :private_network, ip: "10.20.30.40"
+            box.ssh.port = 3337
+            box.vm.network :forwarded_port, guest: 22, host: 3337
+            box.vm.network :private_network, ip: "10.20.30.40"
 
-        box.vm.provider :virtualbox do |vb|
-            vb.customize ["modifyvm", :id, "--memory", "1024"]
-            vb.customize ["modifyvm", :id, "--vtxvpid", "off"]
-            vb.customize ["modifyvm", :id, "--cpus", "1"]
+            box.vm.provider :virtualbox do |vb|
+                vb.customize ["modifyvm", :id, "--memory", "1024"]
+                vb.customize ["modifyvm", :id, "--vtxvpid", "off"]
+                vb.customize ["modifyvm", :id, "--cpus", "1"]
+            end
+
+            box.vm.provision :ansible do |ansible|
+                ansible.playbook = "{{b.playbook}}"
+                ansible.inventory_path = "{{b.inventory}}"
+
+                extra_vars = {
+                    user: "vagrant",
+                    prudentia_dir: "{{prudentia_root_dir}}"
+                }
+                ansible.raw_arguments = "--extra-vars=" + extra_vars.map { |k,v| "#{k}=#{v}" }.join(" ")
+                # ansible.extra_vars = extra_vars
+
+                ansible.verbose = true
+                ansible.tags = ENV['TAGS']
+            end
         end
-
-        box.vm.provision :ansible do |ansible|
-            ansible.playbook = "{{ansible_playbook_path}}"
-            ansible.inventory_path = "{{ansible_hosts_path}}"
-
-            extra_vars = {
-                user: "vagrant",
-                prudentia_dir: "{{prudentia_root_dir}}"
-            }
-            ansible.raw_arguments = "--extra-vars=" + extra_vars.map { |k,v| "#{k}=#{v}" }.join(" ")
-            # ansible.extra_vars = extra_vars
-
-            ansible.verbose = true
-            ansible.tags = ENV['TAGS']
-        end
-    end
+    {% endfor %}
 
 end

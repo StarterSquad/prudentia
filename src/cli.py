@@ -21,21 +21,21 @@ class CLI(cmd.Cmd):
         return completions
 
 
-    def help_configure(self):
-        print "Configures environment\n"
+    def help_add_box(self):
+        print "Add a box.\n"
 
-    def do_configure(self, line):
-        self.vagrant.configure()
+    def do_add_box(self, line):
+        self.vagrant.add_box()
 
     def help_status(self):
-        print "Show current boxes status\n"
+        print "Show current boxes status.\n"
 
     def do_status(self, line):
         self.vagrant.status()
 
 
     def help_phoenix(self):
-        print "Destroys and re-provisions the box\n"
+        print "Destroys and re-provisions the box.\n"
 
     def complete_phoenix(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
@@ -46,7 +46,7 @@ class CLI(cmd.Cmd):
 
 
     def help_provision(self):
-        print "Starts and provisions the box\n"
+        print "Starts and provisions the box.\n"
 
     def complete_provision(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
@@ -57,7 +57,7 @@ class CLI(cmd.Cmd):
 
 
     def help_update(self):
-        print "Provisions the box with only updates\n"
+        print "Provisions the box with only updates.\n"
 
     def complete_update(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
@@ -67,7 +67,7 @@ class CLI(cmd.Cmd):
 
 
     def help_restart(self):
-        print "Reload the box\n"
+        print "Reload the box.\n"
 
     def complete_restart(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
@@ -78,7 +78,7 @@ class CLI(cmd.Cmd):
 
 
     def help_halt(self):
-        print "Stops the box\n"
+        print "Stops the box.\n"
 
     def complete_halt(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
@@ -88,7 +88,7 @@ class CLI(cmd.Cmd):
 
 
     def help_destroy(self):
-        print "Destroys the box\n"
+        print "Destroys the box.\n"
 
     def complete_destroy(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
@@ -98,7 +98,7 @@ class CLI(cmd.Cmd):
 
 
     def do_EOF(self, line):
-        print "\n\nExiting ..."
+        print "\n\nQuitting ..."
         return True
 
     def emptyline(self, *args, **kwargs):

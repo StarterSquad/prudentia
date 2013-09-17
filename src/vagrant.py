@@ -1,63 +1,75 @@
+from collections import namedtuple
+import pickle
 from datetime import datetime
 import os
-import re
-from jinja2 import meta
 from jinja2.environment import Environment
-from jinja2.loaders import PackageLoader
+from jinja2.loaders import FileSystemLoader
 from util import BashCmd
 
+Box = namedtuple('Box', ['name', 'playbook', 'inventory'])
+
 class Vagrant:
-    ENV_DIR = 'env/test'
-    CONF_FILE = ENV_DIR + '/Vagrantfile'
+    ENV_DIR = './env/test/'
+
+    VAGRANT_FILE_NAME = 'Vagrantfile'
+    CONF_FILE = ENV_DIR + VAGRANT_FILE_NAME
+
+    BOXES = []
+    BOXES_FILE = ENV_DIR + '.boxes'
+
 
     def __init__(self):
-        self.template_env = Environment(loader=PackageLoader('cli', '.'), auto_reload=True)
-        if not os.path.isfile(self.CONF_FILE):
-            print "\nPlease run 'configure' to create a valid %s\n" % self.CONF_FILE
-        else:
-            self.BOXES = self.find_current_boxes()
+        cwd = os.path.realpath(__file__)
+        components = cwd.split(os.sep)
+        self.prudentia_root_dir = str.join(os.sep, components[:components.index("prudentia") + 1])
+        self.template_env = Environment(loader=FileSystemLoader(self.ENV_DIR), auto_reload=True)
+        self.find_current_boxes()
 
     def find_current_boxes(self):
-        f = open(self.CONF_FILE, 'r')
-        text = f.read()
-        f.close()
-        pattern = re.compile("config\.vm\.define :(.*) do")
+        f = None
+        try:
+            f = open(self.BOXES_FILE, 'r')
+            self.BOXES = pickle.load(f)
+        except IOError:
+            pass
+        finally:
+            if f:
+                f.close()
 
-        boxes = []
-        for match in pattern.finditer(text):
-            boxes.append(match.group(1))
+        if self.BOXES:
+            print "\nBoxes found: %s\n" % [b.name for b in self.BOXES]
+        else:
+            print "\nNo boxes found, add one using 'add_box'.\n"
 
-        print "\nBoxes found: %s\n" % boxes
-        return boxes
+    def save_current_boxes(self):
+        f = None
+        try:
+            f = open(self.BOXES_FILE, 'w')
+            pickle.dump(self.BOXES, f)
+        except IOError:
+            pass
+        finally:
+            if f:
+                f.close()
 
-    def configure(self):
-        # TODO should use partials to configure multiple boxes
-        # TODO the ip in the hosts file should match the private_network ip
+    def add_box(self):
         env = self.template_env
-        template_name = self.CONF_FILE + '.j2'
+        template_name = self.VAGRANT_FILE_NAME + '.j2'
 
-        template_source = env.loader.get_source(env, template_name)[0]
-        parsed_content = env.parse(template_source)
-        undeclared_variables = meta.find_undeclared_variables(parsed_content)
+        vars = []
+        for v in Box._fields:
+            var_value = raw_input('Please enter the %s: ' % v)
+            vars.append(var_value)
 
-        declared_variables = {}
-        for v in undeclared_variables:
-            if 'prudentia_root_dir' in v:
-                #find the root dir of prudentia
-                cwd = os.path.realpath(__file__)
-                components = cwd.split(os.sep)
-                prudentia_root_dir = str.join(os.sep, components[:components.index("prudentia") + 1])
-                declared_variables[v] = prudentia_root_dir
-            else:
-                var_value = raw_input('Please specify the %s: ' % v)
-                declared_variables[v] = var_value
-                if 'box_name' in v:
-                    # TODO for now only one box is supported
-                    self.BOXES = [var_value]
+        self.BOXES.append(Box._make(vars))
+        self.save_current_boxes()
 
         template = env.get_template(template_name)
-        template.stream(declared_variables).dump('Vagrantfile')
-        print "\nVagrantfile created."
+        template.stream({
+            'boxes': self.BOXES,
+            'prudentia_root_dir': self.prudentia_root_dir
+        }).dump(self.CONF_FILE)
+        print "\nBox added."
 
     def status(self):
         self.action(None, "status")

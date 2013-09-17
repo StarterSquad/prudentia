@@ -7,14 +7,6 @@ Operationally talking when deploying and orchestrating systems, prudence is used
 Our CLI learns (knowledge) and reasons (judge) about components or services within a specific architecture.
 
 
-# What can you do with it for now?
+# Start the CLI
 
-## Install Ansible and Vagrant (and Virtual Box) for setting up a test environmet.
-
-    $ sudo ./bin/install_ansible.sh
-
-    $ ./bin/install_vagrant.sh
-
-## Provisioning the test environment
-
-    $ ./cli.sh
+    $ ./prudentia.py
