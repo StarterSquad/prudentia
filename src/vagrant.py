@@ -36,11 +36,6 @@ class Vagrant:
             if f:
                 f.close()
 
-        if self.BOXES:
-            print "\nBoxes found: %s\n" % [b.name for b in self.BOXES]
-        else:
-            print "\nNo boxes found, add one using 'add_box'.\n"
-
     def save_current_boxes(self):
         f = None
         try:

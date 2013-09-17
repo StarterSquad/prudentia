@@ -11,6 +11,10 @@ class CLI(cmd.Cmd):
     def setup(self):
         self.prompt = '(Prudentia) '
         self.vagrant = Vagrant()
+        if self.vagrant.BOXES:
+            print "\nCurrent boxes: %s\n" % ', '.join([b.name for b in self.vagrant.BOXES])
+        else:
+            print "\nNo boxes found, add one using 'add_box'.\n"
 
 
     def complete_box_names(self, text, line, begidx, endidx):
