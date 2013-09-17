@@ -1,11 +1,5 @@
 #!/bin/bash
 
-if [ "$(id -u)" == "0" ]
-then
-    echo "This script must NOT be run as root" 1>&2
-    exit 1
-fi
-
 OS=$(uname -s)
 VAGRANT_HASH="b12c7e8814171c1295ef82416ffe51e8a168a244"
 VAGRANT_VERSION="1.3.1"
@@ -33,7 +27,7 @@ then
     fi
 fi
 
-echo -e "\nVirtualbox installed correctly.\n"
+echo -e "Virtualbox is present"
 
 function install_vagrant {
    if [[ "${OS}" == *Linux* ]]
@@ -65,8 +59,6 @@ else
         install_vagrant
     fi
 fi
-
-echo -e "\nVagrant installed correctly.\n"
 
 DEFAULT_BOX_NAME="precise_base"
 if [ -z "$( vagrant box list | grep ${DEFAULT_BOX_NAME} )" ]; then
