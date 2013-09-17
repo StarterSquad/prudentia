@@ -1,19 +1,16 @@
 import readline
-from vagrant import Vagrant
-
 if 'libedit' in readline.__doc__:
     readline.parse_and_bind("bind ^I rl_complete")
 else:
     readline.parse_and_bind("tab: complete")
 
 import cmd
-import logging
+from vagrant import Vagrant
 
 class CLI(cmd.Cmd):
     def setup(self):
         self.prompt = '(Prudentia) '
         self.vagrant = Vagrant()
-        # TODO install ansible and vagrant
 
 
     def complete_box_names(self, text, line, begidx, endidx):
@@ -106,11 +103,3 @@ class CLI(cmd.Cmd):
 
     def emptyline(self, *args, **kwargs):
         return ""
-
-if __name__ == "__main__":
-    logging.basicConfig(format='%(asctime)s.%(msecs).03d [%(name)s] %(levelname)s: %(message)s',
-        datefmt='%d-%m-%Y %H:%M:%S', level=logging.INFO)
-
-    cli = CLI()
-    cli.setup()
-    cli.cmdloop()

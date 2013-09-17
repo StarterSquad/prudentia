@@ -7,7 +7,8 @@ from jinja2.loaders import PackageLoader
 from util import BashCmd
 
 class Vagrant:
-    CONF_FILE = 'Vagrantfile'
+    ENV_DIR = 'env/test'
+    CONF_FILE = ENV_DIR + '/Vagrantfile'
 
     def __init__(self):
         self.template_env = Environment(loader=PackageLoader('cli', '.'), auto_reload=True)
@@ -83,6 +84,7 @@ class Vagrant:
 
     def action(self, tags, action, *args):
         cmd = BashCmd("vagrant", action, *args)
+        cmd.set_cwd(self.ENV_DIR)
         # for debugging
         # cmd.set_env_var("VAGRANT_LOG", "INFO")
         if tags:
