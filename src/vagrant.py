@@ -6,7 +6,7 @@ from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 from util import BashCmd
 
-Box = namedtuple('Box', ['name', 'playbook', 'inventory'])
+Box = namedtuple('Box', ['name', 'playbook', 'ip'])
 
 class Vagrant:
     ENV_DIR = './env/test/'
