@@ -6,7 +6,8 @@ from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 from util import BashCmd
 
-Box = namedtuple('Box', ['name', 'playbook', 'ip'])
+Box = namedtuple('Box', ['name', 'playbook', 'ip', 'shares'])
+Share = namedtuple('Share', ['src', 'dst'])
 
 class Vagrant:
     ENV_DIR = './env/test/'
@@ -22,9 +23,9 @@ class Vagrant:
         components = cwd.split(os.sep)
         self.prudentia_root_dir = str.join(os.sep, components[:components.index("prudentia") + 1])
         self.template_env = Environment(loader=FileSystemLoader(self.ENV_DIR), auto_reload=True)
-        self.find_current_boxes()
+        self.load_current_boxes()
 
-    def find_current_boxes(self):
+    def load_current_boxes(self):
         f = None
         try:
             f = open(self.BOXES_FILE, 'r')
@@ -59,11 +60,26 @@ class Vagrant:
     def add_box(self):
         vars = []
         for v in Box._fields:
-            var_value = raw_input('Please enter the %s: ' % v)
-            vars.append(var_value)
-        self.boxes.append(Box._make(vars))
+            if v != 'shares':
+                var_value = raw_input('Please enter the %s: ' % v)
+                vars.append(var_value)
+            else:
+                shares = []
+                loop = True
+                while loop:
+                    ans = raw_input('Do you want to share a folder? [y/N] ')
+                    if ans.lower() in ('y', 'yes'):
+                        src = raw_input('-> enter the dir on the host machine: ')
+                        dst = raw_input('-> enter the dir on the guest machine: ')
+                        shares.append(Share(src, dst))
+                    else:
+                        vars.append(shares)
+                        loop = False
+
+        box = Box._make(vars)
+        self.boxes.append(box)
         self.save_current_boxes()
-        print "\nBox added."
+        print "\n%r added." % (box,)
 
     def remove_box(self, box_name):
         self.boxes = [b for b in self.boxes if b.name != box_name]
