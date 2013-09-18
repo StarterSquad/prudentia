@@ -91,7 +91,7 @@ class Vagrant:
             else:
                 loop = False
 
-        if name and playbook and ip and shares:
+        if name and playbook and ip:
             box = Box(name, playbook, ip, shares)
             self.boxes.append(box)
             self.save_current_boxes()

@@ -32,19 +32,19 @@ class CLI(cmd.Cmd):
 
 
     def help_add_box(self):
-        print "Add a box.\n"
+        print "Adds a box.\n"
 
     def do_add_box(self, line):
         self.vagrant.add_box()
         self.update_current_boxes()
 
-    def help_remove_box(self):
-        print "Add a box.\n"
+    def help_rm_box(self):
+        print "Removes a box.\n"
 
-    def complete_remove_box(self, text, line, begidx, endidx):
+    def complete_rm_box(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
 
-    def do_remove_box(self, line):
+    def do_rm_box(self, line):
         self.vagrant.remove_box(line)
         self.update_current_boxes()
 
