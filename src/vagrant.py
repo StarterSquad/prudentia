@@ -2,11 +2,13 @@ from collections import namedtuple
 import pickle
 from datetime import datetime
 import os
+import re
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 from util import BashCmd
 
-Box = namedtuple('Box', ['name', 'playbook', 'ip'])
+Box = namedtuple('Box', ['name', 'playbook', 'ip', 'shares'])
+Share = namedtuple('Share', ['src', 'dst'])
 
 class Vagrant:
     ENV_DIR = './env/test/'
@@ -17,14 +19,16 @@ class Vagrant:
     BOXES_FILE = ENV_DIR + '.boxes'
     boxes = []
 
+    box_name_pattern = re.compile('- hosts: (.*)')
+
     def __init__(self):
         cwd = os.path.realpath(__file__)
         components = cwd.split(os.sep)
         self.prudentia_root_dir = str.join(os.sep, components[:components.index("prudentia") + 1])
         self.template_env = Environment(loader=FileSystemLoader(self.ENV_DIR), auto_reload=True)
-        self.find_current_boxes()
+        self.load_current_boxes()
 
-    def find_current_boxes(self):
+    def load_current_boxes(self):
         f = None
         try:
             f = open(self.BOXES_FILE, 'r')
@@ -57,13 +61,43 @@ class Vagrant:
         }).dump(self.CONF_FILE)
 
     def add_box(self):
-        vars = []
-        for v in Box._fields:
-            var_value = raw_input('Please enter the %s: ' % v)
-            vars.append(var_value)
-        self.boxes.append(Box._make(vars))
-        self.save_current_boxes()
-        print "\nBox added."
+        playbook = raw_input('Specify the playbook path: ')
+
+        f = name = None
+        try:
+            f = open(playbook, 'r')
+            for i, line in enumerate(f):
+                if i == 1: # 2nd line contains the host name
+                    match = self.box_name_pattern.match(line)
+                    name = match.group(1)
+                elif i > 1:
+                    break
+        except Exception as e:
+            print 'There was a problem while reading %s: ' % playbook, e
+        finally:
+            if f:
+                f.close()
+
+        ip = raw_input('Specify an internal IP: ')
+
+        shares = []
+        loop = True
+        while loop:
+            ans = raw_input('Do you want to share a folder? [y/N] ')
+            if ans.lower() in ('y', 'yes'):
+                src = raw_input('-> enter the dir on the host machine: ')
+                dst = raw_input('-> enter the dir on the guest machine: ')
+                shares.append(Share(src, dst))
+            else:
+                loop = False
+
+        if name and playbook and ip and shares:
+            box = Box(name, playbook, ip, shares)
+            self.boxes.append(box)
+            self.save_current_boxes()
+            print "\n%r added." % (box,)
+        else:
+            print 'There was some problem while adding the box.'
 
     def remove_box(self, box_name):
         self.boxes = [b for b in self.boxes if b.name != box_name]
