@@ -1,8 +1,12 @@
 from collections import namedtuple
+from os.path import dirname
 import pickle
 from datetime import datetime
 import os
 import re
+from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
+from ansible.playbook import PlayBook
+from ansible.playbook.play import Play
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 from util import BashCmd
@@ -18,6 +22,7 @@ class Vagrant:
 
     BOXES_FILE = ENV_DIR + '.boxes'
     boxes = []
+    tags = {}
 
     box_name_pattern = re.compile('- hosts: (.*)')
 
@@ -33,11 +38,26 @@ class Vagrant:
         try:
             f = open(self.BOXES_FILE, 'r')
             self.boxes = pickle.load(f)
+            self.load_tags()
         except IOError:
             pass
         finally:
             if f:
                 f.close()
+
+    def load_tags(self):
+        for b in self.boxes:
+            playbook = PlayBook(
+                playbook=b.playbook,
+                host_list='./env/test/vagrant_ansible_inventory_' + b.name,
+                callbacks=DefaultRunnerCallbacks(),
+                runner_callbacks=DefaultRunnerCallbacks(),
+                stats=AggregateStats(),
+                extra_vars={'prudentia_dir':self.prudentia_root_dir}
+            )
+            play = Play(playbook, playbook.playbook[0], dirname(b.playbook))
+            (matched_tags, unmatched_tags) = play.compare_tags('')
+            self.tags.update({b.name: list(unmatched_tags)})
 
     def save_current_boxes(self):
         f = None
@@ -50,6 +70,7 @@ class Vagrant:
             if f:
                 f.close()
         self.generate_vagrant_file()
+        self.load_tags()
 
     def generate_vagrant_file(self):
         env = self.template_env
