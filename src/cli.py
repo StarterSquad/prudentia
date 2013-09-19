@@ -21,7 +21,7 @@ class CLI(cmd.Cmd):
         if self.vagrant.boxes:
             self.boxes = [b.name for b in self.vagrant.boxes]
             self.tags = self.vagrant.tags
-            print "\nCurrent boxes: %s" % ', '.join(self.boxes)
+            print "\nCurrent boxes: %s\n" % ', '.join(self.boxes)
         else:
             print "\nNo boxes found, add one using 'add_box'.\n"
 
@@ -31,7 +31,7 @@ class CLI(cmd.Cmd):
         action = tokens[0]
         box_name = tokens[1]
         if len(tokens) <= 2:
-            #box name completion
+            #boxes completion
             if not text:
                 completions = self.boxes[:]
             else:
