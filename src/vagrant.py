@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 import re
 from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
+from ansible.inventory import Inventory
 from ansible.playbook import PlayBook
 from ansible.playbook.play import Play
 from jinja2.environment import Environment
@@ -49,7 +50,7 @@ class Vagrant:
         for b in self.boxes:
             playbook = PlayBook(
                 playbook=b.playbook,
-                host_list='./env/test/vagrant_ansible_inventory_' + b.name,
+                inventory=Inventory([]),
                 callbacks=DefaultRunnerCallbacks(),
                 runner_callbacks=DefaultRunnerCallbacks(),
                 stats=AggregateStats(),

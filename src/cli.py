@@ -22,7 +22,6 @@ class CLI(cmd.Cmd):
             self.boxes = [b.name for b in self.vagrant.boxes]
             self.tags = self.vagrant.tags
             print "\nCurrent boxes: %s" % ', '.join(self.boxes)
-            print "Current tags: %s\n" % self.tags
         else:
             print "\nNo boxes found, add one using 'add_box'.\n"
 
