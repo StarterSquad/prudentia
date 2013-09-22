@@ -107,8 +107,8 @@ class CLI(cmd.Cmd):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_restart(self, line):
-        # will halt and the up the box
-        self.vagrant.reload(line)
+        self.vagrant.halt(line)
+        self.vagrant.up(line)
 
 
     def help_stop(self):
