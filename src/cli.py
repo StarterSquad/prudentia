@@ -95,7 +95,7 @@ class CLI(cmd.Cmd):
     def do_provision(self, line):
         tokens = line.split(' ')
         box_name = tokens[0]
-        tag = tokens[1] if tokens[1] else None
+        tag = tokens[1] if len(tokens) > 1 else None
         self.vagrant.up(box_name)
         self.vagrant.provision(box_name, tag)
 
