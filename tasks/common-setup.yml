@@ -31,9 +31,9 @@
     sudo: yes
     tags: common
 
-  - name: Common setup | Authorize keys
-    authorized_key: user=$user key='$FILE($item)'
-    with_items:
-      - $prudentia_dir/files/common/tiziano_mac-air.pub
-    only_if: "not $testing"
-    tags: common
+#  - name: Common setup | Authorize keys
+#    authorized_key: user=$user key='$FILE($item)'
+#    with_items:
+#      - $prudentia_dir/files/common/tiziano_mac-air.pub
+#    only_if: "not $testing"
+#    tags: common
