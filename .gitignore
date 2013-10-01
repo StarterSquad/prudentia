@@ -8,3 +8,4 @@ Vagrantfile
 .vagrant
 .boxes
 *inventory*
+venv
