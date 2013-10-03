@@ -20,13 +20,16 @@ class BashCmd:
         self.cwd = cwd
 
     def print_output(self, out, err):
-        for line in iter(out.readline, b''):
-            print line.strip()
-            self.output_stdout.append(line)
-        for line in iter(err.readline, b''):
-            print "ERR - ", line.strip()
-            self.output_stderr.append(line)
-        out.close()
+        try:
+            for line in iter(out.readline, b''):
+                print line.strip()
+                self.output_stdout.append(line)
+            for line in iter(err.readline, b''):
+                print "ERR - ", line.strip()
+                self.output_stderr.append(line)
+        finally:
+            out.close()
+            err.close()
 
     def execute(self):
         try:

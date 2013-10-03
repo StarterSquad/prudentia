@@ -137,10 +137,10 @@ class Vagrant:
         print "Took {0} seconds\n".format(diff.seconds)
 
     def up(self, box_name):
-        self.action(None, "up", box_name)
+        self.action(None, "up", "--no-provision", box_name)
 
     def reload(self, box_name):
-        self.action(None, "reload", box_name)
+        self.action(None, "reload", "--no-provision", box_name)
 
     def halt(self, box_name):
         self.action(None, "halt", box_name)
