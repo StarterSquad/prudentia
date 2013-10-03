@@ -6,12 +6,6 @@ Operationally talking when deploying and orchestrating systems, prudence is used
 
 Our CLI learns (knowledge) and reasons (judge) about components or services within a specific architecture.
 
-# Set up your environent
-
-1. install virtualenv
-2. $ source venv/bin/activate
-3. (venv)$ pip install -r requirements.txt
-
 # Start the CLI
 
-    (venv) $ python prudentia.py
+    $ ./prudentia.sh

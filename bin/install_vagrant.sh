@@ -21,7 +21,7 @@ then
     then
         curl -Lo VirtualBox.dmg http://download.virtualbox.org/virtualbox/4.2.12/VirtualBox-4.2.12-84980-OSX.dmg
         hdiutil attach VirtualBox.dmg
-        sudo /Volumes/VirtualBox/VirtualBox_Uninstall.tool
+        #sudo /Volumes/VirtualBox/VirtualBox_Uninstall.tool
         sudo installer -pkg /Volumes/VirtualBox/VirtualBox.pkg -target /
         hdiutil detach /Volumes/VirtualBox
         rm VirtualBox.dmg

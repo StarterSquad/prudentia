@@ -23,7 +23,7 @@ class CLI(cmd.Cmd):
             self.tags = self.vagrant.tags
             print "\nCurrent boxes: %s\n" % ', '.join(self.boxes)
         else:
-            print "\nNo boxes found, add one using 'add_box'.\n"
+            print "\nNo boxes found, add one using `add_box`.\n"
 
 
     def complete_box_names(self, text, line, begidx, endidx):
