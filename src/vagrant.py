@@ -127,35 +127,50 @@ class Vagrant:
         print "\nBox %s removed." % box_name
 
     def status(self):
-        self.action(None, "status")
+        output = self.action(action="status", output=False)
+        for box in self.boxes:
+            pattern = '.*' + box.name + '\s*(.*?) \(virtualbox\).*'
+            match = re.match(pattern, output, re.DOTALL)
+            status = match.group(1)
+            print "%s -> %r\n" % (status, box)
 
     def provision(self, box_name, tags):
         start = datetime.now()
-        self.action(tags, "provision", box_name)
+        self.action(action="provision", action_args=(box_name,), tags=tags)
         end = datetime.now()
         diff = end - start
         print "Took {0} seconds\n".format(diff.seconds)
 
     def up(self, box_name):
-        self.action(None, "up", "--no-provision", box_name)
+        self.action(action="up", action_args=("--no-provision", box_name))
 
     def reload(self, box_name):
-        self.action(None, "reload", "--no-provision", box_name)
+        self.action(action="reload", action_args=("--no-provision", box_name))
 
     def halt(self, box_name):
-        self.action(None, "halt", box_name)
+        self.action(action="halt", action_args=(box_name,))
 
     def destroy(self, box_name):
         self.halt(box_name)
-        self.action(None, "destroy", "-f", box_name)
+        self.action(action="destroy", action_args=("-f", box_name))
 
-    def action(self, tags, action, *args):
-        cmd = BashCmd("vagrant", action, *args)
+    def action(self, **kwargs):
+        if 'action_args' not in kwargs.keys():
+            cmd = BashCmd("vagrant", kwargs['action'])
+        else:
+            cmd = BashCmd("vagrant", kwargs['action'], *kwargs['action_args'])
+
         cmd.set_cwd(self.ENV_DIR)
+        if 'output' in kwargs.keys():
+            cmd.set_show_output(kwargs['output'])
+        if 'tags' in kwargs.keys():
+            cmd.set_env_var("TAGS", kwargs['tags'])
+
         # for debugging
         # cmd.set_env_var("VAGRANT_LOG", "INFO")
-        if tags:
-            cmd.set_env_var("TAGS", tags)
+
         cmd.execute()
         if not cmd.isOk():
             print "ERROR while running: {0}".format(cmd.cmd_args)
+        else:
+            return cmd.output()
