@@ -14,3 +14,4 @@
   - name: Python | Distribute setup
     shell: curl -O http://python-distribute.org/distribute_setup.py && /usr/bin/python2.7 distribute_setup.py
     sudo: yes
+    tags: python

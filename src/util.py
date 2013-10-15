@@ -9,6 +9,7 @@ class BashCmd:
         self.cmd_args = cmd_args
         self.env = os.environ.copy()
         self.cwd = os.getcwd()
+        self.show_output = True
         self.output_stdout = []
         self.output_stderr = []
         self.ON_POSIX = 'posix' in sys.builtin_module_names
@@ -19,14 +20,21 @@ class BashCmd:
     def set_cwd(self, cwd):
         self.cwd = cwd
 
+    def set_show_output(self, b):
+        self.show_output = b
+
     def print_output(self, out, err):
-        for line in iter(out.readline, b''):
-            print line.strip()
-            self.output_stdout.append(line)
-        for line in iter(err.readline, b''):
-            print "ERR - ", line.strip()
-            self.output_stderr.append(line)
-        out.close()
+        try:
+            for line in iter(out.readline, b''):
+                if self.show_output:
+                    print line.strip()
+                self.output_stdout.append(line)
+            for line in iter(err.readline, b''):
+                print "ERR - ", line.strip()
+                self.output_stderr.append(line)
+        finally:
+            out.close()
+            err.close()
 
     def execute(self):
         try:
@@ -53,3 +61,6 @@ class BashCmd:
             return True
         else:
             return False
+
+    def output(self):
+        return self.stdout

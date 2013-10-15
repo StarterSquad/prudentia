@@ -19,8 +19,9 @@ elif [[ "${OS}" == *Darwin* ]]
 then
     if [[ -z "$( which VirtualBox )" ]]
     then
-        curl http://download.virtualbox.org/virtualbox/4.2.12/VirtualBox-4.2.12-84980-OSX.dmg -o VirtualBox.dmg
+        curl -Lo VirtualBox.dmg http://download.virtualbox.org/virtualbox/4.2.12/VirtualBox-4.2.12-84980-OSX.dmg
         hdiutil attach VirtualBox.dmg
+        #sudo /Volumes/VirtualBox/VirtualBox_Uninstall.tool
         sudo installer -pkg /Volumes/VirtualBox/VirtualBox.pkg -target /
         hdiutil detach /Volumes/VirtualBox
         rm VirtualBox.dmg
@@ -37,7 +38,7 @@ function install_vagrant {
         rm vagrant.deb
     elif [[ "${OS}" == *Darwin* ]]
     then
-        curl http://files.vagrantup.com/packages/${VAGRANT_HASH}/Vagrant-${VAGRANT_VERSION}.dmg -o Vagrant.dmg
+        curl -Lo Vagrant.dmg http://files.vagrantup.com/packages/${VAGRANT_HASH}/Vagrant-${VAGRANT_VERSION}.dmg
         hdiutil attach Vagrant.dmg
         sudo /Volumes/Vagrant/uninstall.tool
         sudo installer -pkg /Volumes/Vagrant/Vagrant.pkg -target /

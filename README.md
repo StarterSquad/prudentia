@@ -6,7 +6,6 @@ Operationally talking when deploying and orchestrating systems, prudence is used
 
 Our CLI learns (knowledge) and reasons (judge) about components or services within a specific architecture.
 
-
 # Start the CLI
 
-    $ ./prudentia.py
+    $ ./prudentia.sh

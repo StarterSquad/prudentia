@@ -1,10 +1,11 @@
+.DS_Store
+.idea
 *.iml
 id_rsa*
 *.pub
+*.pyc
 Vagrantfile
 .vagrant
-.DS_Store
-.idea
-*.pyc
-*.pyc
 .boxes
+*inventory*
+p-env
