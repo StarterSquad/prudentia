@@ -15,7 +15,8 @@ class BashCmd:
         self.ON_POSIX = 'posix' in sys.builtin_module_names
 
     def set_env_var(self, var, value):
-        self.env[var] = value
+        if value:
+            self.env[var] = value
 
     def set_cwd(self, cwd):
         self.cwd = cwd
