@@ -2,6 +2,8 @@
   # Parameters:
   #  $prudentia_dir
 
+  - include: $prudentia_dir/tasks/java7.yml
+
   - name: Jenkins | Add GPG key to apt keyring
     action: shell wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -
     tags: jenkins
