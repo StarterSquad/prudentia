@@ -1,1 +1,1 @@
-deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen
+deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart/ dists/dist/10gen/binary-amd64/
