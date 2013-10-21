@@ -94,7 +94,7 @@ fi
 
 read -p "Enter the playbook that you want to run (leave it blank otherwise): " -e PLAYBOOK
 if [ -n "${PLAYBOOK}" ]; then
-    PLAYBOOK_FILE=boxes/${PLAYBOOK}.yml
+    PLAYBOOK_FILE=${PLAYBOOK}
     if [ ! -e ${PLAYBOOK_FILE} ]; then
         echo "Playbook not found!"
         exit 1
@@ -111,7 +111,7 @@ if [ -n "${PLAYBOOK}" ]; then
     done
 
     # grab host name from ansible playbook file
-    HOST=$(grep hosts ${AWS_DIR}/${PLAYBOOK_FILE} | cut -d':' -f 2 | tr -d ' ')
+    HOST=$(grep hosts ${PLAYBOOK_FILE} | cut -d':' -f 2 | tr -d ' ')
 
     # create a inventory file for ansible in /tmp
     INVENTORY=/tmp/host_${PUBLIC_IP}
@@ -120,7 +120,7 @@ if [ -n "${PLAYBOOK}" ]; then
     tmr=$(timer)
 
     echo -e "\nPlaying ${PLAYBOOK} on ${PUBLIC_IP} ..."
-    ${ANSIBLE_CMD} -i ${INVENTORY} ${PLAYBOOK_FILE} -u ubuntu --extra-vars="user=ubuntu" -vv &
+    ${ANSIBLE_CMD} -i ${INVENTORY} ${PLAYBOOK_FILE} -u ubuntu --extra-vars="user=ubuntu prudentia_dir=/Users/tiziano/Development/Work-My/prudentia" -vv &
     #  --extra-vars="user=ubuntu tags=conf" --tags='conf' -vv &
     wait ${!}
 
