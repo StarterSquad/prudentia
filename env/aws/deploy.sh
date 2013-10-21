@@ -146,11 +146,11 @@ if [ "${SNAPSHOT_IT}" = "y" ]; then
         ec2-stop-instances ${INSTANCE_ID}
 
         # wait till the instance is in state stopped
-        STOPPED_INSTANCE=$(ec2-describe-instances ${INSTANCE_ID} |grep stopped|awk '{print $4}')
+        STOPPED_INSTANCE=$(ec2-describe-instances ${INSTANCE_ID} |grep stopped|awk '{print $5}')
         while [ "${STOPPED_INSTANCE}" != "stopped" ]
         do
             echo "Waiting ${INSTANCE_ID} to be in state 'stopped' ..."
-            STOPPED_INSTANCE=$(ec2-describe-instances ${INSTANCE_ID} |grep stopped|awk '{print $4}')
+            STOPPED_INSTANCE=$(ec2-describe-instances ${INSTANCE_ID} |grep stopped|awk '{print $5}')
             sleep 20
         done
 
