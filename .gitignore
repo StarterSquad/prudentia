@@ -9,3 +9,4 @@ Vagrantfile
 .boxes
 *inventory*
 p-env
+credential
