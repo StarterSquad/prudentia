@@ -8,13 +8,13 @@ Vagrant.configure("2") do |config|
         box.vm.network :private_network, ip: "{{b.ip}}"
 
         box.vm.provider :virtualbox do |vb|
-            vb.customize ["modifyvm", :id, "--memory", "1024"]
+            vb.customize ["modifyvm", :id, "--memory", "{{ b.mem }}"]
             vb.customize ["modifyvm", :id, "--vtxvpid", "off"]
             vb.customize ["modifyvm", :id, "--cpus", "1"]
         end
 
         {% for s in b.shares %}
-        config.vm.synced_folder "{{s.src}}", "{{s.dst}}"
+        config.vm.synced_folder "{{ s.src }}", "{{ s.dst }}"
         {% endfor %}
 
         box.vm.provision :ansible do |ansible|

@@ -12,7 +12,7 @@ from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 from util import BashCmd
 
-Box = namedtuple('Box', ['name', 'playbook', 'ip', 'shares'])
+Box = namedtuple('Box', ['name', 'playbook', 'ip', 'mem', 'shares'])
 Share = namedtuple('Share', ['src', 'dst'])
 
 class Vagrant:
@@ -102,6 +102,12 @@ class Vagrant:
 
         ip = raw_input('Specify an internal IP: ')
 
+        mem = raw_input('Specify amount of RAM in GB [default 1] : ')
+        if not len(mem.strip()):
+            mem = 1024
+        else:
+            mem = int(mem) * 1024
+
         shares = []
         loop = True
         while loop:
@@ -114,7 +120,7 @@ class Vagrant:
                 loop = False
 
         if name and playbook and ip:
-            box = Box(name, playbook, ip, shares)
+            box = Box(name, playbook, ip, mem, shares)
             self.boxes.append(box)
             self.save_current_boxes()
             print "\n%r added." % (box,)
