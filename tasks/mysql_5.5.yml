@@ -4,7 +4,7 @@
   #  $prudentia_dir
 
   - name: MySQL | Check if installed
-    action: shell [ -f /usr/bin/mysql ] && echo 'found!' || echo ''
+    action: test -x /usr/bin/mysql
     register: mysql_present
     tags: mysql
 
@@ -13,24 +13,24 @@
     with_items:
       - root_password
       - root_password_again
-    only_if: " '${mysql_present.stdout}' == '' "
+    when: mysql_present|failed
     tags: mysql
     sudo: yes
 
   - name: MySQL | Install MySQL server
     action: apt update-cache=yes force=yes state=present pkg=mysql-server
-    only_if: " '${mysql_present.stdout}' == '' "
+    when: mysql_present|failed
     tags: mysql
     sudo: yes
 
   - name: MySQL | Copy configuration file
     action: copy src=$prudentia_dir/files/mysql/my.cnf dest=/etc/mysql/my.cnf backup=yes
-    register: mysql_conf_changed
+    register: mysql_conf
     tags: mysql
     sudo: yes
 
   - name: MySQL | Restart
     action: service name=mysql state=restarted
-    when_changed: $mysql_conf_changed
+    when: mysql_conf.changed
     tags: mysql
     sudo: yes

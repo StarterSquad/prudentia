@@ -10,5 +10,5 @@
 
   - name: Ruby | Install last stable
     shell: curl -L https://get.rvm.io | bash -s stable --ruby
-    when_failed: $rvm_present
+    when: rvm_present|failed
     tags: ruby
