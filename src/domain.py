@@ -64,6 +64,8 @@ class Box(object):
     extra = None
 
     def __init__(self, name, playbook, ip, extra = None):
+        if (name or playbook or ip) is None:
+            raise Exception("Missing required box parameter: {0},{1},{2}" % name, playbook, ip)
         self.name = name
         self.playbook = playbook
         self.ip = ip

@@ -10,6 +10,7 @@ class CLI(Cmd):
 
     def setup(self):
         self.prompt = '(Prudentia) '
+#        self.do_use('ssh')
 
     def complete_use(self, text, line, begidx, endidx):
         if not text:

@@ -8,7 +8,6 @@ class SshProvider(BaseProvider):
     def __init__(self):
         super(SshProvider, self).__init__('ssh')
 
-
     def add_box(self):
         playbook = raw_input('Specify the playbook path: ')
 
@@ -38,5 +37,5 @@ class SshProvider(BaseProvider):
 
     def provision(self, box_name):
         for box in self.boxes():
-            if box.name is box_name:
-                super(SshProvider).provision(box)
+            if box_name in box.name:
+                super(SshProvider, self).provision(box)

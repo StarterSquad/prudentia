@@ -19,22 +19,24 @@ else:
 
 class BaseCli(Cmd):
 
-    #TODO needs to be implemented by its children
-    def provider(self):
-        return
+    # set by his children
+    provider = None
 
     def complete_box_names(self, text, line, begidx, endidx):
-        completions = ['']
+        if not text:
+            completions = [b.name for b in self.provider.boxes()]
+        else:
+            completions = [b.name for b in self.provider.boxes() if b.name.startswith(text)]
 
-        tokens = line.split(' ')
-        action = tokens[0]
-        box_name = tokens[1]
-        if len(tokens) <= 2:
-            #boxes completion
-            if not text:
-                completions = self.provider.boxes[:]
-            else:
-                completions = [f for f in self.provider.boxes if f.startswith(text)]
+#        tokens = line.split(' ')
+#        action = tokens[0]
+#        box_name = tokens[1]
+#        if len(tokens) <= 2:
+#            #boxes completion
+#            if not text:
+#                completions = self.provider.boxes[:]
+#            else:
+#                completions = [f for f in self.provider.boxes if f.startswith(text)]
 #        else:
 #            if action == 'provision':
 #                #tags completion
@@ -113,6 +115,7 @@ class BaseCli(Cmd):
         return
 
     def do_EOF(self, line):
+        print "\n"
         return True
 
     def emptyline(self, *args, **kwargs):
@@ -123,6 +126,7 @@ class BaseProvider(object):
     __metaclass__ = ABCMeta
 
     DEFAULT_ENVIRONMENTS_PATH = './env/'
+    DEFAULT_PRUDENTIA_INVENTORY = '/tmp/prudentia-inventory'
     env = None
 
     def __init__(self, name, path = DEFAULT_ENVIRONMENTS_PATH):
@@ -135,7 +139,8 @@ class BaseProvider(object):
         return self.env.boxes
 
     def provision(self, box):
-        inventory = Inventory(list(box.inventory()))
+        self._generate_inventory(box)
+        inventory = Inventory(self.DEFAULT_PRUDENTIA_INVENTORY)
 
         stats = callbacks.AggregateStats()
         playbook_cb = callbacks.PlaybookCallbacks(verbose=utils.VERBOSITY)
@@ -178,7 +183,17 @@ class BaseProvider(object):
         except errors.AnsibleError, e:
             print >>sys.stderr, "ERROR: %s" % e
 
-    def load_tags(self, box):
+    def _generate_inventory(self, box):
+        f = None
+        try:
+            f = open(self.DEFAULT_PRUDENTIA_INVENTORY, 'w')
+            f.write(box.inventory())
+        except IOError, e:
+            print e
+        finally:
+            f.close()
+
+    def _load_tags(self, box):
         # list available tags for a playbook
         for b in self.env.boxes:
             playbook = PlayBook(
