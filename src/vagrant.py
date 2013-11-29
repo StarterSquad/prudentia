@@ -10,7 +10,7 @@ from ansible.playbook import PlayBook
 from ansible.playbook.play import Play
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
-from util import BashCmd
+from bash import BashCmd
 
 Box = namedtuple('Box', ['name', 'playbook', 'ip', 'mem', 'shares'])
 Share = namedtuple('Share', ['src', 'dst'])
