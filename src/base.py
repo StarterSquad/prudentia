@@ -1,11 +1,14 @@
 import os
+from os.path import dirname
 import sys
 import readline
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta
 from cmd import Cmd
 from ansible import callbacks, utils, errors
+from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
 from ansible.inventory import Inventory
 from ansible.playbook import PlayBook
+from ansible.playbook.play import Play
 from domain import Environment
 
 if 'libedit' in readline.__doc__:
@@ -15,9 +18,8 @@ else:
 
 
 class BaseCli(Cmd):
-    __metaclass__ = ABCMeta
 
-    @abstractproperty
+    #TODO needs to be implemented by its children
     def provider(self):
         return
 
@@ -47,7 +49,6 @@ class BaseCli(Cmd):
     def help_add_box(self):
         print "Adds a box.\n"
 
-    @abstractmethod
     def do_add_box(self, line):
         return
 
@@ -57,17 +58,74 @@ class BaseCli(Cmd):
     def complete_provision(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
 
-    @abstractmethod
     def do_provision(self, line):
         return
+
+    def help_rm_box(self):
+        print "Removes a box.\n"
+
+    def complete_rm_box(self, text, line, begidx, endidx):
+        return self.complete_box_names(text, line, begidx, endidx)
+
+    def do_rm_box(self, line):
+        return
+
+    def help_status(self):
+        print "Show current boxes status.\n"
+
+    def do_status(self, line):
+        return
+
+    def help_phoenix(self):
+        print "Destroys and re-provisions the box.\n"
+
+    def complete_phoenix(self, text, line, begidx, endidx):
+        return self.complete_box_names(text, line, begidx, endidx)
+
+    def do_phoenix(self, line):
+        return
+
+    def help_restart(self):
+        print "Reload the box.\n"
+
+    def complete_restart(self, text, line, begidx, endidx):
+        return self.complete_box_names(text, line, begidx, endidx)
+
+    def do_restart(self, line):
+        return
+
+    def help_stop(self):
+        print "Stops the box.\n"
+
+    def complete_stop(self, text, line, begidx, endidx):
+        return self.complete_box_names(text, line, begidx, endidx)
+
+    def do_stop(self, line):
+        return
+
+    def help_destroy(self):
+        print "Destroys the box.\n"
+
+    def complete_destroy(self, text, line, begidx, endidx):
+        return self.complete_box_names(text, line, begidx, endidx)
+
+    def do_destroy(self, line):
+        return
+
+    def do_EOF(self, line):
+        return True
+
+    def emptyline(self, *args, **kwargs):
+        return ""
+
 
 class BaseProvider(object):
     __metaclass__ = ABCMeta
 
-    ENVIRONMENTS_PATH = './env/'
+    DEFAULT_ENVIRONMENTS_PATH = './env/'
     env = None
 
-    def __init__(self, name, path = ENVIRONMENTS_PATH):
+    def __init__(self, name, path = DEFAULT_ENVIRONMENTS_PATH):
         cwd = os.path.realpath(__file__)
         components = cwd.split(os.sep)
         self.prudentia_root_dir = str.join(os.sep, components[:components.index("prudentia") + 1])
@@ -120,27 +178,18 @@ class BaseProvider(object):
         except errors.AnsibleError, e:
             print >>sys.stderr, "ERROR: %s" % e
 
-    def loadTags(self, box):
+    def load_tags(self, box):
         # list available tags for a playbook
-        pass
+        for b in self.env.boxes:
+            playbook = PlayBook(
+                playbook=b.playbook,
+                inventory=Inventory([]),
+                callbacks=DefaultRunnerCallbacks(),
+                runner_callbacks=DefaultRunnerCallbacks(),
+                stats=AggregateStats(),
+                extra_vars={'prudentia_dir': self.prudentia_root_dir}
+            )
+            play = Play(playbook, playbook.playbook[0], dirname(b.playbook))
+            (matched_tags, unmatched_tags) = play.compare_tags('')
+            self.tags.update({b.name: list(unmatched_tags)})
 
-
-    @abstractmethod
-    def status(self, box):
-        return
-
-    @abstractmethod
-    def phoenix(self, box):
-        return
-
-    @abstractmethod
-    def restart(self, box):
-        return
-
-    @abstractmethod
-    def stop(self, box):
-        return
-
-    @abstractmethod
-    def destroy(self, box):
-        return

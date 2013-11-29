@@ -1,4 +1,5 @@
 import json
+import os
 
 class Environment(object):
     ENVIRONMENT_FILE_NAME = '.boxes'
@@ -6,6 +7,9 @@ class Environment(object):
     boxes = list()
 
     def __init__(self, path, name = ENVIRONMENT_FILE_NAME):
+        if not os.path.exists(path):
+            print "Environment doesn't exists, creating ..."
+            os.makedirs(path)
         self.file = path + '/' + name
         try:
             with open(self.file):

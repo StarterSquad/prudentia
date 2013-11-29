@@ -1,24 +1,15 @@
 import re
-from base import BaseProvider, BaseCli
+from base import BaseProvider
 from domain import Box
-
-class SshCli(BaseCli):
-    provider = SshProvider()
-
-    def do_add_box(self, line):
-        self.provider.addBox()
-
-    def do_provision(self, line):
-        self.provider.provision(line)
-
 
 class SshProvider(BaseProvider):
     box_name_pattern = re.compile('- hosts: (.*)')
 
     def __init__(self):
-        BaseProvider.__init__(self, 'ssh')
+        super(SshProvider, self).__init__('ssh')
 
-    def addBox(self):
+
+    def add_box(self):
         playbook = raw_input('Specify the playbook path: ')
 
         f = name = None
@@ -45,7 +36,7 @@ class SshProvider(BaseProvider):
         else:
             print 'There was some problem while adding the box.'
 
-    def provision(self, boxName):
+    def provision(self, box_name):
         for box in self.boxes():
-            if box.name is boxName:
+            if box.name is box_name:
                 super(SshProvider).provision(box)
