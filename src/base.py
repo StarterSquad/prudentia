@@ -1,122 +1,146 @@
-import abc
-import json
+import os
+import sys
+import readline
+from abc import ABCMeta, abstractmethod, abstractproperty
+from cmd import Cmd
+from ansible import callbacks, utils, errors
+from ansible.inventory import Inventory
+from ansible.playbook import PlayBook
+from domain import Environment
+
+if 'libedit' in readline.__doc__:
+    readline.parse_and_bind("bind ^I rl_complete")
+else:
+    readline.parse_and_bind("tab: complete")
+
+
+class BaseCli(Cmd):
+    __metaclass__ = ABCMeta
+
+    @abstractproperty
+    def provider(self):
+        return
+
+    def complete_box_names(self, text, line, begidx, endidx):
+        completions = ['']
+
+        tokens = line.split(' ')
+        action = tokens[0]
+        box_name = tokens[1]
+        if len(tokens) <= 2:
+            #boxes completion
+            if not text:
+                completions = self.provider.boxes[:]
+            else:
+                completions = [f for f in self.provider.boxes if f.startswith(text)]
+#        else:
+#            if action == 'provision':
+#                #tags completion
+#                if not text:
+#                    completions = self.tags[box_name][:]
+#                else:
+#                    completions = [f for f in self.tags[box_name] if f.startswith(text)]
+#            else:
+#                completions = ['']
+        return completions
+
+    def help_add_box(self):
+        print "Adds a box.\n"
+
+    @abstractmethod
+    def do_add_box(self, line):
+        return
+
+    def help_provision(self):
+        print "Starts and provisions the box, it accepts as optional argument an Ansible tag.\n"
+
+    def complete_provision(self, text, line, begidx, endidx):
+        return self.complete_box_names(text, line, begidx, endidx)
+
+    @abstractmethod
+    def do_provision(self, line):
+        return
 
 class BaseProvider(object):
-    __metaclass__ = abc.ABCMeta
+    __metaclass__ = ABCMeta
 
-    environment = None
+    ENVIRONMENTS_PATH = './env/'
+    env = None
 
-    def __init__(self, name):
-        # /env/<name> is the base path for the provider
-        pass
+    def __init__(self, name, path = ENVIRONMENTS_PATH):
+        cwd = os.path.realpath(__file__)
+        components = cwd.split(os.sep)
+        self.prudentia_root_dir = str.join(os.sep, components[:components.index("prudentia") + 1])
+        self.env = Environment(path + name)
 
-    def loadEnv(self):
-        # locate environment
-        pass
+    def boxes(self):
+        return self.env.boxes
+
+    def provision(self, box):
+        inventory = Inventory(list(box.inventory()))
+
+        stats = callbacks.AggregateStats()
+        playbook_cb = callbacks.PlaybookCallbacks(verbose=utils.VERBOSITY)
+        #if options.step:
+        #   playbook_cb.step = options.step
+        runner_cb = callbacks.PlaybookRunnerCallbacks(stats, verbose=utils.VERBOSITY)
+
+        playbook = PlayBook(
+            playbook=box.playbook,
+            inventory=inventory,
+            callbacks=playbook_cb,
+            runner_callbacks=runner_cb,
+            #callbacks=DefaultRunnerCallbacks(),
+            #runner_callbacks=DefaultRunnerCallbacks(),
+            stats=stats,
+            extra_vars={'prudentia_dir':self.prudentia_root_dir}
+        )
+
+        try:
+            playbook.run()
+
+            hosts = sorted(playbook.stats.processed.keys())
+            print callbacks.banner("PLAY RECAP")
+            playbook_cb.on_stats(playbook.stats)
+            for h in hosts:
+                t = playbook.stats.summarize(h)
+            #print "%-30s : %s %s %s %s " % (
+            #   hostcolor(h, t),
+            #   colorize('ok', t['ok'], 'green'),
+            #   colorize('changed', t['changed'], 'yellow'),
+            #   colorize('unreachable', t['unreachable'], 'red'),
+            #   colorize('failed', t['failures'], 'red'))
+
+            print "\n"
+            for h in hosts:
+                stats = playbook.stats.summarize(h)
+                if stats['failures'] != 0 or stats['unreachable'] != 0:
+                    return 2
+
+        except errors.AnsibleError, e:
+            print >>sys.stderr, "ERROR: %s" % e
 
     def loadTags(self, box):
         # list available tags for a playbook
         pass
 
-    def addBox(self, playbook, ip):
-        # add box into the environment
-        pass
 
-    def remBox(self, box):
-        self.destroy(box)
-        # removes box from the environment
-        pass
-
-    def provision(self, box):
-        # run ansible with box playbook and box inventory
-        return
-
-
-    @abc.abstractmethod
+    @abstractmethod
     def status(self, box):
         return
 
-    @abc.abstractmethod
+    @abstractmethod
     def phoenix(self, box):
         return
 
-    @abc.abstractmethod
+    @abstractmethod
     def restart(self, box):
         return
 
-    @abc.abstractmethod
+    @abstractmethod
     def stop(self, box):
         return
 
-    @abc.abstractmethod
+    @abstractmethod
     def destroy(self, box):
         return
-
-
-class Environment(object):
-    ENVIRONMENT_FILE_NAME = '.boxes'
-    file = None
-    boxes = list()
-
-    def __init__(self, path, name = ENVIRONMENT_FILE_NAME):
-        self.file = path + '/' + name
-        try:
-            with open(self.file):
-                self.__load()
-        except IOError:
-            print 'No environment file'
-
-
-    def addBox(self, box):
-        self.boxes.append(box)
-        self.__save()
-
-    def remBox(self, name):
-        self.boxes = [b for b in self.boxes if b.name != name]
-        self.__save()
-
-    def __load(self):
-        f = None
-        try:
-            f = open(self.file, 'r')
-            jsonBoxes = json.load(f)
-            self.boxes = [self.__deserializeBox(b) for b in jsonBoxes]
-        except IOError, e:
-            print e
-        finally:
-            if f:
-                f.close()
-
-    def __save(self):
-        jsonBoxes = [self.__serializeBox(b) for b in self.boxes]
-        f = None
-        try:
-            f = open(self.file, 'w')
-            json.dump(jsonBoxes, f)
-        except IOError, e:
-            print(e)
-        finally:
-            if f:
-                f.close()
-
-    def __serializeBox(self, box):
-        return {'name': box.name, 'playbook': box.playbook, 'ip': box.ip, 'extra': box.extra}
-
-    def __deserializeBox(self, json):
-        return Box(json['name'], json['playbook'], json['ip'], json['extra'])
-
-
-class Box(object):
-    name = None
-    playbook = None
-    ip = None
-    extra = None
-
-    def __init__(self, name, playbook, ip, extra):
-        self.name = name
-        self.playbook = playbook
-        self.ip = ip
-        self.extra = extra
-
-    def inventory(self):
-        return '[' + self.name + ']\n' + self.ip
