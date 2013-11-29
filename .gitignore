@@ -10,3 +10,4 @@ Vagrantfile
 *inventory*
 p-env
 credential
+tests/env
