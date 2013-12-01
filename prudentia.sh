@@ -35,4 +35,4 @@ echo "Checking dependencies ..."
 pip install -r ./requirements.txt > /dev/null
 ./bin/install_vagrant.sh > /dev/null
 
-./p-env/bin/python prudentia.py
+./p-env/bin/python prudentia.py $1

@@ -53,7 +53,8 @@ class BaseCli(Cmd):
         print "Adds a box.\n"
 
     def do_add_box(self, line):
-        return
+        self.provider.add_box()
+
 
     def help_provision(self):
         print "Starts and provisions the box, it accepts as optional argument an Ansible tag.\n"
@@ -62,7 +63,8 @@ class BaseCli(Cmd):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_provision(self, line):
-        return
+        self.provider.provision(line)
+
 
     def help_rm_box(self):
         print "Removes a box.\n"
@@ -71,13 +73,15 @@ class BaseCli(Cmd):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_rm_box(self, line):
-        return
+        self.provider.remove_box(line)
+
 
     def help_status(self):
         print "Show current boxes status.\n"
 
     def do_status(self, line):
-        return
+        print self.provider.boxes()
+
 
     def help_phoenix(self):
         print "Destroys and re-provisions the box.\n"
@@ -88,6 +92,7 @@ class BaseCli(Cmd):
     def do_phoenix(self, line):
         return
 
+
     def help_restart(self):
         print "Reload the box.\n"
 
@@ -96,6 +101,7 @@ class BaseCli(Cmd):
 
     def do_restart(self, line):
         return
+
 
     def help_stop(self):
         print "Stops the box.\n"
@@ -106,6 +112,7 @@ class BaseCli(Cmd):
     def do_stop(self, line):
         return
 
+
     def help_destroy(self):
         print "Destroys the box.\n"
 
@@ -114,6 +121,7 @@ class BaseCli(Cmd):
 
     def do_destroy(self, line):
         return
+
 
     def do_EOF(self, line):
         print "\n"

@@ -7,5 +7,9 @@ logging.basicConfig(format='%(asctime)s.%(msecs).03d [%(name)s] %(levelname)s: %
 
 sys.path.append('./src')
 cli = CLI()
-cli.setup()
-cli.cmdloop()
+
+if len(sys.argv) > 1:
+    env = sys.argv[1]
+    cli.do_use(env)
+else:
+    cli.cmdloop()
