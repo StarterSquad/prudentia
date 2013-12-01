@@ -80,7 +80,8 @@ class BaseCli(Cmd):
         print "Show current boxes status.\n"
 
     def do_status(self, line):
-        print self.provider.boxes()
+        for b in self.provider.boxes():
+            print b
 
 
     def help_phoenix(self):

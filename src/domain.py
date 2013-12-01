@@ -68,8 +68,8 @@ class Box(object):
     def inventory(self):
         return '[' + self.name + ']\n' + self.ip
 
-    def __str__(self):
-        return 'Box[name: %s, playbook: %s, ip: %s, extra: %s]' % (self.name, self.playbook, self.ip, self.extra)
+    def __repr__(self):
+        return '%s -> (%s, %s, %s)' % (self.name, self.playbook, self.ip, self.extra)
 
     def toJson(self):
         return {'name': self.name, 'playbook': self.playbook, 'ip': self.ip, 'extra': self.extra.toJson()}

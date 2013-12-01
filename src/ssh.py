@@ -55,7 +55,7 @@ class SshCredential(object):
     def set_pwd(self, pwd):
         self.pwd = pwd
 
-    def __str__(self):
+    def __repr__(self):
         return 'SshCredential[pwd: %s]' % self.pwd
 
     def toJson(self):

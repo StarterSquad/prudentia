@@ -137,7 +137,7 @@ class VagrantExt(object):
     def set_shares(self, shares):
         self.shares = shares
 
-    def __str__(self):
+    def __repr__(self):
         return 'VagrantExt[mem: %s, shares: %s]' % (self.mem, self.shares)
 
     def toJson(self):
