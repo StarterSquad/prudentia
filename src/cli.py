@@ -31,11 +31,16 @@ class CLI(Cmd):
         Cmd.__init__(self, *args, **kwargs)
         self.prompt = '(Prudentia) '
 
+    def cmdloop(self, *args, **kwargs):
+        print '\nTo start `use` one of those providers: %s.\n' % self.environments.keys()
+        return Cmd.cmdloop(self, *args, **kwargs)
+
+
     def complete_use(self, text, line, begidx, endidx):
         if not text:
-            return self.environments.values()
+            return self.environments.keys()
         else:
-            return [e for e in self.environments.values() if e.startswith(text)]
+            return [e for e in self.environments.keys() if e.startswith(text)]
 
     def do_use(self, env):
         cli = self.environments[env]
