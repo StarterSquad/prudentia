@@ -10,7 +10,9 @@ class CLI(Cmd):
 
     def setup(self):
         self.prompt = '(Prudentia) '
-#        self.do_use('ssh')
+
+        # TODO temporary
+        self.do_use('ssh')
 
     def complete_use(self, text, line, begidx, endidx):
         if not text:
@@ -46,6 +48,9 @@ class SshCli(BaseCli):
     def do_provision(self, line):
         self.provider.provision(line)
 
+    def do_rm_box(self, line):
+        self.provider.remove_box(line)
+
 class VagrantCli(BaseCli):
     provider = VagrantProvider()
 
@@ -54,3 +59,6 @@ class VagrantCli(BaseCli):
 
     def do_provision(self, line):
         self.provider.provision(line)
+
+    def do_rm_box(self, line):
+        self.provider.remove_box(line)

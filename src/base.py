@@ -9,6 +9,7 @@ from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
 from ansible.inventory import Inventory
 from ansible.playbook import PlayBook
 from ansible.playbook.play import Play
+import ansible.constants as C
 from domain import Environment
 
 if 'libedit' in readline.__doc__:
@@ -129,32 +130,43 @@ class BaseProvider(object):
     DEFAULT_PRUDENTIA_INVENTORY = '/tmp/prudentia-inventory'
     env = None
 
-    def __init__(self, name, path = DEFAULT_ENVIRONMENTS_PATH):
+    def __init__(self, name, extra_type, path = DEFAULT_ENVIRONMENTS_PATH):
         cwd = os.path.realpath(__file__)
         components = cwd.split(os.sep)
         self.prudentia_root_dir = str.join(os.sep, components[:components.index("prudentia") + 1])
-        self.env = Environment(path + name)
+        self.env = Environment(path + name, extra_type)
 
     def boxes(self):
         return self.env.boxes
+
+    def add_box(self):
+        # children implements it
+        return
+
+    def remove_box(self, box_name):
+        self.env.remove(box_name)
+        print "\nBox %s removed." % box_name
 
     def provision(self, box):
         self._generate_inventory(box)
         inventory = Inventory(self.DEFAULT_PRUDENTIA_INVENTORY)
 
         stats = callbacks.AggregateStats()
-        playbook_cb = callbacks.PlaybookCallbacks(verbose=utils.VERBOSITY)
-        #if options.step:
-        #   playbook_cb.step = options.step
+        playbook_cb = callbacks.PlaybookCallbacks(verbose=True)
         runner_cb = callbacks.PlaybookRunnerCallbacks(stats, verbose=utils.VERBOSITY)
 
+        remote_pwd = C.DEFAULT_REMOTE_PASS
+        transport = C.DEFAULT_TRANSPORT
+        if box.extra:
+            remote_pwd = box.extra.pwd
+            transport = 'paramiko'
         playbook = PlayBook(
             playbook=box.playbook,
             inventory=inventory,
+            remote_pass=remote_pwd,
+            transport=transport,
             callbacks=playbook_cb,
             runner_callbacks=runner_cb,
-            #callbacks=DefaultRunnerCallbacks(),
-            #runner_callbacks=DefaultRunnerCallbacks(),
             stats=stats,
             extra_vars={'prudentia_dir':self.prudentia_root_dir}
         )
@@ -195,6 +207,7 @@ class BaseProvider(object):
 
     def _load_tags(self, box):
         # list available tags for a playbook
+        self.tags = {}
         for b in self.env.boxes:
             playbook = PlayBook(
                 playbook=b.playbook,

@@ -6,11 +6,12 @@ class Environment(object):
     file = None
     boxes = list()
 
-    def __init__(self, path, name = ENVIRONMENT_FILE_NAME):
+    def __init__(self, path, extra_type, name = ENVIRONMENT_FILE_NAME):
         if not os.path.exists(path):
             print "Environment doesn't exists, creating ..."
             os.makedirs(path)
         self.file = path + '/' + name
+        self.extra_type = extra_type
         try:
             with open(self.file):
                 self.__load()
@@ -22,8 +23,8 @@ class Environment(object):
         self.boxes.append(box)
         self.__save()
 
-    def remove(self, box):
-        self.boxes = [b for b in self.boxes if b.name != box.name]
+    def remove(self, box_name):
+        self.boxes = [b for b in self.boxes if b.name != box_name]
         self.__save()
 
     def __load(self):
@@ -31,7 +32,7 @@ class Environment(object):
         try:
             f = open(self.file, 'r')
             jsonBoxes = json.load(f)
-            self.boxes = [self.__deserializeBox(b) for b in jsonBoxes]
+            self.boxes = [Box.fromJson(j, self.extra_type) for j in jsonBoxes]
         except IOError, e:
             print e
         finally:
@@ -39,7 +40,7 @@ class Environment(object):
                 f.close()
 
     def __save(self):
-        jsonBoxes = [self.__serializeBox(b) for b in self.boxes]
+        jsonBoxes = [b.toJson() for b in self.boxes]
         f = None
         try:
             f = open(self.file, 'w')
@@ -50,26 +51,34 @@ class Environment(object):
             if f:
                 f.close()
 
-    def __serializeBox(self, box):
-        return {'name': box.name, 'playbook': box.playbook, 'ip': box.ip, 'extra': box.extra}
-
-    def __deserializeBox(self, json):
-        return Box(json['name'], json['playbook'], json['ip'], json['extra'])
-
 
 class Box(object):
-    name = None
-    playbook = None
-    ip = None
-    extra = None
-
-    def __init__(self, name, playbook, ip, extra = None):
-        if (name or playbook or ip) is None:
-            raise Exception("Missing required box parameter: {0},{1},{2}" % name, playbook, ip)
+    def set_name(self, name):
         self.name = name
-        self.playbook = playbook
+
+    def set_playbook(self, pb):
+        self.playbook = pb
+
+    def set_ip(self, ip):
         self.ip = ip
-        self.extra = extra
+
+    def set_extra(self, ex):
+        self.extra = ex
 
     def inventory(self):
         return '[' + self.name + ']\n' + self.ip
+
+    def __str__(self):
+        return 'Box[name: %s, playbook: %s, ip: %s, extra: %s]' % (self.name, self.playbook, self.ip, self.extra)
+
+    def toJson(self):
+        return {'name': self.name, 'playbook': self.playbook, 'ip': self.ip, 'extra': self.extra.toJson()}
+
+    @staticmethod
+    def fromJson(json, extra_type):
+        b = Box()
+        b.set_name(json['name'])
+        b.set_playbook(json['playbook'])
+        b.set_ip(json['ip'])
+        b.set_extra(extra_type.fromJson(json['extra']))
+        return b

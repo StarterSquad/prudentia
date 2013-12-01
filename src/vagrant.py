@@ -12,7 +12,7 @@ class VagrantProvider(BaseProvider):
     box_name_pattern = re.compile('- hosts: (.*)')
 
     def __init__(self):
-        super(VagrantProvider, self).__init__('vagrant')
+        super(VagrantProvider, self).__init__('vagrant', VagrantExt)
         self.template_env = Environment(loader=FileSystemLoader(self.ENV_DIR), auto_reload=True)
 
     def generate_vagrant_file(self):
@@ -44,11 +44,12 @@ class VagrantProvider(BaseProvider):
 
         ip = raw_input('Specify an internal IP: ')
 
+        ext = VagrantExt()
         mem = raw_input('Specify amount of RAM in GB [default 1] : ')
         if not len(mem.strip()):
-            mem = 1024
+            ext.set_mem(1024)
         else:
-            mem = int(mem) * 1024
+            ext.set_mem(int(mem) * 1024)
 
         shares = []
         loop = True
@@ -60,33 +61,33 @@ class VagrantProvider(BaseProvider):
                 shares.append((src, dst))
             else:
                 loop = False
+        ext.set_shares(shares)
 
         if name and playbook and ip:
-            extra = ExtraBox(mem, shares)
-            box = Box(name, playbook, ip, extra)
+            box = Box()
+            box.set_name(name)
+            box.set_playbook(playbook)
+            box.set_ip(ip)
+            box.set_extra(ext)
             self.env.add(box)
-            print "\n%r added." % (box,)
+            print "\n%s added." % box
         else:
             print 'There was some problem while adding the box.'
 
-        #    def remove_box(self, box):
-        #        self.env.remove(box)
-        #        print "\nBox %s removed." % box.name
-        #
-        #    def status(self):
-        #        output = self.action(action="status", output=False)
-        #        for box in self.boxes:
-        #            pattern = '.*' + box.name + '\s*(.*?) \(virtualbox\).*'
-        #            match = re.match(pattern, output, re.DOTALL)
-        #            status = match.group(1)
-        #            print "%s -> %r\n" % (status, box)
-        #
-        #    def provision(self, box_name, tags):
-        #        start = datetime.now()
-        #        self.action(action="provision", action_args=(box_name,), tags=tags)
-        #        end = datetime.now()
-        #        diff = end - start
-        #        print "Took {0} seconds\n".format(diff.seconds)
+#    def status(self):
+#        output = self.action(action="status", output=False)
+#        for box in self.boxes:
+#            pattern = '.*' + box.name + '\s*(.*?) \(virtualbox\).*'
+#            match = re.match(pattern, output, re.DOTALL)
+#            status = match.group(1)
+#            print "%s -> %r\n" % (status, box)
+#
+#    def provision(self, box_name, tags):
+#        start = datetime.now()
+#        self.action(action="provision", action_args=(box_name,), tags=tags)
+#        end = datetime.now()
+#        diff = end - start
+#        print "Took {0} seconds\n".format(diff.seconds)
 
     def provision(self, box_name):
         for box in self.boxes():
@@ -129,10 +130,22 @@ class VagrantProvider(BaseProvider):
 #        else:
 #            return cmd.output()
 
-class ExtraBox(object):
-    mem = None
-    shares = None
-
-    def __init__(self, mem, shares):
+class VagrantExt(object):
+    def set_mem(self, mem):
         self.mem = mem
+
+    def set_shares(self, shares):
         self.shares = shares
+
+    def __str__(self):
+        return 'VagrantExt[mem: %s, shares: %s]' % (self.mem, self.shares)
+
+    def toJson(self):
+        return {'mem':self.mem, 'shares':self.shares}
+
+    @staticmethod
+    def fromJson(json):
+        e = VagrantExt()
+        e.set_mem(json['mem'])
+        e.set_shares(json['shares'])
+        return e
