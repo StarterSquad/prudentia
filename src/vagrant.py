@@ -2,10 +2,11 @@ import re
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 from base import BaseProvider
+from bash import BashCmd
 from domain import Box
 
 class VagrantProvider(BaseProvider):
-    ENV_DIR = './env/test/'
+    ENV_DIR = './env/vagrant/'
     VAGRANT_FILE_NAME = 'Vagrantfile'
     CONF_FILE = ENV_DIR + VAGRANT_FILE_NAME
 
@@ -13,16 +14,7 @@ class VagrantProvider(BaseProvider):
 
     def __init__(self):
         super(VagrantProvider, self).__init__('vagrant', VagrantExt)
-        self.template_env = Environment(loader=FileSystemLoader(self.ENV_DIR), auto_reload=True)
-
-    def generate_vagrant_file(self):
-        env = self.template_env
-        template_name = self.VAGRANT_FILE_NAME + '.j2'
-        template = env.get_template(template_name)
-        template.stream({
-            'boxes': self.boxes,
-            'prudentia_root_dir': self.prudentia_root_dir
-        }).dump(self.CONF_FILE)
+        self.template_env = Environment(loader=FileSystemLoader('./src'), auto_reload=True)
 
     def add_box(self):
         playbook = raw_input('Specify the playbook path: ')
@@ -70,9 +62,34 @@ class VagrantProvider(BaseProvider):
             box.set_ip(ip)
             box.set_extra(ext)
             self.env.add(box)
-            print "\n%s added." % box
+            print "\n%s added.\n" % box
+            self._generate_vagrant_file()
+            self._up(name)
         else:
             print 'There was some problem while adding the box.'
+
+    def _generate_vagrant_file(self):
+        env = self.template_env
+        template_name = self.VAGRANT_FILE_NAME + '.j2'
+        template = env.get_template(template_name)
+        template.stream({
+            'boxes': self.boxes(),
+            'prudentia_root_dir': self.prudentia_root_dir
+        }).dump(self.CONF_FILE)
+
+    def provision(self, box_name):
+        for box in self.boxes():
+            if box_name in box.name:
+                super(VagrantProvider, self).provision(box)
+
+    def remove_box(self, box_name):
+        super(VagrantProvider, self).remove_box(box_name)
+        self._destroy(box_name)
+        self._generate_vagrant_file()
+
+
+    def _up(self, box_name):
+        self._action(action="up", action_args=("--no-provision", box_name))
 
 #    def status(self):
 #        output = self.action(action="status", output=False)
@@ -88,49 +105,43 @@ class VagrantProvider(BaseProvider):
 #        end = datetime.now()
 #        diff = end - start
 #        print "Took {0} seconds\n".format(diff.seconds)
-
-    def provision(self, box_name):
-        for box in self.boxes():
-            if box.name is box_name:
-                super(VagrantProvider).provision(box)
-
-#
-#
-#    def up(self, box_name):
-#        self.action(action="up", action_args=("--no-provision", box_name))
 #
 #    def reload(self, box_name):
 #        self.action(action="reload", action_args=("--no-provision", box_name))
 #
-#    def halt(self, box_name):
-#        self.action(action="halt", action_args=(box_name,))
-#
-#    def destroy(self, box_name):
-#        self.halt(box_name)
-#        self.action(action="destroy", action_args=("-f", box_name))
-#
-#    def action(self, **kwargs):
-#        if 'action_args' not in kwargs.keys():
-#            cmd = BashCmd("vagrant", kwargs['action'])
-#        else:
-#            cmd = BashCmd("vagrant", kwargs['action'], *kwargs['action_args'])
-#
-#        cmd.set_cwd(self.ENV_DIR)
-#        if 'output' in kwargs.keys():
-#            cmd.set_show_output(kwargs['output'])
-#        if 'tags' in kwargs.keys():
-#            cmd.set_env_var("TAGS", kwargs['tags'])
-#
-#        # for debugging
-#        # cmd.set_env_var("VAGRANT_LOG", "INFO")
-#
-#        cmd.execute()
-#        if not cmd.isOk():
-#            print "ERROR while running: {0}".format(cmd.cmd_args)
-#        else:
-#            return cmd.output()
+    def _halt(self, box_name):
+        self._action(action="halt", action_args=(box_name,))
+
+    def _destroy(self, box_name):
+        self._halt(box_name)
+        self._action(action="destroy", action_args=("-f", box_name))
+
+    def _action(self, **kwargs):
+        if 'action_args' not in kwargs.keys():
+            cmd = BashCmd("vagrant", kwargs['action'])
+        else:
+            cmd = BashCmd("vagrant", kwargs['action'], *kwargs['action_args'])
+
+        cmd.set_cwd(self.ENV_DIR)
+        if 'output' in kwargs.keys():
+            cmd.set_show_output(kwargs['output'])
+        if 'tags' in kwargs.keys():
+            cmd.set_env_var("TAGS", kwargs['tags'])
+
+        # for debugging
+        # cmd.set_env_var("VAGRANT_LOG", "INFO")
+
+        cmd.execute()
+        if not cmd.isOk():
+            print "ERROR while running: {0}".format(cmd.cmd_args)
+        else:
+            return cmd.output()
 
 class VagrantExt(object):
+
+    def __init__(self):
+        self.pwd = 'vagrant'
+
     def set_mem(self, mem):
         self.mem = mem
 

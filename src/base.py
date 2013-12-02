@@ -19,9 +19,7 @@ else:
 
 
 class BaseCli(Cmd):
-
-    # set by his children
-    provider = None
+    provider = None # Set by his children
 
     def complete_box_names(self, text, line, begidx, endidx):
         if not text:
