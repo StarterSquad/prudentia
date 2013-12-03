@@ -10,6 +10,8 @@ class VagrantProvider(BaseProvider):
     VAGRANT_FILE_NAME = 'Vagrantfile'
     CONF_FILE = ENV_DIR + VAGRANT_FILE_NAME
 
+    DEFAULT_VAGRANT_PWD = 'vagrant'
+
     box_name_pattern = re.compile('- hosts: (.*)')
 
     def __init__(self):
@@ -60,6 +62,7 @@ class VagrantProvider(BaseProvider):
             box.set_name(name)
             box.set_playbook(playbook)
             box.set_ip(ip)
+            box.set_pwd(self.DEFAULT_VAGRANT_PWD)
             box.set_extra(ext)
             self.env.add(box)
             print "\n%s added.\n" % box
@@ -137,10 +140,8 @@ class VagrantProvider(BaseProvider):
         else:
             return cmd.output()
 
-class VagrantExt(object):
 
-    def __init__(self):
-        self.pwd = 'vagrant'
+class VagrantExt(object):
 
     def set_mem(self, mem):
         self.mem = mem

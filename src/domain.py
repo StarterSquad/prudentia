@@ -6,12 +6,12 @@ class Environment(object):
     file = None
     boxes = list()
 
-    def __init__(self, path, extra_type, name = ENVIRONMENT_FILE_NAME):
+    def __init__(self, path, box_extra_type, name = ENVIRONMENT_FILE_NAME):
         if not os.path.exists(path):
             print "Environment doesn't exists, creating ..."
             os.makedirs(path)
         self.file = path + '/' + name
-        self.extra_type = extra_type
+        self.box_extra_type = box_extra_type
         try:
             with open(self.file):
                 self.__load()
@@ -32,7 +32,7 @@ class Environment(object):
         try:
             f = open(self.file, 'r')
             jsonBoxes = json.load(f)
-            self.boxes = [Box.fromJson(j, self.extra_type) for j in jsonBoxes]
+            self.boxes = [Box.fromJson(j, self.box_extra_type) for j in jsonBoxes]
         except IOError, e:
             print e
         finally:
@@ -53,6 +53,9 @@ class Environment(object):
 
 
 class Box(object):
+    pwd = None
+    extra = None
+
     def set_name(self, name):
         self.name = name
 
@@ -62,8 +65,14 @@ class Box(object):
     def set_ip(self, ip):
         self.ip = ip
 
+    def set_pwd(self, pwd):
+        self.pwd = pwd
+
     def set_extra(self, ex):
         self.extra = ex
+
+    def use_ssh_key(self):
+        return self.pwd is None
 
     def inventory(self):
         return '[' + self.name + ']\n' + self.ip
@@ -72,7 +81,7 @@ class Box(object):
         return '%s -> (%s, %s, %s)' % (self.name, self.playbook, self.ip, self.extra)
 
     def toJson(self):
-        return {'name': self.name, 'playbook': self.playbook, 'ip': self.ip, 'extra': self.extra.toJson()}
+        return {'name': self.name, 'playbook': self.playbook, 'ip': self.ip, 'extra': self.extra.toJson() if self.extra else None}
 
     @staticmethod
     def fromJson(json, extra_type):
@@ -80,5 +89,6 @@ class Box(object):
         b.set_name(json['name'])
         b.set_playbook(json['playbook'])
         b.set_ip(json['ip'])
-        b.set_extra(extra_type.fromJson(json['extra']))
+        if extra_type:
+            b.set_extra(extra_type.fromJson(json['extra']))
         return b

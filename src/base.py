@@ -137,11 +137,11 @@ class BaseProvider(object):
     DEFAULT_PRUDENTIA_INVENTORY = '/tmp/prudentia-inventory'
     env = None
 
-    def __init__(self, name, extra_type, path = DEFAULT_ENVIRONMENTS_PATH):
+    def __init__(self, name, box_extra_type, path = DEFAULT_ENVIRONMENTS_PATH):
         cwd = os.path.realpath(__file__)
         components = cwd.split(os.sep)
         self.prudentia_root_dir = str.join(os.sep, components[:components.index("prudentia") + 1])
-        self.env = Environment(path + name, extra_type)
+        self.env = Environment(path + name, box_extra_type)
 
     def boxes(self):
         return self.env.boxes
@@ -164,8 +164,8 @@ class BaseProvider(object):
 
         remote_pwd = C.DEFAULT_REMOTE_PASS
         transport = C.DEFAULT_TRANSPORT
-        if box.extra:
-            remote_pwd = box.extra.pwd
+        if not box.use_ssh_key():
+            remote_pwd = box.pwd
             transport = 'paramiko'
         playbook = PlayBook(
             playbook=box.playbook,
