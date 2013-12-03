@@ -4,8 +4,9 @@ import sys
 import readline
 from abc import ABCMeta
 from cmd import Cmd
-from ansible import callbacks, utils, errors
+from ansible import callbacks, errors
 from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
+from ansible.color import stringc
 from ansible.inventory import Inventory
 from ansible.playbook import PlayBook
 from ansible.playbook.play import Play
@@ -160,7 +161,7 @@ class BaseProvider(object):
 
         stats = callbacks.AggregateStats()
         playbook_cb = callbacks.PlaybookCallbacks(verbose=True)
-        runner_cb = callbacks.PlaybookRunnerCallbacks(stats, verbose=utils.VERBOSITY)
+        runner_cb = callbacks.PlaybookRunnerCallbacks(stats, verbose=True)
 
         remote_pwd = C.DEFAULT_REMOTE_PASS
         transport = C.DEFAULT_TRANSPORT
@@ -186,21 +187,32 @@ class BaseProvider(object):
             playbook_cb.on_stats(playbook.stats)
             for h in hosts:
                 t = playbook.stats.summarize(h)
-            #print "%-30s : %s %s %s %s " % (
-            #   hostcolor(h, t),
-            #   colorize('ok', t['ok'], 'green'),
-            #   colorize('changed', t['changed'], 'yellow'),
-            #   colorize('unreachable', t['unreachable'], 'red'),
-            #   colorize('failed', t['failures'], 'red'))
-
-            print "\n"
-            for h in hosts:
-                stats = playbook.stats.summarize(h)
-                if stats['failures'] != 0 or stats['unreachable'] != 0:
-                    return 2
-
+                print "%s : %s %s %s %s\n" % (
+                    self._hostcolor(h, t),
+                    self._colorize('ok', t['ok'], 'green'),
+                    self._colorize('changed', t['changed'], 'yellow'),
+                    self._colorize('unreachable', t['unreachable'], 'red'),
+                    self._colorize('failed', t['failures'], 'red'))
         except errors.AnsibleError, e:
             print >>sys.stderr, "ERROR: %s" % e
+
+
+    def _colorize(self, lead, num, color):
+        """ Print 'lead' = 'num' in 'color' """
+        if num != 0 and color is not None:
+            return "%s%s%-15s" % (stringc(lead, color), stringc("=", color), stringc(str(num), color))
+        else:
+            return "%s=%-4s" % (lead, str(num))
+
+    def _hostcolor(self, host, stats, color=True):
+        if color:
+            if stats['failures'] != 0 or stats['unreachable'] != 0:
+                return "%-37s" % stringc(host, 'red')
+            elif stats['changed'] != 0:
+                return "%-37s" % stringc(host, 'yellow')
+            else:
+                return "%-37s" % stringc(host, 'green')
+        return "%-26s" % host
 
     def _generate_inventory(self, box):
         f = None
