@@ -1,2 +1,2 @@
 ---
-  testing: "'$user' == 'vagrant'"
+  testing: "{{ ansible_user_id == 'vagrant' }}"
