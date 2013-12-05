@@ -1,0 +1,32 @@
+---
+  # Parameters:
+  #  $prudentia_dir
+
+  - include: $prudentia_dir/tasks/chrome.yml
+
+  # selenium needs java
+  - include: $prudentia_dir/tasks/java7.yml
+
+  - name: Xvfb | Install
+    apt: force=yes state=present pkg=xvfb
+    tags: protactor
+    sudo: yes
+
+  - name: Protactor | Check if is present
+    command: test -x /usr/bin/webdriver-manager
+    ignore_errors: yes
+    register: protactor_present
+    tags: protactor
+
+  - name: Protactor ans Selenium | Install
+    command: $item
+    with_items:
+      - npm install -g protractor
+      - webdriver-manager update
+    sudo: yes
+    when: protactor_present|failed
+    tags: protactor
+
+#  - name: Selenium | Run server
+#    command: webdriver-manager start
+#    tags: protactor
