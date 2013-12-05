@@ -3,7 +3,7 @@
   #  $prudentia_dir
 
   - name: Ruby | Check if RVM is present
-    command: test -x /home/$user/.rvm/scripts/rvm
+    command: test -x /home/$ansible_user_id/.rvm/scripts/rvm
     ignore_errors: yes
     register: rvm_present
     tags: ruby
