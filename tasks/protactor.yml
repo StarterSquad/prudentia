@@ -18,7 +18,7 @@
     register: protactor_present
     tags: protactor
 
-  - name: Protactor ans Selenium | Install
+  - name: Protactor and Selenium | Install
     command: $item
     with_items:
       - npm install -g protractor
@@ -26,7 +26,3 @@
     sudo: yes
     when: protactor_present|failed
     tags: protactor
-
-#  - name: Selenium | Run server
-#    command: webdriver-manager start
-#    tags: protactor
