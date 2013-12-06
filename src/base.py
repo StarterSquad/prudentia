@@ -23,29 +23,24 @@ class BaseCli(Cmd):
     provider = None # Set by his children
 
     def complete_box_names(self, text, line, begidx, endidx):
-        if not text:
-            completions = [b.name for b in self.provider.boxes()]
+        tokens = line.split(' ')
+        action = tokens[0]
+        box_name = tokens[1]
+        if len(tokens) <= 2:
+            #boxes completion
+            if not text:
+                completions = [b.name for b in self.provider.boxes()]
+            else:
+                completions = [b.name for b in self.provider.boxes() if b.name.startswith(text)]
         else:
-            completions = [b.name for b in self.provider.boxes() if b.name.startswith(text)]
-
-#        tokens = line.split(' ')
-#        action = tokens[0]
-#        box_name = tokens[1]
-#        if len(tokens) <= 2:
-#            #boxes completion
-#            if not text:
-#                completions = self.provider.boxes[:]
-#            else:
-#                completions = [f for f in self.provider.boxes if f.startswith(text)]
-#        else:
-#            if action == 'provision':
-#                #tags completion
-#                if not text:
-#                    completions = self.tags[box_name][:]
-#                else:
-#                    completions = [f for f in self.tags[box_name] if f.startswith(text)]
-#            else:
-#                completions = ['']
+            if action == 'provision':
+                #tags completion
+                if not text:
+                    completions = self.provider.tags[box_name][:]
+                else:
+                    completions = [t for t in self.provider.tags[box_name] if t.startswith(text)]
+            else:
+                completions = ['']
         return completions
 
     def help_add_box(self):
@@ -62,7 +57,10 @@ class BaseCli(Cmd):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_provision(self, line):
-        self.provider.provision(line)
+        tokens = line.split(' ')
+        box_name = tokens[0]
+        tag = tokens[1] if len(tokens) > 1 else None
+        self.provider.provision(box_name, tag)
 
 
     def help_rm_box(self):
@@ -136,13 +134,30 @@ class BaseProvider(object):
 
     DEFAULT_ENVIRONMENTS_PATH = './env/'
     DEFAULT_PRUDENTIA_INVENTORY = '/tmp/prudentia-inventory'
+
     env = None
+    tags = {}
 
     def __init__(self, name, box_extra_type, path = DEFAULT_ENVIRONMENTS_PATH):
         cwd = os.path.realpath(__file__)
         components = cwd.split(os.sep)
         self.prudentia_root_dir = str.join(os.sep, components[:components.index("prudentia") + 1])
         self.env = Environment(path + name, box_extra_type)
+        self.load_tags()
+
+    def load_tags(self, box = None):
+        for b in ([box] if box else self.boxes()):
+            playbook = PlayBook(
+                playbook=b.playbook,
+                inventory=Inventory([]),
+                callbacks=DefaultRunnerCallbacks(),
+                runner_callbacks=DefaultRunnerCallbacks(),
+                stats=AggregateStats(),
+                extra_vars={'prudentia_dir': self.prudentia_root_dir}
+            )
+            play = Play(playbook, playbook.playbook[0], dirname(b.playbook))
+            (matched_tags, unmatched_tags) = play.compare_tags('')
+            self.tags.update({b.name: list(unmatched_tags)})
 
     def boxes(self):
         return self.env.boxes
@@ -155,7 +170,7 @@ class BaseProvider(object):
         self.env.remove(box_name)
         print "\nBox %s removed." % box_name
 
-    def provision(self, box):
+    def provision(self, box, tag):
         self._generate_inventory(box)
         inventory = Inventory(self.DEFAULT_PRUDENTIA_INVENTORY)
 
@@ -168,6 +183,9 @@ class BaseProvider(object):
         if not box.use_ssh_key():
             remote_pwd = box.pwd
             transport = 'paramiko'
+        only_tags = None
+        if tag:
+            only_tags = [tag]
         playbook = PlayBook(
             playbook=box.playbook,
             inventory=inventory,
@@ -176,7 +194,8 @@ class BaseProvider(object):
             callbacks=playbook_cb,
             runner_callbacks=runner_cb,
             stats=stats,
-            extra_vars={'prudentia_dir':self.prudentia_root_dir}
+            extra_vars={'prudentia_dir':self.prudentia_root_dir},
+            only_tags = only_tags
         )
 
         try:
@@ -223,20 +242,3 @@ class BaseProvider(object):
             print e
         finally:
             f.close()
-
-    def _load_tags(self, box):
-        # list available tags for a playbook
-        self.tags = {}
-        for b in self.env.boxes:
-            playbook = PlayBook(
-                playbook=b.playbook,
-                inventory=Inventory([]),
-                callbacks=DefaultRunnerCallbacks(),
-                runner_callbacks=DefaultRunnerCallbacks(),
-                stats=AggregateStats(),
-                extra_vars={'prudentia_dir': self.prudentia_root_dir}
-            )
-            play = Play(playbook, playbook.playbook[0], dirname(b.playbook))
-            (matched_tags, unmatched_tags) = play.compare_tags('')
-            self.tags.update({b.name: list(unmatched_tags)})
-

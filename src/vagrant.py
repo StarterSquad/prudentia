@@ -65,6 +65,7 @@ class VagrantProvider(BaseProvider):
             box.set_pwd(self.DEFAULT_VAGRANT_PWD)
             box.set_extra(ext)
             self.env.add(box)
+            self.load_tags(box)
             print "\n%s added.\n" % box
             self._generate_vagrant_file()
             self._up(name)
@@ -80,10 +81,10 @@ class VagrantProvider(BaseProvider):
             'prudentia_root_dir': self.prudentia_root_dir
         }).dump(self.CONF_FILE)
 
-    def provision(self, box_name):
+    def provision(self, box_name, tag):
         for box in self.boxes():
             if box_name in box.name:
-                super(VagrantProvider, self).provision(box)
+                super(VagrantProvider, self).provision(box, tag)
 
     def remove_box(self, box_name):
         super(VagrantProvider, self).remove_box(box_name)

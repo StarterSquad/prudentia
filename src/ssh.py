@@ -38,11 +38,12 @@ class SshProvider(BaseProvider):
             if len(pwd.strip()):
                 box.set_pwd(pwd)
             self.env.add(box)
+            self.load_tags(box)
             print "\n%s added." % box
         else:
             print 'There was some problem while adding the box.'
 
-    def provision(self, box_name):
+    def provision(self, box_name, tag):
         for box in self.boxes():
             if box_name in box.name:
-                super(SshProvider, self).provision(box)
+                super(SshProvider, self).provision(box, tag)
