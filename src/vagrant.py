@@ -77,8 +77,7 @@ class VagrantProvider(BaseProvider):
         template_name = self.VAGRANT_FILE_NAME + '.j2'
         template = env.get_template(template_name)
         template.stream({
-            'boxes': self.boxes(),
-            'prudentia_root_dir': self.prudentia_root_dir
+            'boxes': self.boxes()
         }).dump(self.CONF_FILE)
 
     def provision(self, box_name, tag):

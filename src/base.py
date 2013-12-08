@@ -2,7 +2,7 @@ import os
 from os.path import dirname
 import sys
 import readline
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod
 from cmd import Cmd
 from ansible import callbacks, errors
 from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
@@ -135,13 +135,12 @@ class BaseProvider(object):
     DEFAULT_ENVIRONMENTS_PATH = './env/'
     DEFAULT_PRUDENTIA_INVENTORY = '/tmp/prudentia-inventory'
 
-    env = None
     tags = {}
 
     def __init__(self, name, box_extra_type, path = DEFAULT_ENVIRONMENTS_PATH):
         cwd = os.path.realpath(__file__)
         components = cwd.split(os.sep)
-        self.prudentia_root_dir = str.join(os.sep, components[:components.index("prudentia") + 1])
+        self.extra_vars = {'prudentia_dir': str.join(os.sep, components[:components.index("prudentia") + 1])}
         self.env = Environment(path + name, box_extra_type)
         self.load_tags()
 
@@ -153,7 +152,7 @@ class BaseProvider(object):
                 callbacks=DefaultRunnerCallbacks(),
                 runner_callbacks=DefaultRunnerCallbacks(),
                 stats=AggregateStats(),
-                extra_vars={'prudentia_dir': self.prudentia_root_dir}
+                extra_vars=self.extra_vars
             )
             play = Play(playbook, playbook.playbook[0], dirname(b.playbook))
             (matched_tags, unmatched_tags) = play.compare_tags('')
@@ -162,9 +161,9 @@ class BaseProvider(object):
     def boxes(self):
         return self.env.boxes
 
+    @abstractmethod
     def add_box(self):
-        # children implements it
-        return
+        pass
 
     def remove_box(self, box_name):
         self.env.remove(box_name)
@@ -194,7 +193,7 @@ class BaseProvider(object):
             callbacks=playbook_cb,
             runner_callbacks=runner_cb,
             stats=stats,
-            extra_vars={'prudentia_dir':self.prudentia_root_dir},
+            extra_vars=self.extra_vars,
             only_tags = only_tags
         )
 

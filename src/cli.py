@@ -32,7 +32,7 @@ class CLI(Cmd):
         self.prompt = '(Prudentia) '
 
     def cmdloop(self, *args, **kwargs):
-        print '\nTo start `use` one of those providers: %s.\n' % self.environments.keys()
+        print '\nTo start `use` one of those providers: %s\n' % ', '.join(str(p) for p in self.environments.keys())
         return Cmd.cmdloop(self, *args, **kwargs)
 
 
