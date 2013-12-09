@@ -1,6 +1,6 @@
 ---
   # Parameters:
-  #  $root_password
+  #  $mysql_root_password
   #  $prudentia_dir
 
   - name: MySQL | Check if installed
@@ -9,7 +9,7 @@
     tags: mysql
 
   - name: MySQL | Preset root password
-    action: shell echo mysql-server-5.5 mysql-server/$item password {{root_password}} | debconf-set-selections
+    action: shell echo mysql-server-5.5 mysql-server/$item password {{mysql_root_password}} | debconf-set-selections
     with_items:
       - root_password
       - root_password_again
