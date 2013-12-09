@@ -81,7 +81,13 @@ class Box(object):
         return '%s -> (%s, %s, %s)' % (self.name, self.playbook, self.ip, self.extra)
 
     def toJson(self):
-        return {'name': self.name, 'playbook': self.playbook, 'ip': self.ip, 'extra': self.extra.toJson() if self.extra else None}
+        return {
+            'name': self.name,
+            'playbook': self.playbook,
+            'ip': self.ip,
+            'pwd': self.pwd,
+            'extra': self.extra.toJson() if self.extra else None
+        }
 
     @staticmethod
     def fromJson(json, extra_type):
@@ -89,6 +95,7 @@ class Box(object):
         b.set_name(json['name'])
         b.set_playbook(json['playbook'])
         b.set_ip(json['ip'])
+        b.set_pwd(json['pwd'])
         if extra_type:
             b.set_extra(extra_type.fromJson(json['extra']))
         return b
