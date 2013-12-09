@@ -17,6 +17,8 @@ class VagrantProvider(BaseProvider):
     def __init__(self):
         super(VagrantProvider, self).__init__('vagrant', VagrantExt)
         self.template_env = Environment(loader=FileSystemLoader('./src'), auto_reload=True)
+        install_vagrant = BashCmd('./bin/install_vagrant.sh')
+        install_vagrant.execute()
 
     def add_box(self):
         playbook = raw_input('Specify the playbook path: ')

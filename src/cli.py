@@ -4,18 +4,16 @@ from ssh import SshProvider
 from vagrant import VagrantProvider
 
 class SshCli(BaseCli):
-    provider = SshProvider()
-
     def __init__(self, *args, **kwargs):
         Cmd.__init__(self, *args, **kwargs)
+        self.provider = SshProvider()
         self.prompt = '(Prudentia > Ssh) '
 
 
 class VagrantCli(BaseCli):
-    provider = VagrantProvider()
-
     def __init__(self, *args, **kwargs):
         Cmd.__init__(self, *args, **kwargs)
+        self.provider = VagrantProvider()
         self.prompt = '(Prudentia > Vagrant) '
 
 

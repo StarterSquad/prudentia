@@ -31,8 +31,11 @@ fi
 
 source ./p-env/bin/activate
 
-echo "Checking dependencies ..."
-pip install -r ./requirements.txt > /dev/null
-./bin/install_vagrant.sh > /dev/null
+pip freeze > /tmp/prudentia_temp_deps
+if ! cmp ./requirements.txt /tmp/prudentia_temp_deps > /dev/null 2>&1
+then
+  echo "Installing Python dependencies ..."
+  pip install -r ./requirements.txt
+fi
 
 ./p-env/bin/python prudentia.py $1
