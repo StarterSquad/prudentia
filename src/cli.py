@@ -18,6 +18,7 @@ class VagrantCli(BaseCli):
 
 
 class CLI(Cmd):
+    parentLoop = False
     cli = None
 
     environments = {
@@ -30,6 +31,7 @@ class CLI(Cmd):
         self.prompt = '(Prudentia) '
 
     def cmdloop(self, *args, **kwargs):
+        self.parentLoop = True
         print '\nTo start: `use` one of the available providers: %s\n' % ', '.join(str(p) for p in self.environments.keys())
         return Cmd.cmdloop(self, *args, **kwargs)
 
@@ -46,7 +48,7 @@ class CLI(Cmd):
             self.cli.cmdloop()
         else:
             print 'Provider %s NOT found.' % env
-        return False
+        return not self.parentLoop
 
     def do_EOF(self, line):
         print "\n\nBye!"
