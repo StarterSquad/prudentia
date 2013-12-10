@@ -9,10 +9,10 @@ class SshProvider(BaseProvider):
         super(SshProvider, self).__init__('ssh', None)
 
     def add_box(self):
-        playbook = raw_input('Specify the playbook path: ')
-
         f = name = None
         try:
+            playbook = raw_input('Specify the playbook path: ').strip()
+
             f = open(playbook, 'r')
             for i, line in enumerate(f):
                 if i == 1: # 2nd line contains the host name
@@ -20,28 +20,32 @@ class SshProvider(BaseProvider):
                     name = match.group(1)
                 elif i > 1:
                     break
-        except Exception as e:
-            print 'There was a problem while reading %s: ' % playbook, e
-        finally:
-            if f:
-                f.close()
 
-        ip = raw_input('Specify the IP address of the instance: ')
+            for box in self.boxes():
+                if box.name == name:
+                    raise ValueError("Box '%s' already exists" % name)
 
-        pwd = raw_input('Wanna use a password [default use ssh key]: ')
+            ip = raw_input('Specify the address of the instance: ').strip()
+            if not len(ip):
+                # TODO use regex for ip and domain
+                raise ValueError("Address '%s' not valid" % ip)
 
-        if name and playbook and ip:
+            pwd = raw_input('Specify a password [default use ssh key]: ').strip()
+
             box = Box()
             box.set_name(name)
             box.set_playbook(playbook)
             box.set_ip(ip)
-            if len(pwd.strip()):
+            if len(pwd):
                 box.set_pwd(pwd)
             self.env.add(box)
             self.load_tags(box)
-            print "\n%s added." % box
-        else:
-            print 'There was some problem while adding the box.'
+            print "\nBox %s added." % box
+        except Exception as e:
+            print '\nThere was some problem while adding the box: %s\n' % e
+        finally:
+            if f:
+                f.close()
 
     def provision(self, box_name, tag):
         for box in self.boxes():
