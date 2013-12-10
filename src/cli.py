@@ -6,15 +6,15 @@ from vagrant import VagrantProvider
 class SshCli(BaseCli):
     def __init__(self, *args, **kwargs):
         Cmd.__init__(self, *args, **kwargs)
-        self.provider = SshProvider()
         self.prompt = '(Prudentia > Ssh) '
+        self.provider = SshProvider()
 
 
 class VagrantCli(BaseCli):
     def __init__(self, *args, **kwargs):
         Cmd.__init__(self, *args, **kwargs)
-        self.provider = VagrantProvider()
         self.prompt = '(Prudentia > Vagrant) '
+        self.provider = VagrantProvider()
 
 
 class CLI(Cmd):
@@ -30,7 +30,7 @@ class CLI(Cmd):
         self.prompt = '(Prudentia) '
 
     def cmdloop(self, *args, **kwargs):
-        print '\nTo start `use` one of those providers: %s\n' % ', '.join(str(p) for p in self.environments.keys())
+        print '\nTo start: `use` one of the available providers: %s\n' % ', '.join(str(p) for p in self.environments.keys())
         return Cmd.cmdloop(self, *args, **kwargs)
 
 
@@ -41,13 +41,12 @@ class CLI(Cmd):
             return [e for e in self.environments.keys() if e.startswith(text)]
 
     def do_use(self, env):
-        cli = self.environments[env]
-        if cli:
-            self.cli = cli()
+        if env in self.environments.keys():
+            self.cli = self.environments[env]()
+            self.cli.cmdloop()
         else:
-            print 'No provider for environment: %s' % env
-            return False
-        self.cli.cmdloop()
+            print 'Provider %s NOT found.' % env
+        return False
 
     def do_EOF(self, line):
         print "\n\nBye!"
