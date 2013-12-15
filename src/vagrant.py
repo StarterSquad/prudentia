@@ -5,6 +5,7 @@ from base import BaseProvider
 from bash import BashCmd
 from domain import Box
 
+
 class VagrantProvider(BaseProvider):
     ENV_DIR = './env/vagrant/'
     VAGRANT_FILE_NAME = 'Vagrantfile'
@@ -27,7 +28,7 @@ class VagrantProvider(BaseProvider):
 
             f = open(playbook, 'r')
             for i, line in enumerate(f):
-                if i == 1: # 2nd line contains the host name
+                if i == 1:  # 2nd line contains the host name
                     match = self.box_name_pattern.match(line)
                     name = match.group(1)
                 elif i > 1:
@@ -97,28 +98,27 @@ class VagrantProvider(BaseProvider):
         self._destroy(box_name)
         self._generate_vagrant_file()
 
-
     def _up(self, box_name):
         self._action(action="up", action_args=("--no-provision", box_name))
 
-#    def status(self):
-#        output = self.action(action="status", output=False)
-#        for box in self.boxes:
-#            pattern = '.*' + box.name + '\s*(.*?) \(virtualbox\).*'
-#            match = re.match(pattern, output, re.DOTALL)
-#            status = match.group(1)
-#            print "%s -> %r\n" % (status, box)
-#
-#    def provision(self, box_name, tags):
-#        start = datetime.now()
-#        self.action(action="provision", action_args=(box_name,), tags=tags)
-#        end = datetime.now()
-#        diff = end - start
-#        print "Took {0} seconds\n".format(diff.seconds)
-#
-#    def reload(self, box_name):
-#        self.action(action="reload", action_args=("--no-provision", box_name))
-#
+    #    def status(self):
+    #        output = self.action(action="status", output=False)
+    #        for box in self.boxes:
+    #            pattern = '.*' + box.name + '\s*(.*?) \(virtualbox\).*'
+    #            match = re.match(pattern, output, re.DOTALL)
+    #            status = match.group(1)
+    #            print "%s -> %r\n" % (status, box)
+    #
+    #    def provision(self, box_name, tags):
+    #        start = datetime.now()
+    #        self.action(action="provision", action_args=(box_name,), tags=tags)
+    #        end = datetime.now()
+    #        diff = end - start
+    #        print "Took {0} seconds\n".format(diff.seconds)
+
+    def reload(self, box_name):
+        self._action(action="reload", action_args=("--no-provision", box_name))
+
     def _halt(self, box_name):
         self._action(action="halt", action_args=(box_name,))
 
@@ -149,6 +149,8 @@ class VagrantProvider(BaseProvider):
 
 
 class VagrantExt(object):
+    mem = None
+    shares = None
 
     def set_mem(self, mem):
         self.mem = mem
@@ -159,11 +161,11 @@ class VagrantExt(object):
     def __repr__(self):
         return 'VagrantExt[mem: %s, shares: %s]' % (self.mem, self.shares)
 
-    def toJson(self):
-        return {'mem':self.mem, 'shares':self.shares}
+    def to_json(self):
+        return {'mem': self.mem, 'shares': self.shares}
 
     @staticmethod
-    def fromJson(json):
+    def from_json(json):
         e = VagrantExt()
         e.set_mem(json['mem'])
         e.set_shares(json['shares'])

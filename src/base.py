@@ -20,7 +20,7 @@ else:
 
 
 class BaseCli(Cmd):
-    provider = None # Set by his children
+    provider = None  # Set by his children
 
     def complete_box_names(self, text, line, begidx, endidx):
         tokens = line.split(' ')
@@ -80,6 +80,17 @@ class BaseCli(Cmd):
         for b in self.provider.boxes():
             print b
 
+    ## For Factory Providers
+
+    def help_reload(self):
+        print "Reload the box.\n"
+
+    def complete_reload(self, text, line, begidx, endidx):
+        return self.complete_box_names(text, line, begidx, endidx)
+
+    def do_reload(self, line):
+        self.provider.reload(line)
+
 
     def help_phoenix(self):
         print "Destroys and re-provisions the box.\n"
@@ -88,16 +99,6 @@ class BaseCli(Cmd):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_phoenix(self, line):
-        return
-
-
-    def help_restart(self):
-        print "Reload the box.\n"
-
-    def complete_restart(self, text, line, begidx, endidx):
-        return self.complete_box_names(text, line, begidx, endidx)
-
-    def do_restart(self, line):
         return
 
 
@@ -137,14 +138,14 @@ class BaseProvider(object):
 
     tags = {}
 
-    def __init__(self, name, box_extra_type, path = DEFAULT_ENVIRONMENTS_PATH):
+    def __init__(self, name, box_extra_type, path=DEFAULT_ENVIRONMENTS_PATH):
         cwd = os.path.realpath(__file__)
         components = cwd.split(os.sep)
         self.extra_vars = {'prudentia_dir': str.join(os.sep, components[:components.index("prudentia") + 1])}
         self.env = Environment(path + name, box_extra_type)
         self.load_tags()
 
-    def load_tags(self, box = None):
+    def load_tags(self, box=None):
         for b in ([box] if box else self.boxes()):
             playbook = PlayBook(
                 playbook=b.playbook,
@@ -194,7 +195,7 @@ class BaseProvider(object):
             runner_callbacks=runner_cb,
             stats=stats,
             extra_vars=self.extra_vars,
-            only_tags = only_tags
+            only_tags=only_tags
         )
 
         try:
