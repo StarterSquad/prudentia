@@ -2,8 +2,8 @@ import json
 import unittest
 from src.domain import Environment, Box
 
-class TestEnvironment(unittest.TestCase):
 
+class TestEnvironment(unittest.TestCase):
     def setUp(self):
         self.env = Environment('./env', NoExtra)
         box = Box()
@@ -21,12 +21,13 @@ class TestEnvironment(unittest.TestCase):
         self.env.remove('box-name')
         self.assertEqual(json.load(open('./env/.boxes', 'r')), [])
 
+
 class NoExtra:
-    def toJson(self):
+    def to_json(self):
         return ''
 
     @staticmethod
-    def fromJson(json):
+    def from_json(json_value):
         return NoExtra()
 
 

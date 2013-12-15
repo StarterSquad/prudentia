@@ -2,6 +2,7 @@ import re
 from base import BaseProvider
 from domain import Box
 
+
 class SshProvider(BaseProvider):
     box_name_pattern = re.compile('- hosts: (.*)')
 
@@ -15,7 +16,7 @@ class SshProvider(BaseProvider):
 
             f = open(playbook, 'r')
             for i, line in enumerate(f):
-                if i == 1: # 2nd line contains the host name
+                if i == 1:  # 2nd line contains the host name
                     match = self.box_name_pattern.match(line)
                     name = match.group(1)
                 elif i > 1:
