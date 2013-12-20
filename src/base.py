@@ -4,6 +4,7 @@ import sys
 import readline
 from abc import ABCMeta, abstractmethod
 from cmd import Cmd
+from datetime import datetime
 from ansible import callbacks, errors
 from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
 from ansible.color import stringc
@@ -171,6 +172,7 @@ class BaseProvider(object):
         print "\nBox %s removed." % box_name
 
     def provision(self, box, tag):
+        #TODO inventory can be returned from generate and give it to playbook w/o intermediaries
         self._generate_inventory(box)
         inventory = Inventory(self.DEFAULT_PRUDENTIA_INVENTORY)
 
@@ -199,6 +201,7 @@ class BaseProvider(object):
         )
 
         try:
+            start = datetime.now()
             playbook.run()
 
             hosts = sorted(playbook.stats.processed.keys())
@@ -212,6 +215,8 @@ class BaseProvider(object):
                     self._colorize('changed', t['changed'], 'yellow'),
                     self._colorize('unreachable', t['unreachable'], 'red'),
                     self._colorize('failed', t['failures'], 'red'))
+
+            print "Provisioning took {0} minutes\n".format((datetime.now() - start).seconds / 60)
         except errors.AnsibleError, e:
             print >>sys.stderr, "ERROR: %s" % e
 
