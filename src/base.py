@@ -139,7 +139,7 @@ class BaseProvider(object):
 
     tags = {}
 
-    def __init__(self, name, box_extra_type, path=DEFAULT_ENVIRONMENTS_PATH):
+    def __init__(self, name, box_extra_type=None, path=DEFAULT_ENVIRONMENTS_PATH):
         cwd = os.path.realpath(__file__)
         components = cwd.split(os.sep)
         self.extra_vars = {'prudentia_dir': str.join(os.sep, components[:components.index("prudentia") + 1])}

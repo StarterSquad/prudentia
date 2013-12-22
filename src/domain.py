@@ -1,5 +1,6 @@
 import json
 import os
+from util import xstr
 
 
 class Environment(object):
@@ -7,7 +8,7 @@ class Environment(object):
     file = None
     boxes = list()
 
-    def __init__(self, path, box_extra_type, name=ENVIRONMENT_FILE_NAME):
+    def __init__(self, path, box_extra_type=None, name=ENVIRONMENT_FILE_NAME):
         if not os.path.exists(path):
             print "Environment doesn't exists, creating ..."
             os.makedirs(path)
@@ -81,24 +82,28 @@ class Box(object):
         return '[' + self.name + ']\n' + self.ip
 
     def __repr__(self):
-        return '%s -> (%s, %s, %s)' % (self.name, self.playbook, self.ip, self.extra)
+        return '%s -> (%s, %s, ***, %s)' % (self.name, self.playbook, self.ip, xstr(self.extra))
 
     def to_json(self):
-        return {
+        json_obj = {
             'name': self.name,
             'playbook': self.playbook,
-            'ip': self.ip,
-            'pwd': self.pwd,
-            'extra': self.extra.to_json() if self.extra else None
+            'ip': self.ip
         }
+        if self.pwd:
+            json_obj.update({'pwd': self.pwd})
+        if self.extra:
+            json_obj.update({'extra': self.extra.to_json()})
+        return json_obj
 
     @staticmethod
-    def from_json(json_value, extra_type):
+    def from_json(json_obj, extra_type):
         b = Box()
-        b.set_name(json_value['name'])
-        b.set_playbook(json_value['playbook'])
-        b.set_ip(json_value['ip'])
-        b.set_pwd(json_value['pwd'])
-        if extra_type:
-            b.set_extra(extra_type.from_json(json_value['extra']))
+        b.set_name(json_obj['name'])
+        b.set_playbook(json_obj['playbook'])
+        b.set_ip(json_obj['ip'])
+        if 'pwd' in json_obj:
+            b.set_pwd(json_obj['pwd'])
+        if extra_type and 'extra' in json_obj:
+            b.set_extra(extra_type.from_json(json_obj['extra']))
         return b

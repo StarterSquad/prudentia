@@ -7,7 +7,7 @@ class SshProvider(BaseProvider):
     box_name_pattern = re.compile('- hosts: (.*)')
 
     def __init__(self):
-        super(SshProvider, self).__init__('ssh', None)
+        super(SshProvider, self).__init__('ssh')
 
     def add_box(self):
         f = name = None
