@@ -9,7 +9,7 @@ class SshProvider(BaseProvider):
     def __init__(self):
         super(SshProvider, self).__init__('ssh')
 
-    def add_box(self):
+    def register(self):
         try:
             playbook = input_string('playbook path')
             name = self.fetch_box_name(playbook)
@@ -18,15 +18,14 @@ class SshProvider(BaseProvider):
             pwd = input_string('password for the remote user', default_description='ssh key', mandatory=False)
 
             box = Box(name, playbook, ip, user, pwd)
-            self.env.add(box)
-            self.load_tags(box)
+            self.add_box(box)
             print "\nBox %s added." % box
         except Exception as e:
             print '\nThere was some problem while adding the box: %s\n' % e
 
     def reconfigure(self, box_name):
         try:
-            box = self.env.remove(box_name)
+            box = self.remove_box(box_name)
 
             playbook = input_string('playbook path', previous=box.playbook)
             name = self.fetch_box_name(playbook)
@@ -35,8 +34,7 @@ class SshProvider(BaseProvider):
             pwd = input_string('password for the remote user', previous=box.remote_pwd, mandatory=False)
 
             box = Box(name, playbook, ip, user, pwd)
-            self.env.add(box)
-            self.load_tags(box)
+            self.add_box(box)
             print "\nBox %s reconfigured." % box
         except Exception as e:
             print '\nThere was some problem while reconfiguring the box: %s\n' % e

@@ -1,7 +1,9 @@
 from cmd import Cmd
+
 from base import BaseCli
 from ssh import SshProvider
 from vagrant import VagrantProvider
+
 
 class SshCli(BaseCli):
     def __init__(self, *args, **kwargs):
@@ -18,7 +20,7 @@ class VagrantCli(BaseCli):
 
 
 class CLI(Cmd):
-    parentLoop = False
+    parent_loop = False
     cli = None
 
     environments = {
@@ -31,8 +33,9 @@ class CLI(Cmd):
         self.prompt = '(Prudentia) '
 
     def cmdloop(self, *args, **kwargs):
-        self.parentLoop = True
-        print '\nTo start: `use` one of the available providers: %s\n' % ', '.join(str(p) for p in self.environments.keys())
+        self.parent_loop = True
+        print '\nTo start: `use` one of the available providers: %s\n' % ', '.join(
+            str(p) for p in self.environments.keys())
         return Cmd.cmdloop(self, *args, **kwargs)
 
 
@@ -48,7 +51,7 @@ class CLI(Cmd):
             self.cli.cmdloop()
         else:
             print 'Provider %s NOT found.' % env
-        return not self.parentLoop
+        return not self.parent_loop
 
     def do_EOF(self, line):
         print "\n\nBye!"

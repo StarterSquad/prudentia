@@ -21,7 +21,7 @@ class VagrantProvider(BaseProvider):
         install_vagrant = BashCmd('./bin/install_vagrant.sh')
         install_vagrant.execute()
 
-    def add_box(self):
+    def register(self):
         try:
             playbook = input_string('playbook path')
             name = self.fetch_box_name(playbook)
@@ -37,17 +37,25 @@ class VagrantProvider(BaseProvider):
             ext.set_shares(self._input_shares())
 
             box = Box(name, playbook, ip, self.DEFAULT_VAGRANT_USER, self.DEFAULT_VAGRANT_PWD, ext)
-            self.env.add(box)
-            self.load_tags(box)
-            self._generate_vagrant_file()
-            self._up(name)
+            self.add_box(box)
             print "\nBox %s added." % box
         except Exception as e:
             print '\nThere was some problem while adding the box: %s\n' % e
 
+    def add_box(self, box):
+        super(VagrantProvider, self).add_box(box)
+        self._generate_vagrant_file()
+        self._up(box.name)
+
+    def remove_box(self, box_name):
+        b = super(VagrantProvider, self).remove_box(box_name)
+        self._destroy(box_name)
+        self._generate_vagrant_file()
+        return b
+
     def reconfigure(self, box_name):
         try:
-            box = self.env.remove(box_name)
+            box = self.remove_box(box_name)
 
             playbook = input_string('playbook path', previous=box.playbook)
             name = self.fetch_box_name(playbook)
@@ -63,10 +71,7 @@ class VagrantProvider(BaseProvider):
             ext.set_shares(self._input_shares())
 
             box = Box(name, playbook, ip, self.DEFAULT_VAGRANT_USER, self.DEFAULT_VAGRANT_PWD, ext)
-            self.env.add(box)
-            self.load_tags(box)
-            self._generate_vagrant_file()
-            self._up(name)
+            self.add_box(box)
             print "\nBox %s reconfigured." % box
         except Exception as e:
             print '\nThere was some problem while reconfiguring the box: %s\n' % e
@@ -98,11 +103,6 @@ class VagrantProvider(BaseProvider):
         for box in self.boxes():
             if box_name in box.name:
                 super(VagrantProvider, self).provision(box, tag)
-
-    def remove_box(self, box_name):
-        super(VagrantProvider, self).remove_box(box_name)
-        self._destroy(box_name)
-        self._generate_vagrant_file()
 
     def _up(self, box_name):
         self._action(action="up", action_args=("--no-provision", box_name))

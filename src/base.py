@@ -48,11 +48,12 @@ class BaseCli(Cmd):
                 completions = ['']
         return completions
 
-    def help_add_box(self):
-        print "Adds a box.\n"
 
-    def do_add_box(self, line):
-        self.provider.add_box()
+    def help_register(self):
+        print "Registers a new box.\n"
+
+    def do_register(self, line):
+        self.provider.register()
 
 
     def help_reconfigure(self):
@@ -66,7 +67,7 @@ class BaseCli(Cmd):
 
 
     def help_provision(self):
-        print "Starts and provisions the box, it accepts as optional argument an Ansible tag.\n"
+        print "Starts and provisions the box, it accepts as optional argument a playbook tag.\n"
 
     def complete_provision(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
@@ -78,14 +79,14 @@ class BaseCli(Cmd):
         self.provider.provision(box_name, tag)
 
 
-    def help_rm_box(self):
-        print "Removes a box.\n"
+    def help_unregister(self):
+        print "Unregisters an existing box.\n"
 
-    def complete_rm_box(self, text, line, begidx, endidx):
+    def complete_unregister(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
 
-    def do_rm_box(self, line):
-        self.provider.remove_box(line)
+    def do_unregister(self, line):
+        self.provider.unregister(line)
 
 
     def help_status(self):
@@ -162,6 +163,13 @@ class BaseProvider(object):
         self.env = Environment(path + name, box_extra_type)
         self.load_tags()
 
+    def boxes(self):
+        return self.env.boxes.values()
+
+    def add_box(self, box):
+        self.env.add(box)
+        self.load_tags(box)
+
     def load_tags(self, box=None):
         for b in ([box] if box else self.boxes()):
             playbook = PlayBook(
@@ -176,16 +184,21 @@ class BaseProvider(object):
             (matched_tags, unmatched_tags) = play.compare_tags('')
             self.tags[b.name] = list(unmatched_tags)
 
-    def boxes(self):
-        return self.env.boxes.values()
+    def remove_box(self, box_name):
+        self.tags.pop(box_name)
+        return self.env.remove(box_name)
 
     @abstractmethod
-    def add_box(self):
+    def register(self):
         pass
 
     @abstractmethod
     def reconfigure(self, box_name):
         pass
+
+    def unregister(self, box_name):
+        self.remove_box(box_name)
+        print "\nBox %s removed." % box_name
 
     def fetch_box_name(self, playbook):
         with open(playbook, 'r') as f:
@@ -198,10 +211,6 @@ class BaseProvider(object):
                     break
 
         return box_name
-
-    def remove_box(self, box_name):
-        self.env.remove(box_name)
-        print "\nBox %s removed." % box_name
 
     def provision(self, box, tag):
         inventory = self._generate_inventory(box)
@@ -254,6 +263,16 @@ class BaseProvider(object):
         except errors.AnsibleError, e:
             print >> sys.stderr, "ERROR: %s" % e
 
+    def _generate_inventory(self, box):
+        f = None
+        try:
+            f = open(self.DEFAULT_PRUDENTIA_INVENTORY, 'w')
+            f.write(box.inventory())
+        except IOError, e:
+            print e
+        finally:
+            f.close()
+        return Inventory(self.DEFAULT_PRUDENTIA_INVENTORY)
 
     def _colorize(self, lead, num, color):
         """ Print 'lead' = 'num' in 'color' """
@@ -271,14 +290,3 @@ class BaseProvider(object):
             else:
                 return "%-37s" % stringc(host, 'green')
         return "%-26s" % host
-
-    def _generate_inventory(self, box):
-        f = None
-        try:
-            f = open(self.DEFAULT_PRUDENTIA_INVENTORY, 'w')
-            f.write(box.inventory())
-        except IOError, e:
-            print e
-        finally:
-            f.close()
-        return Inventory(self.DEFAULT_PRUDENTIA_INVENTORY)
