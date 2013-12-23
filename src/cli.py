@@ -40,7 +40,6 @@ class CLI(Cmd):
             str(p) for p in self.environments.keys())
         return Cmd.cmdloop(self, *args, **kwargs)
 
-
     def complete_use(self, text, line, begidx, endidx):
         if not text:
             return self.environments.keys()

@@ -14,6 +14,16 @@ DIR="$( cd -P "$( dirname "${SOURCE}" )" && pwd )"
 # Change cwd in prudentia dir
 cd ${DIR}
 
+GLOBAL_BIN="/usr/bin/prudentia"
+if [[ ! -x ${GLOBAL_BIN} ]]
+then
+  read -p "Do you want to link Prudentia to ${GLOBAL_BIN}? [y/N] " -e answer
+  if [ "${answer}" = "y" ]
+  then
+      sudo ln -s ${SOURCE} ${GLOBAL_BIN}
+  fi
+fi
+
 if [ -z "$( which python )" ]
 then
     echo "Please, install Python (>=2.7)."
