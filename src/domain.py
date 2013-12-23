@@ -1,5 +1,6 @@
 import json
 import os
+
 from util import xstr
 
 
@@ -32,8 +33,9 @@ class Environment(object):
         return self.boxes.get(box_name, None)
 
     def remove(self, box_name):
-        self.boxes.pop(box_name, None)
+        b = self.boxes.pop(box_name, None)
         self.__save()
+        return b
 
     def __load(self):
         f = None
@@ -63,30 +65,13 @@ class Environment(object):
 
 
 class Box(object):
-    name = None
-    playbook = None
-    ip = None
-    remote_user = None
-    remote_pwd = None
-    extra = None
-
-    def set_name(self, name):
+    def __init__(self, name, playbook, ip, remote_user=None, remote_pwd=None, extra=None):
         self.name = name
-
-    def set_playbook(self, pb):
-        self.playbook = pb
-
-    def set_ip(self, ip):
+        self.playbook = playbook
         self.ip = ip
-
-    def set_remote_user(self, user):
-        self.remote_user = user
-
-    def set_remote_pwd(self, pwd):
-        self.remote_pwd = pwd
-
-    def set_extra(self, ex):
-        self.extra = ex
+        self.remote_user = remote_user
+        self.remote_pwd = remote_pwd
+        self.extra = extra
 
     def use_ssh_key(self):
         return self.remote_pwd is None
@@ -95,7 +80,8 @@ class Box(object):
         return '[' + self.name + ']\n' + self.ip
 
     def __repr__(self):
-        return '%s -> (%s, %s, %s, ***, %s)' % (self.name, self.playbook, self.ip, self.remote_user, xstr(self.extra))
+        values = [self.playbook, self.ip, self.remote_user, '*****' if self.remote_pwd else '', xstr(self.extra)]
+        return '%s -> (%s)' % (self.name, ', '.join(i for i in values if i and i.strip()))
 
     def to_json(self):
         json_obj = {
@@ -113,14 +99,11 @@ class Box(object):
 
     @staticmethod
     def from_json(json_obj, extra_type):
-        b = Box()
-        b.set_name(json_obj['name'])
-        b.set_playbook(json_obj['playbook'])
-        b.set_ip(json_obj['ip'])
-        if 'remote_user' in json_obj:
-            b.set_remote_user(json_obj['remote_user'])
-        if 'remote_pwd' in json_obj:
-            b.set_remote_pwd(json_obj['remote_pwd'])
-        if extra_type and 'extra' in json_obj:
-            b.set_extra(extra_type.from_json(json_obj['extra']))
-        return b
+        return Box(
+            json_obj.get('name'),
+            json_obj.get('playbook'),
+            json_obj.get('ip'),
+            json_obj.get('remote_user'),
+            json_obj.get('remote_pwd'),
+            extra_type.from_json(json_obj.get('extra')) if extra_type else None
+        )

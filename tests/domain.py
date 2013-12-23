@@ -6,10 +6,7 @@ from src.domain import Environment, Box
 class TestEnvironment(unittest.TestCase):
     def setUp(self):
         self.env = Environment('./env')
-        box = Box()
-        box.set_name('box-name')
-        box.set_playbook('dev.yml')
-        box.set_ip('0.0.0.0')
+        box = Box('box-name', 'dev.yml', '0.0.0.0')
         self.test_box = box
 
     def test_add(self):
@@ -21,8 +18,7 @@ class TestEnvironment(unittest.TestCase):
         self.assertFalse('extra' in box)
 
     def test_add_existing_name(self):
-        b2 = Box()
-        b2.set_name('box-name')
+        b2 = Box('box-name', 'dev2', '1.2.3.4')
         self.assertRaises(ValueError, self.env.add, b2)
 
     def test_get_valid_box(self):

@@ -2,9 +2,11 @@ import os
 from os.path import dirname
 import sys
 import readline
+import re
 from abc import ABCMeta, abstractmethod
 from cmd import Cmd
 from datetime import datetime
+
 from ansible import callbacks, errors
 from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
 from ansible.color import stringc
@@ -12,7 +14,9 @@ from ansible.inventory import Inventory
 from ansible.playbook import PlayBook
 from ansible.playbook.play import Play
 import ansible.constants as C
+
 from domain import Environment
+
 
 if 'libedit' in readline.__doc__:
     readline.parse_and_bind("bind ^I rl_complete")
@@ -49,6 +53,16 @@ class BaseCli(Cmd):
 
     def do_add_box(self, line):
         self.provider.add_box()
+
+
+    def help_reconfigure(self):
+        print "Reconfigures an existing box.\n"
+
+    def complete_reconfigure(self, text, line, begidx, endidx):
+        return self.complete_box_names(text, line, begidx, endidx)
+
+    def do_reconfigure(self, line):
+        self.provider.reconfigure(line)
 
 
     def help_provision(self):
@@ -137,6 +151,8 @@ class BaseProvider(object):
     DEFAULT_ENVIRONMENTS_PATH = './env/'
     DEFAULT_PRUDENTIA_INVENTORY = '/tmp/prudentia-inventory'
 
+    box_name_pattern = re.compile('- hosts: (.*)')
+
     tags = {}
 
     def __init__(self, name, box_extra_type=None, path=DEFAULT_ENVIRONMENTS_PATH):
@@ -158,14 +174,30 @@ class BaseProvider(object):
             )
             play = Play(playbook, playbook.playbook[0], dirname(b.playbook))
             (matched_tags, unmatched_tags) = play.compare_tags('')
-            self.tags.update({b.name: list(unmatched_tags)})
+            self.tags[b.name] = list(unmatched_tags)
 
     def boxes(self):
-        return self.env.boxes
+        return self.env.boxes.values()
 
     @abstractmethod
     def add_box(self):
         pass
+
+    @abstractmethod
+    def reconfigure(self, box_name):
+        pass
+
+    def fetch_box_name(self, playbook):
+        with open(playbook, 'r') as f:
+            box_name = None
+            for i, line in enumerate(f):
+                if i == 1:  # 2nd line contains the host box_name
+                    match = self.box_name_pattern.match(line)
+                    box_name = match.group(1)
+                elif i > 1:
+                    break
+
+        return box_name
 
     def remove_box(self, box_name):
         self.env.remove(box_name)
@@ -220,7 +252,7 @@ class BaseProvider(object):
 
             print "Provisioning took {0} minutes\n".format((datetime.now() - start).seconds / 60)
         except errors.AnsibleError, e:
-            print >>sys.stderr, "ERROR: %s" % e
+            print >> sys.stderr, "ERROR: %s" % e
 
 
     def _colorize(self, lead, num, color):

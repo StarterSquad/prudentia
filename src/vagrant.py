@@ -64,13 +64,7 @@ class VagrantProvider(BaseProvider):
                     loop = False
             ext.set_shares(shares)
 
-            box = Box()
-            box.set_name(name)
-            box.set_playbook(playbook)
-            box.set_ip(ip)
-            box.set_remote_user(self.DEFAULT_VAGRANT_USER)
-            box.set_remote_pwd(self.DEFAULT_VAGRANT_PWD)
-            box.set_extra(ext)
+            box = Box(name, playbook, ip, self.DEFAULT_VAGRANT_USER, self.DEFAULT_VAGRANT_PWD, ext)
             self.env.add(box)
             self.load_tags(box)
             self._generate_vagrant_file()
@@ -81,6 +75,10 @@ class VagrantProvider(BaseProvider):
         finally:
             if f:
                 f.close()
+
+    def reconfigure(self, box_name):
+        # TODO
+        pass
 
     def _generate_vagrant_file(self):
         env = self.template_env
