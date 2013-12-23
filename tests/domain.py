@@ -16,7 +16,8 @@ class TestEnvironment(unittest.TestCase):
         self.env.add(self.test_box)
         box = json.load(open('./env/.boxes', 'r'))[0]
         self.assertEqual(box['name'], self.test_box.name)
-        self.assertFalse('pwd' in box)
+        self.assertFalse('remote_user' in box)
+        self.assertFalse('remote_pwd' in box)
         self.assertFalse('extra' in box)
 
     def test_remove(self):

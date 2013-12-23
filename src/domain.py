@@ -57,7 +57,8 @@ class Box(object):
     name = None
     playbook = None
     ip = None
-    pwd = None
+    remote_user = None
+    remote_pwd = None
     extra = None
 
     def set_name(self, name):
@@ -69,20 +70,23 @@ class Box(object):
     def set_ip(self, ip):
         self.ip = ip
 
-    def set_pwd(self, pwd):
-        self.pwd = pwd
+    def set_remote_user(self, user):
+        self.remote_user = user
+
+    def set_remote_pwd(self, pwd):
+        self.remote_pwd = pwd
 
     def set_extra(self, ex):
         self.extra = ex
 
     def use_ssh_key(self):
-        return self.pwd is None
+        return self.remote_pwd is None
 
     def inventory(self):
         return '[' + self.name + ']\n' + self.ip
 
     def __repr__(self):
-        return '%s -> (%s, %s, ***, %s)' % (self.name, self.playbook, self.ip, xstr(self.extra))
+        return '%s -> (%s, %s, %s, ***, %s)' % (self.name, self.playbook, self.ip, self.remote_user, xstr(self.extra))
 
     def to_json(self):
         json_obj = {
@@ -90,8 +94,10 @@ class Box(object):
             'playbook': self.playbook,
             'ip': self.ip
         }
-        if self.pwd:
-            json_obj.update({'pwd': self.pwd})
+        if self.remote_user:
+            json_obj.update({'remote_user': self.remote_user})
+        if self.remote_pwd:
+            json_obj.update({'remote_pwd': self.remote_pwd})
         if self.extra:
             json_obj.update({'extra': self.extra.to_json()})
         return json_obj
@@ -102,8 +108,10 @@ class Box(object):
         b.set_name(json_obj['name'])
         b.set_playbook(json_obj['playbook'])
         b.set_ip(json_obj['ip'])
-        if 'pwd' in json_obj:
-            b.set_pwd(json_obj['pwd'])
+        if 'remote_user' in json_obj:
+            b.set_remote_user(json_obj['remote_user'])
+        if 'remote_pwd' in json_obj:
+            b.set_remote_pwd(json_obj['remote_pwd'])
         if extra_type and 'extra' in json_obj:
             b.set_extra(extra_type.from_json(json_obj['extra']))
         return b

@@ -180,17 +180,22 @@ class BaseProvider(object):
         playbook_cb = callbacks.PlaybookCallbacks(verbose=True)
         runner_cb = callbacks.PlaybookRunnerCallbacks(stats, verbose=True)
 
+        remote_user = C.DEFAULT_REMOTE_USER
+        if box.remote_user:
+            remote_user = box.remote_user
         remote_pwd = C.DEFAULT_REMOTE_PASS
         transport = C.DEFAULT_TRANSPORT
         if not box.use_ssh_key():
-            remote_pwd = box.pwd
+            remote_pwd = box.remote_pwd
             transport = 'paramiko'
         only_tags = None
         if tag:
             only_tags = [tag]
+
         playbook = PlayBook(
             playbook=box.playbook,
             inventory=inventory,
+            remote_user=remote_user,
             remote_pass=remote_pwd,
             transport=transport,
             callbacks=playbook_cb,
