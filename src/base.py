@@ -89,10 +89,10 @@ class BaseCli(Cmd):
         self.provider.unregister(line)
 
 
-    def help_status(self):
-        print "Show current boxes status.\n"
+    def help_list(self):
+        print "Show list of current boxes.\n"
 
-    def do_status(self, line):
+    def do_list(self, line):
         for b in self.provider.boxes():
             print b
 
