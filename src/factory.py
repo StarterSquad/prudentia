@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABCMeta
 
-from provider_simple import SimpleCli, SimpleProvider
+from simple import SimpleCli, SimpleProvider
 
 
 class FactoryCli(SimpleCli):

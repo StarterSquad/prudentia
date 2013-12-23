@@ -1,8 +1,8 @@
 from cmd import Cmd
 import sys
 
-from provider_factory import FactoryCli
-from provider_simple import SimpleCli
+from factory import FactoryCli
+from simple import SimpleCli
 from ssh import SshProvider
 from vagrant import VagrantProvider
 

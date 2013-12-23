@@ -5,7 +5,7 @@ from jinja2.loaders import FileSystemLoader
 
 from bash import BashCmd
 from domain import Box
-from provider_factory import FactoryProvider
+from factory import FactoryProvider
 from util import input_string
 
 

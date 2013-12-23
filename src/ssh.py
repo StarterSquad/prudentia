@@ -1,7 +1,7 @@
 import ansible.constants as C
 
 from domain import Box
-from provider_simple import SimpleProvider
+from simple import SimpleProvider
 from util import input_string
 
 
