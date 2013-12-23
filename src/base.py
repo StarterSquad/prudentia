@@ -172,10 +172,7 @@ class BaseProvider(object):
         print "\nBox %s removed." % box_name
 
     def provision(self, box, tag):
-        #TODO inventory can be returned from generate and give it to playbook w/o intermediaries
-        self._generate_inventory(box)
-        inventory = Inventory(self.DEFAULT_PRUDENTIA_INVENTORY)
-
+        inventory = self._generate_inventory(box)
         stats = callbacks.AggregateStats()
         playbook_cb = callbacks.PlaybookCallbacks(verbose=True)
         runner_cb = callbacks.PlaybookRunnerCallbacks(stats, verbose=True)
@@ -252,3 +249,4 @@ class BaseProvider(object):
             print e
         finally:
             f.close()
+        return Inventory(self.DEFAULT_PRUDENTIA_INVENTORY)
