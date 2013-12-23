@@ -38,4 +38,4 @@ then
   pip install -r ./requirements.txt
 fi
 
-./p-env/bin/python prudentia.py $1
+./p-env/bin/python prudentia.py "$@"

@@ -1,4 +1,5 @@
 from cmd import Cmd
+import sys
 
 from provider_factory import FactoryCli
 from provider_simple import SimpleCli
@@ -49,7 +50,12 @@ class CLI(Cmd):
     def do_use(self, env):
         if env in self.environments.keys():
             self.cli = self.environments[env]()
-            self.cli.cmdloop()
+            if len(sys.argv) > 2:
+                cmd = ' '.join(sys.argv[2:])
+                print "Executing: '%s' ...\n" % cmd
+                self.cli.onecmd(cmd)
+            else:
+                self.cli.cmdloop()
         else:
             print 'Provider %s NOT found.' % env
         return not self.parent_loop
