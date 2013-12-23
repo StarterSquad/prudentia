@@ -1,7 +1,6 @@
 import os
 from os.path import dirname
 import sys
-import readline
 import re
 from abc import ABCMeta, abstractmethod
 from cmd import Cmd
@@ -18,13 +17,7 @@ import ansible.constants as C
 from domain import Environment
 
 
-if 'libedit' in readline.__doc__:
-    readline.parse_and_bind("bind ^I rl_complete")
-else:
-    readline.parse_and_bind("tab: complete")
-
-
-class BaseCli(Cmd):
+class SimpleCli(Cmd):
     provider = None  # Set by his children
 
     def complete_box_names(self, text, line, begidx, endidx):
@@ -96,47 +89,6 @@ class BaseCli(Cmd):
         for b in self.provider.boxes():
             print b
 
-    ## For Factory Providers
-
-    def help_reload(self):
-        print "Reload the box.\n"
-
-    def complete_reload(self, text, line, begidx, endidx):
-        return self.complete_box_names(text, line, begidx, endidx)
-
-    def do_reload(self, line):
-        self.provider.reload(line)
-
-
-    def help_phoenix(self):
-        print "Destroys and re-provisions the box.\n"
-
-    def complete_phoenix(self, text, line, begidx, endidx):
-        return self.complete_box_names(text, line, begidx, endidx)
-
-    def do_phoenix(self, line):
-        return
-
-
-    def help_stop(self):
-        print "Stops the box.\n"
-
-    def complete_stop(self, text, line, begidx, endidx):
-        return self.complete_box_names(text, line, begidx, endidx)
-
-    def do_stop(self, line):
-        return
-
-
-    def help_destroy(self):
-        print "Destroys the box.\n"
-
-    def complete_destroy(self, text, line, begidx, endidx):
-        return self.complete_box_names(text, line, begidx, endidx)
-
-    def do_destroy(self, line):
-        return
-
 
     def do_EOF(self, line):
         print "\n"
@@ -146,7 +98,7 @@ class BaseCli(Cmd):
         return ""
 
 
-class BaseProvider(object):
+class SimpleProvider(object):
     __metaclass__ = ABCMeta
 
     DEFAULT_ENVIRONMENTS_PATH = './env/'
@@ -221,11 +173,13 @@ class BaseProvider(object):
         remote_user = C.DEFAULT_REMOTE_USER
         if box.remote_user:
             remote_user = box.remote_user
+
         remote_pwd = C.DEFAULT_REMOTE_PASS
         transport = C.DEFAULT_TRANSPORT
         if not box.use_ssh_key():
             remote_pwd = box.remote_pwd
             transport = 'paramiko'
+
         only_tags = None
         if tag:
             only_tags = [tag]

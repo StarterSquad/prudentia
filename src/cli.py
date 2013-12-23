@@ -1,18 +1,19 @@
 from cmd import Cmd
 
-from base import BaseCli
+from provider_factory import FactoryCli
+from provider_simple import SimpleCli
 from ssh import SshProvider
 from vagrant import VagrantProvider
 
 
-class SshCli(BaseCli):
+class SshCli(SimpleCli):
     def __init__(self, *args, **kwargs):
         Cmd.__init__(self, *args, **kwargs)
         self.prompt = '(Prudentia > Ssh) '
         self.provider = SshProvider()
 
 
-class VagrantCli(BaseCli):
+class VagrantCli(FactoryCli):
     def __init__(self, *args, **kwargs):
         Cmd.__init__(self, *args, **kwargs)
         self.prompt = '(Prudentia > Vagrant) '

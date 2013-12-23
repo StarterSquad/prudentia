@@ -1,13 +1,15 @@
 import os
+
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
-from base import BaseProvider
+
 from bash import BashCmd
 from domain import Box
+from provider_factory import FactoryProvider
 from util import input_string
 
 
-class VagrantProvider(BaseProvider):
+class VagrantProvider(FactoryProvider):
     ENV_DIR = './env/vagrant/'
     VAGRANT_FILE_NAME = 'Vagrantfile'
     CONF_FILE = ENV_DIR + VAGRANT_FILE_NAME
@@ -45,11 +47,11 @@ class VagrantProvider(BaseProvider):
     def add_box(self, box):
         super(VagrantProvider, self).add_box(box)
         self._generate_vagrant_file()
-        self._up(box.name)
+        self.start(box.name)
 
     def remove_box(self, box_name):
         b = super(VagrantProvider, self).remove_box(box_name)
-        self._destroy(box_name)
+        self.destroy(box_name)
         self._generate_vagrant_file()
         return b
 
@@ -62,7 +64,7 @@ class VagrantProvider(BaseProvider):
             ip = input_string('internal IP', previous=box.ip)
 
             ext = VagrantExt()
-            mem = input_string('amount of RAM in GB', previous=str(box.extra.mem/1024), mandatory=True)
+            mem = input_string('amount of RAM in GB', previous=str(box.extra.mem / 1024), mandatory=True)
             if mem:
                 ext.set_mem(1024)
             else:
@@ -104,9 +106,27 @@ class VagrantProvider(BaseProvider):
             if box_name in box.name:
                 super(VagrantProvider, self).provision(box, tag)
 
-    def _up(self, box_name):
+    def create(self, box_name):
+        self.start(box_name)
+
+    def start(self, box_name):
         self._action(action="up", action_args=("--no-provision", box_name))
 
+    def phoenix(self, box_name):
+        self.destroy(box_name)
+        self.start(box_name)
+        self.provision(box_name, None)
+
+    def stop(self, box_name):
+        self._action(action="halt", action_args=(box_name,))
+
+    def destroy(self, box_name):
+        self.stop(box_name)
+        self._action(action="destroy", action_args=("-f", box_name))
+
+    #    def reload(self, box_name):
+    #        self._action(action="reload", action_args=("--no-provision", box_name))
+    #
     #    def status(self):
     #        output = self.action(action="status", output=False)
     #        for box in self.boxes:
@@ -114,16 +134,6 @@ class VagrantProvider(BaseProvider):
     #            match = re.match(pattern, output, re.DOTALL)
     #            status = match.group(1)
     #            print "%s -> %r\n" % (status, box)
-
-    def reload(self, box_name):
-        self._action(action="reload", action_args=("--no-provision", box_name))
-
-    def _halt(self, box_name):
-        self._action(action="halt", action_args=(box_name,))
-
-    def _destroy(self, box_name):
-        self._halt(box_name)
-        self._action(action="destroy", action_args=("-f", box_name))
 
     def _action(self, **kwargs):
         if 'action_args' not in kwargs.keys():

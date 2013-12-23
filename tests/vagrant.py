@@ -1,8 +1,9 @@
 import unittest
+
 from src.vagrant import VagrantProvider
 
-class TestVagrantProvider(unittest.TestCase):
 
+class TestVagrantProvider(unittest.TestCase):
     def setUp(self):
         self.provider = VagrantProvider()
 

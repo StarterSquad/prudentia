@@ -1,11 +1,11 @@
 import ansible.constants as C
 
-from base import BaseProvider
 from domain import Box
+from provider_simple import SimpleProvider
 from util import input_string
 
 
-class SshProvider(BaseProvider):
+class SshProvider(SimpleProvider):
     def __init__(self):
         super(SshProvider, self).__init__('ssh')
 

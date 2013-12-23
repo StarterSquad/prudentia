@@ -1,8 +1,9 @@
 import unittest
+
 from src.ssh import SshProvider
 
-class TestSshProvider(unittest.TestCase):
 
+class TestSshProvider(unittest.TestCase):
     def setUp(self):
         self.provider = SshProvider()
 
