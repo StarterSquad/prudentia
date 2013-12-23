@@ -1,9 +1,10 @@
-import re
+import os
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 from base import BaseProvider
 from bash import BashCmd
 from domain import Box
+from util import input_string
 
 
 class VagrantProvider(BaseProvider):
@@ -14,8 +15,6 @@ class VagrantProvider(BaseProvider):
     DEFAULT_VAGRANT_USER = 'vagrant'
     DEFAULT_VAGRANT_PWD = 'vagrant'
 
-    box_name_pattern = re.compile('- hosts: (.*)')
-
     def __init__(self):
         super(VagrantProvider, self).__init__('vagrant', VagrantExt)
         self.template_env = Environment(loader=FileSystemLoader('./src'), auto_reload=True)
@@ -23,62 +22,69 @@ class VagrantProvider(BaseProvider):
         install_vagrant.execute()
 
     def add_box(self):
-        f = name = None
         try:
-            playbook = raw_input('Specify the playbook path: ').strip()
-
-            f = open(playbook, 'r')
-            for i, line in enumerate(f):
-                if i == 1:  # 2nd line contains the host name
-                    match = self.box_name_pattern.match(line)
-                    name = match.group(1)
-                elif i > 1:
-                    break
-
-            for box in self.boxes():
-                if box.name == name:
-                    raise ValueError("Box '%s' already exists" % name)
-
-            ip = raw_input('Specify an internal IP: ').strip()
-            if not len(ip):
-                # TODO use regex for ip
-                raise ValueError("IP '%s' not valid" % ip)
+            playbook = input_string('playbook path')
+            name = self.fetch_box_name(playbook)
+            ip = input_string('internal IP')
 
             ext = VagrantExt()
-            mem = raw_input('Specify amount of RAM in GB [default 1] : ').strip()
-            if not len(mem):
+            mem = input_string('amount of RAM in GB', default_value=str(1), mandatory=True)
+            if mem:
                 ext.set_mem(1024)
             else:
                 ext.set_mem(int(mem) * 1024)
 
-            shares = []
-            loop = True
-            while loop:
-                ans = raw_input('Do you want to share a folder? [y/N] ').strip()
-                if ans.lower() in ('y', 'yes'):
-                    src = raw_input('-> Specify a directory on the HOST machine: ').strip()
-                    # TODO check src path exists
-                    dst = raw_input('-> Specify a directory on the GUEST machine: ').strip()
-                    shares.append((src, dst))
-                else:
-                    loop = False
-            ext.set_shares(shares)
+            ext.set_shares(self._input_shares())
 
             box = Box(name, playbook, ip, self.DEFAULT_VAGRANT_USER, self.DEFAULT_VAGRANT_PWD, ext)
             self.env.add(box)
             self.load_tags(box)
             self._generate_vagrant_file()
             self._up(name)
-            print "\nBox %s added.\n" % box
+            print "\nBox %s added." % box
         except Exception as e:
             print '\nThere was some problem while adding the box: %s\n' % e
-        finally:
-            if f:
-                f.close()
 
     def reconfigure(self, box_name):
-        # TODO
-        pass
+        try:
+            box = self.env.remove(box_name)
+
+            playbook = input_string('playbook path', previous=box.playbook)
+            name = self.fetch_box_name(playbook)
+            ip = input_string('internal IP', previous=box.ip)
+
+            ext = VagrantExt()
+            mem = input_string('amount of RAM in GB', previous=str(box.extra.mem/1024), mandatory=True)
+            if mem:
+                ext.set_mem(1024)
+            else:
+                ext.set_mem(int(mem) * 1024)
+
+            ext.set_shares(self._input_shares())
+
+            box = Box(name, playbook, ip, self.DEFAULT_VAGRANT_USER, self.DEFAULT_VAGRANT_PWD, ext)
+            self.env.add(box)
+            self.load_tags(box)
+            self._generate_vagrant_file()
+            self._up(name)
+            print "\nBox %s reconfigured." % box
+        except Exception as e:
+            print '\nThere was some problem while reconfiguring the box: %s\n' % e
+
+    def _input_shares(self):
+        shares = []
+        loop = True
+        while loop:
+            ans = raw_input('Do you want to share a folder? [y/N] ').strip()
+            if ans.lower() in ('y', 'yes'):
+                src = input_string('directory on the HOST machine')
+                if not os.path.exists(src):
+                    raise ValueError("Directory '%s' on the HOST machine doesn't exists." % src)
+                dst = input_string('directory on the GUEST machine')
+                shares.append((src, dst))
+            else:
+                loop = False
+        return shares
 
     def _generate_vagrant_file(self):
         env = self.template_env
@@ -135,7 +141,7 @@ class VagrantProvider(BaseProvider):
         # cmd.set_env_var("VAGRANT_LOG", "INFO")
 
         cmd.execute()
-        if not cmd.isOk():
+        if not cmd.is_ok():
             print "ERROR while running: {0}".format(cmd.cmd_args)
         else:
             return cmd.output()

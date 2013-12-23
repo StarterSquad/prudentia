@@ -4,6 +4,7 @@ from threading import Thread
 import traceback
 import sys
 
+
 class BashCmd:
     def __init__(self, *cmd_args):
         self.cmd_args = cmd_args
@@ -39,7 +40,8 @@ class BashCmd:
 
     def execute(self):
         try:
-            p = Popen(args=self.cmd_args, bufsize=1, stdout=PIPE, stderr=PIPE, close_fds=self.ON_POSIX, env=self.env, cwd=self.cwd)
+            p = Popen(args=self.cmd_args, bufsize=1, stdout=PIPE, stderr=PIPE, close_fds=self.ON_POSIX, env=self.env,
+                      cwd=self.cwd)
             t = Thread(target=self.print_output, args=(p.stdout, p.stderr))
             t.daemon = True # thread dies with the program
             t.start()
@@ -52,12 +54,12 @@ class BashCmd:
             print traceback.format_exc()
 
     def __repr__(self):
-        return "{0}"\
-               "\nReturn code: {1}"\
-               "\nStd Output: {2}"\
+        return "{0}" \
+               "\nReturn code: {1}" \
+               "\nStd Output: {2}" \
                "\nStd Error: {3}".format(self.cmd_args, self.returncode, self.stdout, self.stderr)
 
-    def isOk(self):
+    def is_ok(self):
         if not self.returncode:
             return True
         else:
