@@ -11,6 +11,7 @@ class VagrantProvider(BaseProvider):
     VAGRANT_FILE_NAME = 'Vagrantfile'
     CONF_FILE = ENV_DIR + VAGRANT_FILE_NAME
 
+    DEFAULT_VAGRANT_USER = 'vagrant'
     DEFAULT_VAGRANT_PWD = 'vagrant'
 
     box_name_pattern = re.compile('- hosts: (.*)')
@@ -67,7 +68,8 @@ class VagrantProvider(BaseProvider):
             box.set_name(name)
             box.set_playbook(playbook)
             box.set_ip(ip)
-            box.set_pwd(self.DEFAULT_VAGRANT_PWD)
+            box.set_remote_user(self.DEFAULT_VAGRANT_USER)
+            box.set_remote_pwd(self.DEFAULT_VAGRANT_PWD)
             box.set_extra(ext)
             self.env.add(box)
             self.load_tags(box)
@@ -108,13 +110,6 @@ class VagrantProvider(BaseProvider):
     #            match = re.match(pattern, output, re.DOTALL)
     #            status = match.group(1)
     #            print "%s -> %r\n" % (status, box)
-    #
-    #    def provision(self, box_name, tags):
-    #        start = datetime.now()
-    #        self.action(action="provision", action_args=(box_name,), tags=tags)
-    #        end = datetime.now()
-    #        diff = end - start
-    #        print "Took {0} seconds\n".format(diff.seconds)
 
     def reload(self, box_name):
         self._action(action="reload", action_args=("--no-provision", box_name))

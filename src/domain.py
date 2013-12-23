@@ -5,8 +5,9 @@ from util import xstr
 
 class Environment(object):
     ENVIRONMENT_FILE_NAME = '.boxes'
+
     file = None
-    boxes = list()
+    boxes = {}
 
     def __init__(self, path, box_extra_type=None, name=ENVIRONMENT_FILE_NAME):
         if not os.path.exists(path):
@@ -21,11 +22,17 @@ class Environment(object):
             print 'No environment file: %s' % self.file
 
     def add(self, box):
-        self.boxes.append(box)
-        self.__save()
+        if box.name not in self.boxes:
+            self.boxes[box.name] = box
+            self.__save()
+        else:
+            raise ValueError("Box '%s' already exists." % box.name)
+
+    def get(self, box_name):
+        return self.boxes.get(box_name, None)
 
     def remove(self, box_name):
-        self.boxes = [b for b in self.boxes if b.name != box_name]
+        self.boxes.pop(box_name, None)
         self.__save()
 
     def __load(self):
@@ -33,7 +40,9 @@ class Environment(object):
         try:
             f = open(self.file, 'r')
             json_boxes = json.load(f)
-            self.boxes = [Box.from_json(j, self.box_extra_type) for j in json_boxes]
+            for jb in json_boxes:
+                b = Box.from_json(jb, self.box_extra_type)
+                self.boxes[b.name] = b
         except IOError, e:
             print e
         finally:
@@ -41,7 +50,7 @@ class Environment(object):
                 f.close()
 
     def __save(self):
-        json_boxes = [b.to_json() for b in self.boxes]
+        json_boxes = [b.to_json() for b in self.boxes.values()]
         f = None
         try:
             f = open(self.file, 'w')
