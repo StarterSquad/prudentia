@@ -4,6 +4,16 @@ from provider_simple import SimpleCli, SimpleProvider
 
 
 class FactoryCli(SimpleCli):
+    def help_create(self):
+        print "Creates the box.\n"
+
+    def complete_create(self, text, line, begidx, endidx):
+        return self.complete_box_names(text, line, begidx, endidx)
+
+    def do_create(self, line):
+        self.provider.create(line)
+
+
     def help_start(self):
         print "Starts the box.\n"
 
@@ -26,13 +36,17 @@ class FactoryCli(SimpleCli):
 
 
     def help_phoenix(self):
-        print "Destroys and re-provisions the box.\n"
+        print "Regenerates a box: destroy -> create -> provision.\n"
 
     def complete_phoenix(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_phoenix(self, line):
-        self.provider.phoenix(line)
+        self.do_stop(line)
+        self.do_destroy(line)
+        self.do_create(line)
+        self.do_start(line)
+        self.do_provision(line)
 
 
     def help_stop(self):
@@ -64,10 +78,6 @@ class FactoryProvider(SimpleProvider):
 
     @abstractmethod
     def start(self, box_name):
-        pass
-
-    @abstractmethod
-    def phoenix(self, box_name):
         pass
 
     @abstractmethod

@@ -107,26 +107,17 @@ class VagrantProvider(FactoryProvider):
                 super(VagrantProvider, self).provision(box, tag)
 
     def create(self, box_name):
-        self.start(box_name)
+        pass
 
     def start(self, box_name):
         self._action(action="up", action_args=("--no-provision", box_name))
-
-    def phoenix(self, box_name):
-        self.destroy(box_name)
-        self.start(box_name)
-        self.provision(box_name, None)
 
     def stop(self, box_name):
         self._action(action="halt", action_args=(box_name,))
 
     def destroy(self, box_name):
-        self.stop(box_name)
         self._action(action="destroy", action_args=("-f", box_name))
 
-    #    def reload(self, box_name):
-    #        self._action(action="reload", action_args=("--no-provision", box_name))
-    #
     #    def status(self):
     #        output = self.action(action="status", output=False)
     #        for box in self.boxes:
