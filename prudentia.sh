@@ -20,7 +20,7 @@ then
   read -p "Do you want to link Prudentia to ${GLOBAL_BIN}? [y/N] " -e answer
   if [ "${answer}" = "y" ]
   then
-      sudo ln -s ${SOURCE} ${GLOBAL_BIN}
+      sudo ln -s ${DIR}/$(basename $0) ${GLOBAL_BIN}
   fi
 fi
 
