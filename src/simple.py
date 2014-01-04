@@ -86,8 +86,12 @@ class SimpleCli(Cmd):
         print "Show list of current boxes.\n"
 
     def do_list(self, line):
-        for b in self.provider.boxes():
-            print b
+        boxes = self.provider.boxes()
+        if not len(boxes):
+            print 'No box has been configured.\n'
+        else:
+            for b in boxes:
+                print b
 
 
     def do_EOF(self, line):
