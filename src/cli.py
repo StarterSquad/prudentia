@@ -5,6 +5,7 @@ from factory import FactoryCli
 from simple import SimpleCli
 from ssh import SshProvider
 from vagrant import VagrantProvider
+from digital_ocean import DigitalOceanProvider
 
 
 class SshCli(SimpleCli):
@@ -21,13 +22,21 @@ class VagrantCli(FactoryCli):
         self.provider = VagrantProvider()
 
 
+class DigitalOceanCli(FactoryCli):
+    def __init__(self, *args, **kwargs):
+        Cmd.__init__(self, *args, **kwargs)
+        self.prompt = '(Prudentia > DigitalOcean) '
+        self.provider = DigitalOceanProvider()        
+
+
 class CLI(Cmd):
     parent_loop = False
     cli = None
 
     environments = {
         'ssh': SshCli,
-        'vagrant': VagrantCli
+        'vagrant': VagrantCli,
+        'digital-ocean': DigitalOceanCli
     }
 
     def __init__(self, *args, **kwargs):

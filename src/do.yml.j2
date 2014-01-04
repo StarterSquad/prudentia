@@ -1,0 +1,23 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: False
+
+  tasks:
+    - name: DigitalOcean | Create Instance
+      digital_ocean: >
+        state=present
+        command=droplet
+        name=$droplet_name
+        image_id=$droplet_image
+        size_id=$droplet_size
+        ssh_key_ids=$droplet_keys
+        region_id=$droplet_region
+        client_id={{ client_id }}
+        api_key={{ api_key }}
+        wait_timeout=500
+      register: my_droplet
+      tags: create
+
+    - debug: msg="ID is $my_droplet.droplet.id"
+    - debug: msg="IP is $my_droplet.droplet.ip_address"

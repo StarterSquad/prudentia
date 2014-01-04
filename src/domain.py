@@ -1,7 +1,7 @@
 import json
 import os
 
-from util import xstr
+from util import xstr, prudentia_python_dir
 
 
 class Environment(object):
@@ -77,7 +77,10 @@ class Box(object):
         return self.remote_pwd is None
 
     def inventory(self):
-        return '[' + self.name + ']\n' + self.ip
+        inv = '[' + self.name + ']\n' + self.ip
+        if 'localhost' in self.ip:
+            inv = inv + ' ansible_python_interpreter=' + prudentia_python_dir() + '/p-env/bin/python'
+        return inv
 
     def __repr__(self):
         values = [self.playbook, self.ip, self.remote_user, '*****' if self.remote_pwd else '', xstr(self.extra)]
