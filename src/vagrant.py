@@ -10,15 +10,16 @@ from util import input_string
 
 
 class VagrantProvider(FactoryProvider):
-    ENV_DIR = './env/vagrant/'
+    NAME = 'vagrant'
+    ENV_DIR = './env/' + NAME
     VAGRANT_FILE_NAME = 'Vagrantfile'
-    CONF_FILE = ENV_DIR + VAGRANT_FILE_NAME
+    CONF_FILE = ENV_DIR + '/' + VAGRANT_FILE_NAME
 
     DEFAULT_VAGRANT_USER = 'vagrant'
     DEFAULT_VAGRANT_PWD = 'vagrant'
 
     def __init__(self):
-        super(VagrantProvider, self).__init__('vagrant', VagrantExt)
+        super(VagrantProvider, self).__init__(self.NAME, VagrantExt)
         self.template_env = Environment(loader=FileSystemLoader('./src'), auto_reload=True)
         install_vagrant = BashCmd('./bin/install_vagrant.sh')
         install_vagrant.execute()

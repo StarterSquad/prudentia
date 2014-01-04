@@ -6,8 +6,10 @@ from util import input_string
 
 
 class SshProvider(SimpleProvider):
+    NAME = 'ssh'
+
     def __init__(self):
-        super(SshProvider, self).__init__('ssh')
+        super(SshProvider, self).__init__(self.NAME)
 
     def register(self):
         try:

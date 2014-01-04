@@ -9,12 +9,12 @@ def input_string(topic, default_description=None, default_value=None, previous=N
     if not previous:
         default = default_description if default_description else default_value
         if default:
-            input_play = 'Specify the %s [default: %s]: ' % (topic, default)
+            input_msg = 'Specify the %s [default: %s]: ' % (topic, default)
         else:
-            input_play = 'Specify the %s: ' % topic
+            input_msg = 'Specify the %s: ' % topic
     else:
-        input_play = 'Specify the %s [previous: %s]: ' % (topic, previous)
-    string = raw_input(input_play).strip()
+        input_msg = 'Specify the %s [previous: %s]: ' % (topic, previous)
+    string = raw_input(input_msg).strip()
     if previous and not len(string):
         string = previous
     if mandatory and not len(string):

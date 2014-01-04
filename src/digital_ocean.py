@@ -30,6 +30,8 @@ class DigitalOceanProvider(FactoryProvider):
 
     def register(self):
         try:
+            # TODO register using existing id (or name) ?
+
             playbook = input_string('playbook path')
             name = self.fetch_box_name(playbook)
             ip = 'localhost'

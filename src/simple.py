@@ -110,9 +110,9 @@ class SimpleProvider(object):
 
     box_name_pattern = re.compile('- hosts: (.*)')
 
-    def __init__(self, name, box_extra_type=None, path=DEFAULT_ENVIRONMENTS_PATH):
+    def __init__(self, name, box_extra_type=None, env_dir=DEFAULT_ENVIRONMENTS_PATH):
+        self.env = Environment(env_dir + name, box_extra_type)
         self.extra_vars = {'prudentia_dir': prudentia_python_dir()}
-        self.env = Environment(path + name, box_extra_type)
         self.tags = {}
         self.load_tags()
 
@@ -226,7 +226,7 @@ class SimpleProvider(object):
                     self._colorize('unreachable', t['unreachable'], 'red'),
                     self._colorize('failed', t['failures'], 'red'))
 
-            print "PLAY RUN took {0} minutes\n".format((datetime.now() - start).seconds / 60)
+            print "Play run took {0} minutes\n".format((datetime.now() - start).seconds / 60)
         except errors.AnsibleError, e:
             print >> sys.stderr, "ERROR: %s" % e
 
