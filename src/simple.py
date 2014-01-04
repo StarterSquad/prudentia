@@ -16,6 +16,7 @@ import ansible.constants as C
 from domain import Environment
 from util import prudentia_python_dir
 
+
 class SimpleCli(Cmd):
     provider = None  # Set by his children
 

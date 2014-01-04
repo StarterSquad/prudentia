@@ -72,6 +72,10 @@ class FactoryCli(SimpleCli):
 class FactoryProvider(SimpleProvider):
     __metaclass__ = ABCMeta
 
+    def add_box(self, box):
+        self.create(box.name)
+        super(FactoryProvider, self).add_box(box)
+
     @abstractmethod
     def create(self, box_name):
         pass
@@ -83,6 +87,11 @@ class FactoryProvider(SimpleProvider):
     @abstractmethod
     def stop(self, box_name):
         pass
+
+    def remove_box(self, box_name):
+        box = super(FactoryProvider, self).remove_box(box_name)
+        self.destroy(box_name)
+        return box
 
     @abstractmethod
     def destroy(self, box_name):

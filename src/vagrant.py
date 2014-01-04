@@ -45,13 +45,11 @@ class VagrantProvider(FactoryProvider):
             print '\nThere was some problem while adding the box: %s\n' % e
 
     def add_box(self, box):
-        super(VagrantProvider, self).add_box(box)
         self._generate_vagrant_file()
-        self.start(box.name)
+        super(VagrantProvider, self).add_box(box)
 
     def remove_box(self, box_name):
         b = super(VagrantProvider, self).remove_box(box_name)
-        self.destroy(box_name)
         self._generate_vagrant_file()
         return b
 
@@ -107,7 +105,7 @@ class VagrantProvider(FactoryProvider):
                 super(VagrantProvider, self).provision(box, tag)
 
     def create(self, box_name):
-        pass
+        self.start(box_name)
 
     def start(self, box_name):
         self._action(action="up", action_args=("--no-provision", box_name))
