@@ -1,3 +1,6 @@
+import os
+
+
 def xstr(s):
     return '' if s is None else str(s)
 
@@ -22,3 +25,9 @@ def input_string(topic, default_description=None, default_value=None, previous=N
     elif not len(string):
         string = None
     return string
+
+
+def prudentia_python_dir():
+    cwd = os.path.realpath(__file__)
+    components = cwd.split(os.sep)
+    return str.join(os.sep, components[:components.index("prudentia") + 1])

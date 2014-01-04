@@ -8,7 +8,6 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-sys.path.append('./src')
 cli = CLI()
 
 if len(sys.argv) > 1:
@@ -17,3 +16,5 @@ if len(sys.argv) > 1:
         cli.cmdloop()
 else:
     cli.cmdloop()
+
+sys.exit(0)

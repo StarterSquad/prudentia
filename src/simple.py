@@ -1,4 +1,3 @@
-import os
 from os.path import dirname
 import sys
 import re
@@ -15,7 +14,7 @@ from ansible.playbook.play import Play
 import ansible.constants as C
 
 from domain import Environment
-
+from util import prudentia_python_dir
 
 class SimpleCli(Cmd):
     provider = None  # Set by his children
@@ -113,9 +112,7 @@ class SimpleProvider(object):
     tags = {}
 
     def __init__(self, name, box_extra_type=None, path=DEFAULT_ENVIRONMENTS_PATH):
-        cwd = os.path.realpath(__file__)
-        components = cwd.split(os.sep)
-        self.extra_vars = {'prudentia_dir': str.join(os.sep, components[:components.index("prudentia") + 1])}
+        self.extra_vars = {'prudentia_dir': prudentia_python_dir()}
         self.env = Environment(path + name, box_extra_type)
         self.load_tags()
 

@@ -48,4 +48,4 @@ then
   pip install -r ./requirements.txt
 fi
 
-./p-env/bin/python prudentia.py "$@"
+python prudentia.py "$@"
