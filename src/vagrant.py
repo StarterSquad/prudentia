@@ -99,11 +99,6 @@ class VagrantProvider(FactoryProvider):
             'boxes': self.boxes()
         }).dump(self.CONF_FILE)
 
-    def provision(self, box_name, tag):
-        for box in self.boxes():
-            if box_name in box.name:
-                super(VagrantProvider, self).provision(box, tag)
-
     def create(self, box_name):
         self.start(box_name)
 

@@ -38,8 +38,3 @@ class SshProvider(SimpleProvider):
             print "\nBox %s reconfigured." % box
         except Exception as e:
             print '\nThere was some problem while reconfiguring the box: %s\n' % e
-
-    def provision(self, box_name, tag):
-        for box in self.boxes():
-            if box_name in box.name:
-                super(SshProvider, self).provision(box, tag)

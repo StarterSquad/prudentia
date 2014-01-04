@@ -7,14 +7,12 @@ from util import xstr, prudentia_python_dir
 class Environment(object):
     ENVIRONMENT_FILE_NAME = '.boxes'
 
-    file = None
-    boxes = {}
-
     def __init__(self, path, box_extra_type=None, name=ENVIRONMENT_FILE_NAME):
         if not os.path.exists(path):
             print "Environment doesn't exists, creating ..."
             os.makedirs(path)
         self.file = path + '/' + name
+        self.boxes = {}
         self.box_extra_type = box_extra_type
         try:
             with open(self.file):

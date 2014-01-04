@@ -1,11 +1,7 @@
 import os
-import sys
-from ansible.playbook import PlayBook
 
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
-from ansible import callbacks, errors
-from datetime import datetime
 from domain import Box
 from factory import FactoryProvider
 from util import input_string
@@ -59,47 +55,21 @@ class DigitalOceanProvider(FactoryProvider):
 
     def create(self, box_name):
         box = self.env.get(box_name)
-
-        stats = callbacks.AggregateStats()
-        playbook_cb = callbacks.PlaybookCallbacks(verbose=True)
-        self.extra_vars.update({
+        droplet = {
             'droplet_name': box.name,
             'droplet_image': box.extra.image,
             'droplet_size': box.extra.size,
             'droplet_keys': box.extra.keys,
             'droplet_region': box.extra.region
-        })
-        runner_cb = callbacks.PlaybookRunnerCallbacks(stats, verbose=True)
+        }
 
-        playbook = PlayBook(
-            playbook=self.PLAYBOOK_FILE,
+        self.run_playbook(
+            playbook_file=self.PLAYBOOK_FILE,
             inventory=self._generate_inventory(box),
             transport='local',
-            callbacks=playbook_cb,
-            runner_callbacks=runner_cb,
-            stats=stats,
-            extra_vars=self.extra_vars
+            extra_vars=dict(self.extra_vars.items() + droplet.items()),
+            only_tags=['create']
         )
-
-        try:
-            start = datetime.now()
-            playbook.run()
-
-            hosts = sorted(playbook.stats.processed.keys())
-            print callbacks.banner("PLAY RECAP")
-            playbook_cb.on_stats(playbook.stats)
-            for h in hosts:
-                t = playbook.stats.summarize(h)
-                print "%s : %s %s %s %s\n" % (
-                    self._hostcolor(h, t),
-                    self._colorize('ok', t['ok'], 'green'),
-                    self._colorize('changed', t['changed'], 'yellow'),
-                    self._colorize('unreachable', t['unreachable'], 'red'),
-                    self._colorize('failed', t['failures'], 'red'))
-
-            print "Provisioning took {0} minutes\n".format((datetime.now() - start).seconds / 60)
-        except errors.AnsibleError, e:
-            print >> sys.stderr, "ERROR: %s" % e
 
     def start(self, box_name):
         # TODO

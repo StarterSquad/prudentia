@@ -110,11 +110,10 @@ class SimpleProvider(object):
 
     box_name_pattern = re.compile('- hosts: (.*)')
 
-    tags = {}
-
     def __init__(self, name, box_extra_type=None, path=DEFAULT_ENVIRONMENTS_PATH):
         self.extra_vars = {'prudentia_dir': prudentia_python_dir()}
         self.env = Environment(path + name, box_extra_type)
+        self.tags = {}
         self.load_tags()
 
     def boxes(self):
@@ -166,11 +165,8 @@ class SimpleProvider(object):
 
         return box_name
 
-    def provision(self, box, tag):
-        inventory = self._generate_inventory(box)
-        stats = callbacks.AggregateStats()
-        playbook_cb = callbacks.PlaybookCallbacks(verbose=True)
-        runner_cb = callbacks.PlaybookRunnerCallbacks(stats, verbose=True)
+    def provision(self, box_name, tag):
+        box = self.env.get(box_name)
 
         remote_user = C.DEFAULT_REMOTE_USER
         if box.remote_user:
@@ -186,17 +182,32 @@ class SimpleProvider(object):
         if tag:
             only_tags = [tag]
 
-        playbook = PlayBook(
-            playbook=box.playbook,
-            inventory=inventory,
+        self.run_playbook(
+            playbook_file=box.playbook,
+            inventory=self._generate_inventory(box),
             remote_user=remote_user,
             remote_pass=remote_pwd,
             transport=transport,
-            callbacks=playbook_cb,
-            runner_callbacks=runner_cb,
-            stats=stats,
             extra_vars=self.extra_vars,
             only_tags=only_tags
+        )
+
+    def run_playbook(self, playbook_file, inventory, remote_user=C.DEFAULT_REMOTE_USER,
+                     remote_pass=C.DEFAULT_REMOTE_PASS, transport=C.DEFAULT_TRANSPORT, extra_vars=None, only_tags=None):
+        stats = callbacks.AggregateStats()
+        playbook_cb = callbacks.PlaybookCallbacks(verbose=True)
+        runner_cb = callbacks.PlaybookRunnerCallbacks(stats, verbose=True)
+        playbook = PlayBook(
+            playbook=playbook_file,
+            inventory=inventory,
+            remote_user=remote_user,
+            remote_pass=remote_pass,
+            transport=transport,
+            extra_vars=extra_vars,
+            only_tags=only_tags,
+            callbacks=playbook_cb,
+            runner_callbacks=runner_cb,
+            stats=stats
         )
 
         try:
@@ -215,7 +226,7 @@ class SimpleProvider(object):
                     self._colorize('unreachable', t['unreachable'], 'red'),
                     self._colorize('failed', t['failures'], 'red'))
 
-            print "Provisioning took {0} minutes\n".format((datetime.now() - start).seconds / 60)
+            print "PLAY RUN took {0} minutes\n".format((datetime.now() - start).seconds / 60)
         except errors.AnsibleError, e:
             print >> sys.stderr, "ERROR: %s" % e
 
