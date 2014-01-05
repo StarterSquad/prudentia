@@ -1,8 +1,9 @@
 import logging
 import time
 
-from domain import Box
+import ansible.constants as C
 from dopy.manager import DoManager, DoError
+from domain import Box
 from factory import FactoryProvider
 from util import input_string
 
@@ -35,7 +36,7 @@ class DigitalOceanProvider(FactoryProvider):
             playbook = input_string('playbook path')
             name = self.fetch_box_name(playbook)
             ip = 'localhost'
-            remote_user = 'root'
+            user = input_string('remote user', default_value=C.active_user)
 
             ext = DOExt()
             ext.set_image(input_string('image', default_description='Ubuntu 12.04.3 x64', default_value='1505447',
@@ -54,7 +55,7 @@ class DigitalOceanProvider(FactoryProvider):
             print '\nAvailable regions: \n%s' % self._print_id_name(all_regions)
             ext.set_region(input_string('region', default_description='Amsterdam 2', default_value='5', mandatory=True))
 
-            box = Box(name, playbook, ip, remote_user, extra=ext)
+            box = Box(name, playbook, ip, user, extra=ext)
             self.add_box(box)
             print "\nBox %s added." % box
         except Exception as e:
@@ -73,11 +74,10 @@ class DigitalOceanProvider(FactoryProvider):
         e = box.extra
         res = self.manager.new_droplet(box.name, e.size, e.image, e.region, e.keys)
         droplet_id = res['id']
-        droplet_ip = res['ip_address']
-        print 'Instance created: %s -> %s' % (droplet_id, droplet_ip)
+        print 'Instance created: %s' % droplet_id
         box.extra.set_id(droplet_id)
-        box.ip = droplet_ip
-        self._wait_to_be_active(droplet_id)
+        box.ip = self._wait_to_be_active(droplet_id)
+        self.create_user(box)
 
     def start(self, box):
         e = box.extra
@@ -100,17 +100,21 @@ class DigitalOceanProvider(FactoryProvider):
         print 'Rebuilding instance %s ...' % e.id
         self.manager.rebuild_droplet(e.id, e.image)
         self._wait_to_be_active(e.id)
+        self.create_user(box)
 
     def _wait_to_be_active(self, droplet_id, wait_timeout=300):
         end_time = time.time() + wait_timeout
         while time.time() < end_time:
+            print 'Waiting for instance %s to be active ...' % droplet_id
             time.sleep(min(20, end_time - time.time()))
 
             droplet = self.manager.show_droplet(droplet_id)
             if droplet['status'] == 'active':
-                if not droplet['ip_address']:
+                droplet_ip_address = droplet['ip_address']
+                if not droplet_ip_address:
                     raise DoError('No ip is found.', droplet_id)
-                return
+                print 'Instance %s is now active with ip %s.' % (droplet_id, droplet_ip_address)
+                return droplet_ip_address
         raise DoError('Wait for droplet running timeout', droplet_id)
 
 
