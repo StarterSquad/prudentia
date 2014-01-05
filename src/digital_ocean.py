@@ -1,8 +1,8 @@
-import os
+import logging
+import time
 
-from jinja2.environment import Environment
-from jinja2.loaders import FileSystemLoader
 from domain import Box
+from dopy.manager import DoManager, DoError
 from factory import FactoryProvider
 from util import input_string
 
@@ -14,19 +14,19 @@ class DigitalOceanProvider(FactoryProvider):
     PLAYBOOK_FILE = ENV_DIR + '/' + PLAYBOOK_TEMPLATE
 
     def __init__(self):
-        super(DigitalOceanProvider, self).__init__(self.NAME, DigitalOceanExt)
-        self.template_env = Environment(loader=FileSystemLoader('./src'), auto_reload=True)
-        self._generate_playbook_file()
+        super(DigitalOceanProvider, self).__init__(self.NAME, DOGeneral, DOExt)
+        if not self.env.initialized:
+            g = self._input_general_env_conf()
+        else:
+            g = self.env.general
+        self.manager = DoManager(g.client_id, g.api_key)
 
-    def _generate_playbook_file(self):
-        if not os.path.exists(self.PLAYBOOK_FILE):
-            client_id = input_string('client id')
-            api_key = input_string('api key')
-            template = self.template_env.get_template(self.PLAYBOOK_TEMPLATE + '.j2')
-            template.stream({
-                'client_id': client_id,
-                'api_key': api_key
-            }).dump(self.PLAYBOOK_FILE)
+    def _input_general_env_conf(self):
+        client_id = input_string('client id')
+        api_key = input_string('api key')
+        do_general = DOGeneral(client_id, api_key)
+        self.env.set_general(do_general)
+        return do_general
 
     def register(self):
         try:
@@ -35,62 +35,110 @@ class DigitalOceanProvider(FactoryProvider):
             playbook = input_string('playbook path')
             name = self.fetch_box_name(playbook)
             ip = 'localhost'
+            remote_user = 'root'
 
-            ext = DigitalOceanExt()
-            ext.set_image(input_string('image', default_description='Ubuntu 12.04.3 x64', default_value='1505447', mandatory=True))
-            # Size id: 66 -> 512MB, 63 ->1GB, 62 -> 2GB
-            ext.set_size(input_string('size', default_description='1 GB', default_value='63', mandatory=True))
-            # Ssh keys: 57850 -> Tiziano, 58730 -> Dmitry, 58739 -> Iwein
-            ext.set_keys(input_string('keys', default_description='Tiziano,Dmitry,Iwein', default_value='57850,58730,58739', mandatory=True))
-            # Region id: 2 -> Amsterdam 1, 5 -> Amsterdam 2
-            ext.set_region(input_string('region', default_description='Ams 2', default_value='5', mandatory=True))
+            ext = DOExt()
+            ext.set_image(input_string('image', default_description='Ubuntu 12.04.3 x64', default_value='1505447',
+                                       mandatory=True))
 
-            box = Box(name, playbook, ip, extra=ext)
+            all_sizes = self.manager.sizes()
+            print '\nAvailable sizes: \n%s' % self._print_id_name(all_sizes)
+            ext.set_size(input_string('size', default_description='1GB', default_value='63', mandatory=True))
+
+            all_keys = self.manager.all_ssh_keys()
+            default_keys = ', '.join([str(k['id']) for k in all_keys])
+            print '\nAvailable keys: \n%s' % self._print_id_name(all_keys)
+            ext.set_keys(input_string('keys', default_description='All', default_value=default_keys, mandatory=True))
+
+            all_regions = self.manager.all_regions()
+            print '\nAvailable regions: \n%s' % self._print_id_name(all_regions)
+            ext.set_region(input_string('region', default_description='Amsterdam 2', default_value='5', mandatory=True))
+
+            box = Box(name, playbook, ip, remote_user, extra=ext)
             self.add_box(box)
             print "\nBox %s added." % box
         except Exception as e:
+            logging.exception('Box not added.')
             print '\nThere was some problem while adding the box: %s\n' % e
 
-    def reconfigure(self, box_name):
+    def _print_id_name(self, objs):
+        return '\n'.join([str(o['id']) + ' -> ' + o['name'] for o in objs])
+
+    def reconfigure(self, box):
         # TODO
         pass
 
-    def create(self, box_name):
-        box = self.env.get(box_name)
-        droplet = {
-            'droplet_name': box.name,
-            'droplet_image': box.extra.image,
-            'droplet_size': box.extra.size,
-            'droplet_keys': box.extra.keys,
-            'droplet_region': box.extra.region
-        }
+    def create(self, box):
+        print 'Creating instance %s ...' % box.name
+        e = box.extra
+        res = self.manager.new_droplet(box.name, e.size, e.image, e.region, e.keys)
+        droplet_id = res['id']
+        droplet_ip = res['ip_address']
+        print 'Instance created: %s -> %s' % (droplet_id, droplet_ip)
+        box.extra.set_id(droplet_id)
+        box.ip = droplet_ip
+        self._wait_to_be_active(droplet_id)
 
-        self.run_playbook(
-            playbook_file=self.PLAYBOOK_FILE,
-            inventory=self._generate_inventory(box),
-            transport='local',
-            extra_vars=dict(self.extra_vars.items() + droplet.items()),
-            only_tags=['create']
-        )
+    def start(self, box):
+        e = box.extra
+        print 'Starting instance %s ...' % e.id
+        self.manager.power_on_droplet(e.id)
+        self._wait_to_be_active(e.id)
 
-    def start(self, box_name):
-        # TODO
-        pass
+    def stop(self, box):
+        e = box.extra
+        print 'Stopping instance %s ...' % e.id
+        self.manager.power_off_droplet(e.id)
 
-    def stop(self, box_name):
-        # TODO
-        pass
+    def destroy(self, box):
+        e = box.extra
+        print 'Destroying instance %s ...' % e.id
+        self.manager.destroy_droplet(e.id, scrub_data=True)
 
-    def destroy(self, box_name):
-        # TODO
-        pass
+    def rebuild(self, box):
+        e = box.extra
+        print 'Rebuilding instance %s ...' % e.id
+        self.manager.rebuild_droplet(e.id, e.image)
+        self._wait_to_be_active(e.id)
+
+    def _wait_to_be_active(self, droplet_id, wait_timeout=300):
+        end_time = time.time() + wait_timeout
+        while time.time() < end_time:
+            time.sleep(min(20, end_time - time.time()))
+
+            droplet = self.manager.show_droplet(droplet_id)
+            if droplet['status'] == 'active':
+                if not droplet['ip_address']:
+                    raise DoError('No ip is found.', droplet_id)
+                return
+        raise DoError('Wait for droplet running timeout', droplet_id)
 
 
-class DigitalOceanExt(object):
+class DOGeneral(object):
+    def __init__(self, client_id, api_key):
+        self.client_id = client_id
+        self.api_key = api_key
+
+    def __repr__(self):
+        return 'DOGeneral[client_id: %s, api_key: %s]' % (self.client_id, self.api_key)
+
+    def to_json(self):
+        return {'client_id': self.client_id, 'api_key': self.api_key}
+
+    @staticmethod
+    def from_json(json):
+        return DOGeneral(json['client_id'], json['api_key'])
+
+
+class DOExt(object):
+    id = None
     image = None
     size = None
     keys = None
     region = None
+
+    def set_id(self, box_id):
+        self.id = box_id
 
     def set_image(self, image):
         self.image = image
@@ -105,14 +153,16 @@ class DigitalOceanExt(object):
         self.region = region
 
     def __repr__(self):
-        return 'DigitalOceanExt[image: %s, size: %s, keys: %s, region: %s]' % (self.image, self.size, self.keys, self.region)
+        return 'DOExt[id: %s, image: %s, size: %s, keys: %s, region: %s]' % (
+        self.id, self.image, self.size, self.keys, self.region)
 
     def to_json(self):
-        return {'image': self.image, 'size': self.size, 'keys': self.keys, 'region': self.region}
+        return {'id': self.id, 'image': self.image, 'size': self.size, 'keys': self.keys, 'region': self.region}
 
     @staticmethod
     def from_json(json):
-        e = DigitalOceanExt()
+        e = DOExt()
+        e.set_id(json['id'])
         e.set_image(json['image'])
         e.set_size(json['size'])
         e.set_keys(json['keys'])

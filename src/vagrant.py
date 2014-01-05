@@ -19,7 +19,7 @@ class VagrantProvider(FactoryProvider):
     DEFAULT_VAGRANT_PWD = 'vagrant'
 
     def __init__(self):
-        super(VagrantProvider, self).__init__(self.NAME, VagrantExt)
+        super(VagrantProvider, self).__init__(self.NAME, box_extra_type=VagrantExt)
         self.template_env = Environment(loader=FileSystemLoader('./src'), auto_reload=True)
         install_vagrant = BashCmd('./bin/install_vagrant.sh')
         install_vagrant.execute()
@@ -49,15 +49,13 @@ class VagrantProvider(FactoryProvider):
         self._generate_vagrant_file()
         super(VagrantProvider, self).add_box(box)
 
-    def remove_box(self, box_name):
-        b = super(VagrantProvider, self).remove_box(box_name)
+    def remove_box(self, box):
+        b = super(VagrantProvider, self).remove_box(box.name)
         self._generate_vagrant_file()
         return b
 
-    def reconfigure(self, box_name):
+    def reconfigure(self, box):
         try:
-            box = self.remove_box(box_name)
-
             playbook = input_string('playbook path', previous=box.playbook)
             name = self.fetch_box_name(playbook)
             ip = input_string('internal IP', previous=box.ip)
@@ -100,17 +98,17 @@ class VagrantProvider(FactoryProvider):
             'boxes': self.boxes()
         }).dump(self.CONF_FILE)
 
-    def create(self, box_name):
-        self.start(box_name)
+    def create(self, box):
+        self.start(box)
 
-    def start(self, box_name):
-        self._action(action="up", action_args=("--no-provision", box_name))
+    def start(self, box):
+        self._action(action="up", action_args=("--no-provision", box.name))
 
-    def stop(self, box_name):
-        self._action(action="halt", action_args=(box_name,))
+    def stop(self, box):
+        self._action(action="halt", action_args=(box.name,))
 
-    def destroy(self, box_name):
-        self._action(action="destroy", action_args=("-f", box_name))
+    def destroy(self, box):
+        self._action(action="destroy", action_args=("-f", box.name))
 
     #    def status(self):
     #        output = self.action(action="status", output=False)

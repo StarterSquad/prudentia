@@ -7,39 +7,52 @@ from util import xstr, prudentia_python_dir
 class Environment(object):
     ENVIRONMENT_FILE_NAME = '.boxes'
 
-    def __init__(self, path, box_extra_type=None, name=ENVIRONMENT_FILE_NAME):
+    def __init__(self, path, general_type=None, box_extra_type=None, name=ENVIRONMENT_FILE_NAME):
         if not os.path.exists(path):
             print "Environment doesn't exists, creating ..."
             os.makedirs(path)
         self.file = path + '/' + name
-        self.boxes = {}
+        self.general_type = general_type
         self.box_extra_type = box_extra_type
+        self.general = None
+        self.boxes = {}
         try:
             with open(self.file):
-                self.__load()
+                self._load()
+                self.initialized = True
         except IOError:
+            self.initialized = False
             print 'No environment file: %s' % self.file
+
+    def set_general(self, general):
+        self.general = general
+        self._save()
 
     def add(self, box):
         if box.name not in self.boxes:
             self.boxes[box.name] = box
-            self.__save()
+            self._save()
         else:
             raise ValueError("Box '%s' already exists." % box.name)
 
     def get(self, box_name):
-        return self.boxes.get(box_name, None)
+        return self.boxes.get(box_name)
 
     def remove(self, box_name):
         b = self.boxes.pop(box_name, None)
-        self.__save()
+        self._save()
         return b
 
-    def __load(self):
+    def _load(self):
         f = None
         try:
             f = open(self.file, 'r')
-            json_boxes = json.load(f)
+            json_objects = json.load(f)
+            if self.general_type:
+                self.general = self.general_type.from_json(json_objects[0])
+                json_boxes = json_objects[1]
+            else:
+                json_boxes = json_objects
             for jb in json_boxes:
                 b = Box.from_json(jb, self.box_extra_type)
                 self.boxes[b.name] = b
@@ -49,14 +62,17 @@ class Environment(object):
             if f:
                 f.close()
 
-    def __save(self):
+    def _save(self):
         json_boxes = [b.to_json() for b in self.boxes.values()]
         f = None
         try:
             f = open(self.file, 'w')
-            json.dump(json_boxes, f)
+            if self.general_type:
+                json.dump([self.general.to_json(), json_boxes], f)
+            else:
+                json.dump(json_boxes, f)
         except IOError, e:
-            print(e)
+            print e
         finally:
             if f:
                 f.close()

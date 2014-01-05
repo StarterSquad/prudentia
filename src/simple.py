@@ -20,6 +20,9 @@ from util import prudentia_python_dir
 class SimpleCli(Cmd):
     provider = None  # Set by his children
 
+    def _get_box(self, box_name):
+        return self.provider.env.get(box_name)
+
     def complete_box_names(self, text, line, begidx, endidx):
         tokens = line.split(' ')
         action = tokens[0]
@@ -56,7 +59,8 @@ class SimpleCli(Cmd):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_reconfigure(self, line):
-        self.provider.reconfigure(line)
+        box = self._get_box(line)
+        self.provider.reconfigure(box)
 
 
     def help_provision(self):
@@ -67,9 +71,9 @@ class SimpleCli(Cmd):
 
     def do_provision(self, line):
         tokens = line.split(' ')
-        box_name = tokens[0]
+        box = self._get_box(tokens[0])
         tag = tokens[1] if len(tokens) > 1 else None
-        self.provider.provision(box_name, tag)
+        self.provider.provision(box, tag)
 
 
     def help_unregister(self):
@@ -79,7 +83,8 @@ class SimpleCli(Cmd):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_unregister(self, line):
-        self.provider.unregister(line)
+        box = self._get_box(line)
+        self.provider.unregister(box)
 
 
     def help_list(self):
@@ -110,8 +115,8 @@ class SimpleProvider(object):
 
     box_name_pattern = re.compile('- hosts: (.*)')
 
-    def __init__(self, name, box_extra_type=None, env_dir=DEFAULT_ENVIRONMENTS_PATH):
-        self.env = Environment(env_dir + name, box_extra_type)
+    def __init__(self, name, general_type=None, box_extra_type=None, env_dir=DEFAULT_ENVIRONMENTS_PATH):
+        self.env = Environment(env_dir + name, general_type, box_extra_type)
         self.extra_vars = {'prudentia_dir': prudentia_python_dir()}
         self.tags = {}
         self.load_tags()
@@ -137,21 +142,21 @@ class SimpleProvider(object):
             (matched_tags, unmatched_tags) = play.compare_tags('')
             self.tags[b.name] = list(unmatched_tags)
 
-    def remove_box(self, box_name):
-        self.tags.pop(box_name)
-        return self.env.remove(box_name)
+    def remove_box(self, box):
+        self.tags.pop(box.name)
+        return self.env.remove(box.name)
 
     @abstractmethod
     def register(self):
         pass
 
     @abstractmethod
-    def reconfigure(self, box_name):
+    def reconfigure(self, box):
         pass
 
-    def unregister(self, box_name):
-        self.remove_box(box_name)
-        print "\nBox %s removed." % box_name
+    def unregister(self, box):
+        self.remove_box(box)
+        print "\nBox %s removed." % box.name
 
     def fetch_box_name(self, playbook):
         with open(playbook, 'r') as f:
@@ -165,9 +170,7 @@ class SimpleProvider(object):
 
         return box_name
 
-    def provision(self, box_name, tag):
-        box = self.env.get(box_name)
-
+    def provision(self, box, tag=None):
         remote_user = C.DEFAULT_REMOTE_USER
         if box.remote_user:
             remote_user = box.remote_user

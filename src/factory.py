@@ -11,7 +11,8 @@ class FactoryCli(SimpleCli):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_create(self, line):
-        self.provider.create(line)
+        box = self._get_box(line)
+        self.provider.create(box)
 
 
     def help_start(self):
@@ -21,7 +22,8 @@ class FactoryCli(SimpleCli):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_start(self, line):
-        self.provider.start(line)
+        box = self._get_box(line)
+        self.provider.start(box)
 
 
     def help_restart(self):
@@ -31,8 +33,9 @@ class FactoryCli(SimpleCli):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_restart(self, line):
-        self.do_stop(line)
-        self.do_start(line)
+        box = self._get_box(line)
+        self.provider.stop(box)
+        self.provider.start(box)
 
 
     def help_phoenix(self):
@@ -42,11 +45,9 @@ class FactoryCli(SimpleCli):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_phoenix(self, line):
-        self.do_stop(line)
-        self.do_destroy(line)
-        self.do_create(line)
-        self.do_start(line)
-        self.do_provision(line)
+        box = self._get_box(line)
+        self.provider.rebuild(box)
+        self.provider.provision(box)
 
 
     def help_stop(self):
@@ -56,7 +57,8 @@ class FactoryCli(SimpleCli):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_stop(self, line):
-        self.provider.stop(line)
+        box = self._get_box(line)
+        self.provider.stop(box)
 
 
     def help_destroy(self):
@@ -66,33 +68,40 @@ class FactoryCli(SimpleCli):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_destroy(self, line):
-        self.provider.destroy(line)
+        box = self._get_box(line)
+        self.provider.destroy(box)
 
 
 class FactoryProvider(SimpleProvider):
     __metaclass__ = ABCMeta
 
     def add_box(self, box):
-        self.create(box.name)
+        self.create(box)
         super(FactoryProvider, self).add_box(box)
 
     @abstractmethod
-    def create(self, box_name):
+    def create(self, box):
         pass
 
     @abstractmethod
-    def start(self, box_name):
+    def start(self, box):
         pass
 
     @abstractmethod
-    def stop(self, box_name):
+    def stop(self, box):
         pass
 
-    def remove_box(self, box_name):
-        box = super(FactoryProvider, self).remove_box(box_name)
-        self.destroy(box_name)
+    def remove_box(self, box):
+        box = super(FactoryProvider, self).remove_box(box)
+        self.destroy(box)
         return box
 
     @abstractmethod
-    def destroy(self, box_name):
+    def destroy(self, box):
         pass
+
+    def rebuild(self, box):
+        self.stop(box)
+        self.destroy(box)
+        self.create(box)
+        self.start(box)

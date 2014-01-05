@@ -25,10 +25,8 @@ class SshProvider(SimpleProvider):
         except Exception as e:
             print '\nThere was some problem while adding the box: %s\n' % e
 
-    def reconfigure(self, box_name):
+    def reconfigure(self, box):
         try:
-            box = self.remove_box(box_name)
-
             playbook = input_string('playbook path', previous=box.playbook)
             name = self.fetch_box_name(playbook)
             ip = input_string('address of the instance', previous=box.ip)
