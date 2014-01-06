@@ -14,13 +14,25 @@ DIR="$( cd -P "$( dirname "${SOURCE}" )" && pwd )"
 # Change cwd in prudentia dir
 cd ${DIR}
 
+SETUP=false
+if [ "$1" == "setup" ]; then
+  SETUP=true
+  echo "Setting up Prudentia ..."
+fi
+
 GLOBAL_BIN="/usr/bin/prudentia"
-if [[ ! -x ${GLOBAL_BIN} ]]
-then
-  read -p "Do you want to link Prudentia to ${GLOBAL_BIN}? [y/N] " -e answer
-  if [ "${answer}" = "y" ]
-  then
-      sudo ln -s ${DIR}/$(basename $0) ${GLOBAL_BIN}
+if [[ ! -x ${GLOBAL_BIN} ]]; then
+  LINK=false
+  if [ ! ${SETUP} ]; then
+    read -p "Do you want to link Prudentia to ${GLOBAL_BIN}? [y/N] " -e answer
+    if [ "${answer}" = "y" ]; then
+      LINK=true
+    fi
+  else
+    LINK=true
+  fi
+  if [ ${LINK} ]; then
+    sudo ln -s ${DIR}/$(basename $0) ${GLOBAL_BIN}
   fi
 fi
 
@@ -48,4 +60,8 @@ then
   pip install -r ./requirements.txt
 fi
 
-python prudentia.py "$@"
+if [ ! ${SETUP} ]; then
+  python prudentia.py "$@"
+else
+  exit 0
+fi
