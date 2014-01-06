@@ -1,0 +1,15 @@
+---
+  # Parameters:
+  #  $prudentia_dir
+  #  $remote_prudentia_install_dir
+  #  $remote_prudentia_version
+
+  - include: $prudentia_dir/tasks/python.yml
+
+  - name: Prudentia | Checkout git repository
+    git: repo=$prudentia_git_repository dest=$remote_prudentia_install_dir version=$remote_prudentia_version
+    tags: prudentia
+
+  - name: Prudentia | Setup
+    command: ./$install_dir/prudentia.sh setup
+    tags: prudentia

@@ -1,2 +1,3 @@
 ---
+  prudentia_git_repository: https://github.com/StarterSquad/prudentia.git
   testing: "{{ ansible_user_id == 'vagrant' }}"
