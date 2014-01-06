@@ -2,6 +2,7 @@ Jinja2==2.7.1
 MarkupSafe==0.18
 PyYAML==3.10
 ansible==1.3.4
+argparse==1.2.1
 dopy==0.2.2
 ecdsa==0.8
 paramiko==1.12.0
