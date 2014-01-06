@@ -238,14 +238,14 @@ class SimpleProvider(object):
         user = box.remote_user
         if 'root' not in user:
             inventory = self._generate_inventory(box)
-            print 'Creating group \'%s\' ...'.format(user)
+            print 'Creating group \'{0}\' ...'.format(user)
             self.ansible_run_and_check(Runner(
                 inventory=inventory,
                 remote_user='root',
                 module_name='group',
                 module_args='name={0} state=present'.format(user)
             ))
-            print 'Creating user \'%s\' ...'.format(user)
+            print 'Creating user \'{0}\' ...'.format(user)
             self.ansible_run_and_check(Runner(
                 inventory=inventory,
                 remote_user='root',
