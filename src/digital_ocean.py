@@ -70,12 +70,16 @@ class DigitalOceanProvider(FactoryProvider):
         pass
 
     def create(self, box):
-        print 'Creating instance %s ...' % box.name
         e = box.extra
-        res = self.manager.new_droplet(box.name, e.size, e.image, e.region, e.keys)
-        droplet_id = res['id']
-        print 'Instance created: %s' % droplet_id
-        box.extra.set_id(droplet_id)
+        if not e.id:
+            print 'Creating instance %s ...' % box.name
+            res = self.manager.new_droplet(box.name, e.size, e.image, e.region, e.keys)
+            droplet_id = res['id']
+            box.extra.set_id(droplet_id)
+            print 'Instance created: %s' % droplet_id
+        else:
+            droplet_id = e.id
+            print 'Droplet already created'
         box.ip = self._wait_to_be_active(droplet_id)
         self.create_user(box)
 
