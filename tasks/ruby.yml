@@ -12,3 +12,8 @@
     shell: curl -L https://get.rvm.io | bash -s stable --ruby
     when: rvm_present|failed
     tags: ruby
+
+  # we use bash -l because we need to get ruby and gems in PATH
+  - name: Ruby | Install bundler
+    shell: /bin/bash -lc 'gem install bundler'
+    tags: ruby
