@@ -238,19 +238,26 @@ class SimpleProvider(object):
         user = box.remote_user
         if 'root' not in user:
             inventory = self._generate_inventory(box)
-            print 'Creating group \'{0}\' ...'.format(user)
-            self.ansible_run_and_check(Runner(
-                inventory=inventory,
-                remote_user='root',
-                module_name='group',
-                module_args='name={0} state=present'.format(user)
-            ))
+            # print 'Creating group \'{0}\' ...'.format(user)
+            # self.ansible_run_and_check(Runner(
+            #     inventory=inventory,
+            #     remote_user='root',
+            #     module_name='group',
+            #     module_args='name={0} state=present'.format(user)
+            # ))
+            # print 'Creating user \'{0}\' ...'.format(user)
+            # self.ansible_run_and_check(Runner(
+            #     inventory=inventory,
+            #     remote_user='root',
+            #     module_name='user',
+            #     module_args='name={0} state=present shell=/bin/bash generate_ssh_key=yes group=sudo'.format(user)
+            # ))
             print 'Creating user \'{0}\' ...'.format(user)
             self.ansible_run_and_check(Runner(
                 inventory=inventory,
                 remote_user='root',
-                module_name='user',
-                module_args='name={0} state=present shell=/bin/bash generate_ssh_key=yes group={0} groups=sudo'.format(user)
+                module_name='shell',
+                module_args='useradd {0} -s /bin/bash -m -U -G sudo; su - ssq -c "mkdir ~/.ssh; chmod 700 ~/.ssh"'.format(user)
             ))
             print 'Copy authorized_keys from root ...'
             self.ansible_run_and_check(Runner(
