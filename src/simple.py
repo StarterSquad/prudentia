@@ -237,32 +237,38 @@ class SimpleProvider(object):
     def create_user(self, box):
         user = box.remote_user
         if 'root' not in user:
+            if 'jenkins' in user:
+                user_home = '/var/lib/jenkins'
+            else:
+                user_home = '/home/' + user
             inventory = self._generate_inventory(box)
             print 'Creating group \'{0}\' ...'.format(user)
             self.ansible_run_and_check(Runner(
                 inventory=inventory,
                 remote_user='root',
-                module_args='/usr/sbin/groupadd {0}'.format(user)
+                module_name='group',
+                module_args='name={0} state=present'.format(user)
             ))
             print 'Creating user \'{0}\' ...'.format(user)
             self.ansible_run_and_check(Runner(
                 inventory=inventory,
                 remote_user='root',
                 module_name='user',
-                module_args='name={0} state=present shell=/bin/bash generate_ssh_key=yes group={0} groups=sudo'.format(user)
+                module_args='name={0} home={1} state=present shell=/bin/bash generate_ssh_key=yes group={0} groups=sudo'.format(user, user_home)
             ))
             print 'Copy authorized_keys from root ...'
             self.ansible_run_and_check(Runner(
                 inventory=inventory,
                 remote_user='root',
-                module_args="cp /root/.ssh/authorized_keys /home/{0}/.ssh/authorized_keys".format(user)
+                module_name='command',
+                module_args="cp /root/.ssh/authorized_keys {0}/.ssh/authorized_keys".format(user_home)
             ))
             print 'Set permission on authorized_keys ...'
             self.ansible_run_and_check(Runner(
                 inventory=inventory,
                 remote_user='root',
                 module_name='file',
-                module_args="path=/home/{0}/.ssh/authorized_keys mode=600 owner={0} group={0}".format(user)
+                module_args="path={0}/.ssh/authorized_keys mode=600 owner={1} group={1}".format(user_home, user)
             ))
             print 'Ensuring sudoers no pwd prompting ...'
             self.ansible_run_and_check(Runner(
