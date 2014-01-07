@@ -17,8 +17,10 @@
   - name: Jenkins | Install
     action: apt update-cache=yes force=yes state=present pkg=jenkins
     tags: jenkins
+    register: jenkins_installed
     sudo: yes
 
   - name: Jenkins | Wait for start
     wait_for: port=8080 delay=30
+    when: jenkins_installed.changed
     tags: jenkins
