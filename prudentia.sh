@@ -59,7 +59,7 @@ then
 fi
 
 if ! ${SETUP} ; then
-  python prudentia.py "$@"
+  python -u prudentia.py "$@"
 else
   exit 0
 fi
