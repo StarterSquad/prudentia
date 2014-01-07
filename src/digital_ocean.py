@@ -113,7 +113,8 @@ class DigitalOceanProvider(FactoryProvider):
                 droplet_ip_address = droplet['ip_address']
                 if not droplet_ip_address:
                     raise DoError('No ip is found.', droplet_id)
-                print 'Instance %s is now active with ip %s.' % (droplet_id, droplet_ip_address)
+                print '\nInstance %s is now active with ip %s\n' % (droplet_id, droplet_ip_address)
+                time.sleep(10)  # Wait 10 secs for SSH to be up
                 return droplet_ip_address
         raise DoError('Wait for droplet running timeout', droplet_id)
 

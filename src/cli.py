@@ -60,7 +60,7 @@ class CLI(Cmd):
             self.cli = self.environments[env]()
             if len(sys.argv) > 2:
                 cmd = ' '.join(sys.argv[2:])
-                print "Executing: '%s' ...\n" % cmd
+                print "Executing: '%s'\n" % cmd
                 self.cli.onecmd(cmd)
             else:
                 self.cli.cmdloop()

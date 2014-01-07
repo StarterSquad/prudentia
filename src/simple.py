@@ -238,26 +238,18 @@ class SimpleProvider(object):
         user = box.remote_user
         if 'root' not in user:
             inventory = self._generate_inventory(box)
-            # print 'Creating group \'{0}\' ...'.format(user)
-            # self.ansible_run_and_check(Runner(
-            #     inventory=inventory,
-            #     remote_user='root',
-            #     module_name='group',
-            #     module_args='name={0} state=present'.format(user)
-            # ))
-            # print 'Creating user \'{0}\' ...'.format(user)
-            # self.ansible_run_and_check(Runner(
-            #     inventory=inventory,
-            #     remote_user='root',
-            #     module_name='user',
-            #     module_args='name={0} state=present shell=/bin/bash generate_ssh_key=yes group=sudo'.format(user)
-            # ))
+            print 'Creating group \'{0}\' ...'.format(user)
+            self.ansible_run_and_check(Runner(
+                inventory=inventory,
+                remote_user='root',
+                module_args='/usr/sbin/groupadd {0}'.format(user)
+            ))
             print 'Creating user \'{0}\' ...'.format(user)
             self.ansible_run_and_check(Runner(
                 inventory=inventory,
                 remote_user='root',
-                module_name='shell',
-                module_args='useradd {0} -s /bin/bash -m -U -G sudo; su - ssq -c "mkdir ~/.ssh; chmod 700 ~/.ssh"'.format(user)
+                module_name='user',
+                module_args='name={0} state=present shell=/bin/bash generate_ssh_key=yes group={0} groups=sudo'.format(user)
             ))
             print 'Copy authorized_keys from root ...'
             self.ansible_run_and_check(Runner(
@@ -282,11 +274,17 @@ class SimpleProvider(object):
             ))
 
     def ansible_run_and_check(self, runner):
+        failed = False
         results = runner.run()
-        for (hostname, result) in results['contacted'].items():
-            if 'failed' in result:
-                print 'failed: %s' % result['msg']
-                return False
+        if len(results['dark']):
+            failed = True
+            print 'Host not contacted: %s' % results
+        else:
+            for (hostname, result) in results['contacted'].items():
+                if 'failed' in result:
+                    failed = True
+                    print 'Run failed: %s' % result['msg']
+        return failed
 
     def _generate_inventory(self, box):
         f = None
