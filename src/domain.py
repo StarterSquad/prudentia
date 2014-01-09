@@ -79,20 +79,21 @@ class Environment(object):
 
 
 class Box(object):
-    def __init__(self, name, playbook, ip, remote_user=None, remote_pwd=None, extra=None):
+    def __init__(self, name, playbook, ip, remote_user=None, remote_pwd=None, extra=None, use_prudentia_lib=False):
         self.name = name
         self.playbook = playbook
         self.ip = ip
         self.remote_user = remote_user
         self.remote_pwd = remote_pwd
         self.extra = extra
+        self.use_prudentia_lib = use_prudentia_lib
 
     def use_ssh_key(self):
         return self.remote_pwd is None
 
     def inventory(self):
         inv = '[' + self.name + ']\n' + self.ip
-        if 'localhost' in self.ip:
+        if self.use_prudentia_lib:
             inv = inv + ' ansible_python_interpreter=' + prudentia_python_dir() + '/p-env/bin/python'
         return inv
 
