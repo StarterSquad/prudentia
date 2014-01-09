@@ -9,20 +9,20 @@
 
   - name: Xvfb | Install
     apt: force=yes state=present pkg=xvfb
-    tags: protactor
+    tags: protractor
     sudo: yes
 
-  - name: Protactor | Check if is present
+  - name: Protractor | Check if is present
     command: test -x /usr/bin/webdriver-manager
     ignore_errors: yes
-    register: protactor_present
-    tags: protactor
+    register: protractor_present
+    tags: protractor
 
-  - name: Protactor and Selenium | Install
+  - name: Protractor and Selenium | Install
     command: $item
     with_items:
       - npm install -g protractor
       - webdriver-manager update
     sudo: yes
-    when: protactor_present|failed
-    tags: protactor
+    when: protractor_present|failed
+    tags: protractor
