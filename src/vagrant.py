@@ -6,6 +6,7 @@ from jinja2.loaders import FileSystemLoader
 from bash import BashCmd
 from domain import Box
 from factory import FactoryProvider
+from simple import SimpleProvider
 from util import input_string
 
 
@@ -46,11 +47,12 @@ class VagrantProvider(FactoryProvider):
             print '\nThere was some problem while adding the box: %s\n' % e
 
     def add_box(self, box):
+        SimpleProvider.add_box(self, box)
         self._generate_vagrant_file()
-        super(VagrantProvider, self).add_box(box)
+        self.create(box)
 
     def remove_box(self, box):
-        b = super(VagrantProvider, self).remove_box(box.name)
+        b = super(VagrantProvider, self).remove_box(box)
         self._generate_vagrant_file()
         return b
 
