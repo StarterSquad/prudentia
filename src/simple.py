@@ -1,6 +1,7 @@
 from os.path import dirname
 import sys
 import re
+import os
 from abc import ABCMeta, abstractmethod
 from cmd import Cmd
 from datetime import datetime
@@ -131,17 +132,21 @@ class SimpleProvider(object):
 
     def load_tags(self, box=None):
         for b in ([box] if box else self.boxes()):
-            playbook = PlayBook(
-                playbook=b.playbook,
-                inventory=Inventory([]),
-                callbacks=DefaultRunnerCallbacks(),
-                runner_callbacks=DefaultRunnerCallbacks(),
-                stats=AggregateStats(),
-                extra_vars=self.extra_vars
-            )
-            play = Play(playbook, playbook.playbook[0], dirname(b.playbook))
-            (matched_tags, unmatched_tags) = play.compare_tags('')
-            self.tags[b.name] = list(unmatched_tags)
+            if not os.path.exists(b.playbook):
+                print 'Box \'{0}\' points to a not existing playbook. ' \
+                      'Please reconfigure it or unregister the box.\n'.format(b.name)
+            else:
+                playbook = PlayBook(
+                    playbook=b.playbook,
+                    inventory=Inventory([]),
+                    callbacks=DefaultRunnerCallbacks(),
+                    runner_callbacks=DefaultRunnerCallbacks(),
+                    stats=AggregateStats(),
+                    extra_vars=self.extra_vars
+                )
+                play = Play(playbook, playbook.playbook[0], dirname(b.playbook))
+                (matched_tags, unmatched_tags) = play.compare_tags('')
+                self.tags[b.name] = list(unmatched_tags)
 
     def remove_box(self, box):
         self.tags.pop(box.name)
