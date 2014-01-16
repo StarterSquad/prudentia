@@ -9,8 +9,8 @@
 
   - name: Xvfb | Install
     apt: force=yes state=present pkg=xvfb
-    tags: protractor
     sudo: yes
+    tags: protractor
 
   - name: Protractor | Check if is present
     command: test -x /usr/bin/webdriver-manager
@@ -18,11 +18,16 @@
     register: protractor_present
     tags: protractor
 
-  - name: Protractor and Selenium | Install
+  - name: Protractor and Webdriver | Install
     command: $item
     with_items:
       - npm install -g protractor
       - webdriver-manager update
     sudo: yes
     when: protractor_present|failed
+    tags: protractor
+
+  - name: Webdriver daemon | Copy upstart script
+    action: template src=$prudentia_dir/files/protractor/webdriver-upstart.conf dest=/etc/init/webdriver.conf
+    sudo: yes
     tags: protractor
