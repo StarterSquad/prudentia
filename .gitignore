@@ -1,11 +1,9 @@
 .DS_Store
 .idea
 *.iml
-id_rsa*
-*.pub
 *.pyc
-Vagrantfile
-.vagrant
-.boxes
 *inventory*
 p-env
+credential
+tests/env
+env/

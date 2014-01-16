@@ -5,13 +5,13 @@
   # this tell ucf to keep existing grub configuration and don't update
   - name: Common setup | Preventing ucf to ask information
     action: copy src=$prudentia_dir/files/common/ucf.conf dest=/etc/ucf.conf mode=644 backup=yes
-    only_if: "not $testing"
+    when: not testing
     sudo: yes
     tags: common
 
   - name: Common setup | Upgrade distribution
     action: shell apt-get update && apt-get upgrade -y
-    only_if: "not $testing"
+    when: not testing
     sudo: yes
     tags: common
 
@@ -30,10 +30,3 @@
       - build-essential
     sudo: yes
     tags: common
-
-#  - name: Common setup | Authorize keys
-#    authorized_key: user=$user key='$FILE($item)'
-#    with_items:
-#      - $prudentia_dir/files/common/tiziano_mac-air.pub
-#    only_if: "not $testing"
-#    tags: common

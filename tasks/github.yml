@@ -13,5 +13,6 @@
 
   - name: GitHub | Add github.com to known_hosts
     action: shell ssh-keyscan github.com >> $ssh_dir/.ssh/known_hosts
-    only_if: " '${github_known.stdout}' == '' "
+    when: github_known.stdout == ''
+    sudo: yes
     tags: github

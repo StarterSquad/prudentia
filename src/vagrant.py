@@ -1,160 +1,126 @@
-from collections import namedtuple
-from os.path import dirname
-import pickle
-from datetime import datetime
 import os
-import re
-from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
-from ansible.inventory import Inventory
-from ansible.playbook import PlayBook
-from ansible.playbook.play import Play
+
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
-from util import BashCmd
 
-Box = namedtuple('Box', ['name', 'playbook', 'ip', 'shares'])
-Share = namedtuple('Share', ['src', 'dst'])
+from bash import BashCmd
+from domain import Box
+from factory import FactoryProvider
+from simple import SimpleProvider
+from util import input_string
 
-class Vagrant:
-    ENV_DIR = './env/test/'
 
+class VagrantProvider(FactoryProvider):
+    NAME = 'vagrant'
+    ENV_DIR = './env/' + NAME
     VAGRANT_FILE_NAME = 'Vagrantfile'
-    CONF_FILE = ENV_DIR + VAGRANT_FILE_NAME
+    CONF_FILE = ENV_DIR + '/' + VAGRANT_FILE_NAME
 
-    BOXES_FILE = ENV_DIR + '.boxes'
-    boxes = []
-    tags = {}
-
-    box_name_pattern = re.compile('- hosts: (.*)')
+    DEFAULT_VAGRANT_USER = 'vagrant'
+    DEFAULT_VAGRANT_PWD = 'vagrant'
 
     def __init__(self):
-        cwd = os.path.realpath(__file__)
-        components = cwd.split(os.sep)
-        self.prudentia_root_dir = str.join(os.sep, components[:components.index("prudentia") + 1])
-        self.template_env = Environment(loader=FileSystemLoader(self.ENV_DIR), auto_reload=True)
-        self.load_current_boxes()
+        super(VagrantProvider, self).__init__(self.NAME, box_extra_type=VagrantExt)
+        self.template_env = Environment(loader=FileSystemLoader('./src'), auto_reload=True)
+        install_vagrant = BashCmd('./bin/install_vagrant.sh')
+        install_vagrant.execute()
 
-    def load_current_boxes(self):
-        f = None
+    def register(self):
         try:
-            f = open(self.BOXES_FILE, 'r')
-            self.boxes = pickle.load(f)
-            self.load_tags()
-        except IOError:
-            pass
-        finally:
-            if f:
-                f.close()
+            playbook = input_string('playbook path')
+            name = self.fetch_box_name(playbook)
+            ip = input_string('internal IP')
 
-    def load_tags(self):
-        for b in self.boxes:
-            playbook = PlayBook(
-                playbook=b.playbook,
-                inventory=Inventory([]),
-                callbacks=DefaultRunnerCallbacks(),
-                runner_callbacks=DefaultRunnerCallbacks(),
-                stats=AggregateStats(),
-                extra_vars={'prudentia_dir':self.prudentia_root_dir}
-            )
-            play = Play(playbook, playbook.playbook[0], dirname(b.playbook))
-            (matched_tags, unmatched_tags) = play.compare_tags('')
-            self.tags.update({b.name: list(unmatched_tags)})
+            ext = VagrantExt()
+            mem = input_string('amount of RAM in GB', default_value=str(1), mandatory=True)
+            if mem:
+                ext.set_mem(1024)
+            else:
+                ext.set_mem(int(mem) * 1024)
 
-    def save_current_boxes(self):
-        f = None
+            ext.set_shares(self._input_shares())
+
+            box = Box(name, playbook, ip, self.DEFAULT_VAGRANT_USER, self.DEFAULT_VAGRANT_PWD, ext)
+            self.add_box(box)
+            print "\nBox %s added." % box
+        except Exception as e:
+            print '\nThere was some problem while adding the box: %s\n' % e
+
+    def add_box(self, box):
+        SimpleProvider.add_box(self, box)
+        self._generate_vagrant_file()
+        self.create(box)
+
+    def remove_box(self, box):
+        b = super(VagrantProvider, self).remove_box(box)
+        self._generate_vagrant_file()
+        return b
+
+    def reconfigure(self, box):
         try:
-            f = open(self.BOXES_FILE, 'w')
-            pickle.dump(self.boxes, f)
-        except IOError:
-            pass
-        finally:
-            if f:
-                f.close()
-        self.generate_vagrant_file()
-        self.load_tags()
+            playbook = input_string('playbook path', previous=box.playbook)
+            name = self.fetch_box_name(playbook)
+            ip = input_string('internal IP', previous=box.ip)
 
-    def generate_vagrant_file(self):
+            ext = VagrantExt()
+            mem = input_string('amount of RAM in GB', previous=str(box.extra.mem / 1024), mandatory=True)
+            if mem:
+                ext.set_mem(1024)
+            else:
+                ext.set_mem(int(mem) * 1024)
+
+            ext.set_shares(self._input_shares())
+
+            box = Box(name, playbook, ip, self.DEFAULT_VAGRANT_USER, self.DEFAULT_VAGRANT_PWD, ext)
+            self.add_box(box)
+            print "\nBox %s reconfigured." % box
+        except Exception as e:
+            print '\nThere was some problem while reconfiguring the box: %s\n' % e
+
+    def _input_shares(self):
+        shares = []
+        loop = True
+        while loop:
+            ans = raw_input('Do you want to share a folder? [y/N] ').strip()
+            if ans.lower() in ('y', 'yes'):
+                src = input_string('directory on the HOST machine')
+                if not os.path.exists(src):
+                    raise ValueError("Directory '%s' on the HOST machine doesn't exists." % src)
+                dst = input_string('directory on the GUEST machine')
+                shares.append((src, dst))
+            else:
+                loop = False
+        return shares
+
+    def _generate_vagrant_file(self):
         env = self.template_env
         template_name = self.VAGRANT_FILE_NAME + '.j2'
         template = env.get_template(template_name)
         template.stream({
-            'boxes': self.boxes,
-            'prudentia_root_dir': self.prudentia_root_dir
+            'boxes': self.boxes()
         }).dump(self.CONF_FILE)
 
-    def add_box(self):
-        playbook = raw_input('Specify the playbook path: ')
+    def create(self, box):
+        self.start(box)
 
-        f = name = None
-        try:
-            f = open(playbook, 'r')
-            for i, line in enumerate(f):
-                if i == 1: # 2nd line contains the host name
-                    match = self.box_name_pattern.match(line)
-                    name = match.group(1)
-                elif i > 1:
-                    break
-        except Exception as e:
-            print 'There was a problem while reading %s: ' % playbook, e
-        finally:
-            if f:
-                f.close()
+    def start(self, box):
+        self._action(action="up", action_args=("--no-provision", box.name))
 
-        ip = raw_input('Specify an internal IP: ')
+    def stop(self, box):
+        self._action(action="halt", action_args=(box.name,))
 
-        shares = []
-        loop = True
-        while loop:
-            ans = raw_input('Do you want to share a folder? [y/N] ')
-            if ans.lower() in ('y', 'yes'):
-                src = raw_input('-> enter the dir on the host machine: ')
-                dst = raw_input('-> enter the dir on the guest machine: ')
-                shares.append(Share(src, dst))
-            else:
-                loop = False
+    def destroy(self, box):
+        self._action(action="destroy", action_args=("-f", box.name))
 
-        if name and playbook and ip:
-            box = Box(name, playbook, ip, shares)
-            self.boxes.append(box)
-            self.save_current_boxes()
-            print "\n%r added." % (box,)
-        else:
-            print 'There was some problem while adding the box.'
+    #    def status(self):
+    #        output = self.action(action="status", output=False)
+    #        for box in self.boxes:
+    #            pattern = '.*' + box.name + '\s*(.*?) \(virtualbox\).*'
+    #            match = re.match(pattern, output, re.DOTALL)
+    #            status = match.group(1)
+    #            print "%s -> %r\n" % (status, box)
 
-    def remove_box(self, box_name):
-        self.boxes = [b for b in self.boxes if b.name != box_name]
-        self.save_current_boxes()
-        print "\nBox %s removed." % box_name
-
-    def status(self):
-        output = self.action(action="status", output=False)
-        for box in self.boxes:
-            pattern = '.*' + box.name + '\s*(.*?) \(virtualbox\).*'
-            match = re.match(pattern, output, re.DOTALL)
-            status = match.group(1)
-            print "%s -> %r\n" % (status, box)
-
-    def provision(self, box_name, tags):
-        start = datetime.now()
-        self.action(action="provision", action_args=(box_name,), tags=tags)
-        end = datetime.now()
-        diff = end - start
-        print "Took {0} seconds\n".format(diff.seconds)
-
-    def up(self, box_name):
-        self.action(action="up", action_args=("--no-provision", box_name))
-
-    def reload(self, box_name):
-        self.action(action="reload", action_args=("--no-provision", box_name))
-
-    def halt(self, box_name):
-        self.action(action="halt", action_args=(box_name,))
-
-    def destroy(self, box_name):
-        self.halt(box_name)
-        self.action(action="destroy", action_args=("-f", box_name))
-
-    def action(self, **kwargs):
+    def _action(self, **kwargs):
         if 'action_args' not in kwargs.keys():
             cmd = BashCmd("vagrant", kwargs['action'])
         else:
@@ -170,7 +136,31 @@ class Vagrant:
         # cmd.set_env_var("VAGRANT_LOG", "INFO")
 
         cmd.execute()
-        if not cmd.isOk():
+        if not cmd.is_ok():
             print "ERROR while running: {0}".format(cmd.cmd_args)
         else:
             return cmd.output()
+
+
+class VagrantExt(object):
+    mem = None
+    shares = None
+
+    def set_mem(self, mem):
+        self.mem = mem
+
+    def set_shares(self, shares):
+        self.shares = shares
+
+    def __repr__(self):
+        return 'VagrantExt[mem: %s, shares: %s]' % (self.mem, self.shares)
+
+    def to_json(self):
+        return {'mem': self.mem, 'shares': self.shares}
+
+    @staticmethod
+    def from_json(json):
+        e = VagrantExt()
+        e.set_mem(json['mem'])
+        e.set_shares(json['shares'])
+        return e

@@ -1,36 +1,37 @@
 ---
   # Parameters:
-  #  $root_password
+  #  $mysql_root_password
   #  $prudentia_dir
 
   - name: MySQL | Check if installed
-    action: shell [ -f /usr/bin/mysql ] && echo 'found!' || echo ''
+    command: test -x /usr/bin/mysql
     register: mysql_present
+    ignore_errors: yes
     tags: mysql
 
   - name: MySQL | Preset root password
-    action: shell echo mysql-server-5.5 mysql-server/$item password {{root_password}} | debconf-set-selections
+    shell: echo mysql-server-5.5 mysql-server/$item password {{mysql_root_password}} | debconf-set-selections
     with_items:
       - root_password
       - root_password_again
-    only_if: " '${mysql_present.stdout}' == '' "
+    when: mysql_present|failed
     tags: mysql
     sudo: yes
 
   - name: MySQL | Install MySQL server
-    action: apt update-cache=yes force=yes state=present pkg=mysql-server
-    only_if: " '${mysql_present.stdout}' == '' "
+    apt: update-cache=yes force=yes state=present pkg=mysql-server
+    when: mysql_present|failed
     tags: mysql
     sudo: yes
 
   - name: MySQL | Copy configuration file
-    action: copy src=$prudentia_dir/files/mysql/my.cnf dest=/etc/mysql/my.cnf backup=yes
-    register: mysql_conf_changed
+    copy: src=$prudentia_dir/files/mysql/my.cnf dest=/etc/mysql/my.cnf backup=yes
+    register: mysql_conf
     tags: mysql
     sudo: yes
 
   - name: MySQL | Restart
-    action: service name=mysql state=restarted
-    when_changed: $mysql_conf_changed
+    service: name=mysql state=restarted
+    when: mysql_conf.changed
     tags: mysql
     sudo: yes

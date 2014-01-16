@@ -1,0 +1,18 @@
+---
+  # Parameters:
+  #  $prudentia_dir
+
+  - name: Chrome | Add GPG key to apt keyring
+    shell: wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+    tags: chrome
+    sudo: yes
+
+  - name: Chrome | Add apt repository
+    copy: src=$prudentia_dir/files/chrome/apt-source dest=/etc/apt/sources.list.d/google.list mode=644
+    tags: chrome
+    sudo: yes
+
+  - name: Chrome | Install last stable
+    apt: update-cache=yes force=yes state=present pkg=google-chrome-stable
+    tags: chrome
+    sudo: yes

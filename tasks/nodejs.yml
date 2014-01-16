@@ -11,11 +11,11 @@
   - name: Node.js | Add apt repository
     action: apt_repository repo=ppa:chris-lea/node.js
     sudo: yes
-    when_failed: $nodejs_present
+    when: nodejs_present|failed
     tags: nodejs
 
   - name: Node.js | Install last stable
     action: apt update-cache=yes force=yes state=present pkg=nodejs
     sudo: yes
-    when_failed: $nodejs_present
+    when: nodejs_present|failed
     tags: nodejs
