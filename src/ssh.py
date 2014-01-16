@@ -1,3 +1,4 @@
+import logging
 import ansible.constants as C
 
 from domain import Box
@@ -23,6 +24,7 @@ class SshProvider(SimpleProvider):
             self.add_box(box)
             print "\nBox %s added." % box
         except Exception as e:
+            logging.exception('Box not added.')
             print '\nThere was some problem while adding the box: %s\n' % e
 
     def reconfigure(self, box):
@@ -37,4 +39,5 @@ class SshProvider(SimpleProvider):
             self.add_box(box)
             print "\nBox %s reconfigured." % box
         except Exception as e:
+            logging.exception('Box not reconfigured.')
             print '\nThere was some problem while reconfiguring the box: %s\n' % e
