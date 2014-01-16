@@ -149,7 +149,8 @@ class SimpleProvider(object):
                 self.tags[b.name] = list(unmatched_tags)
 
     def remove_box(self, box):
-        self.tags.pop(box.name)
+        if box.name in self.tags:
+            self.tags.pop(box.name)
         return self.env.remove(box.name)
 
     @abstractmethod
