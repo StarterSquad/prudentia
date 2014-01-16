@@ -60,6 +60,8 @@ class VagrantProvider(FactoryProvider):
 
     def reconfigure(self, box):
         try:
+            self.remove_box(box)
+
             playbook = input_string('playbook path', previous=box.playbook)
             name = self.fetch_box_name(playbook)
             ip = input_string('internal IP', previous=box.ip)
