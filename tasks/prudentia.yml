@@ -13,8 +13,12 @@
 
   - name: Prudentia | Checkout git repository
     git: repo=$prudentia_git_repository dest=$remote_prudentia_install_dir version=$remote_prudentia_version
-    tags: prudentia
+    tags:
+      - prudentia
+      - update
 
   - name: Prudentia | Setup
     command: $remote_prudentia_install_dir/./prudentia.sh setup
-    tags: prudentia
+    tags:
+      - prudentia
+      - update
