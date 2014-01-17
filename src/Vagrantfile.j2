@@ -1,7 +1,7 @@
 Vagrant.configure("2") do |config|
 
     {% for b in boxes %}
-    config.vm.define :{{ b.name }} do |box|
+    config.vm.define :'{{ b.name }}' do |box|
         box.vm.box = "precise_base"
         box.vm.hostname = "{{ b.ip|replace('.', '-') }}"
 
