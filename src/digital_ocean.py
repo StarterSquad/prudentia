@@ -33,8 +33,9 @@ class DigitalOceanProvider(FactoryProvider):
         try:
             # TODO register using existing id (or name) ?
 
+            name = input_string('box name')
             playbook = input_string('playbook path')
-            name = self.fetch_box_name(playbook)
+            hostname = self.fetch_box_hostname(playbook)
             ip = 'localhost'
             user = input_string('remote user', default_value=C.active_user)
 
@@ -55,7 +56,7 @@ class DigitalOceanProvider(FactoryProvider):
             print '\nAvailable regions: \n%s' % self._print_id_name(all_regions)
             ext.set_region(input_string('region', default_description='Amsterdam 2', default_value='5', mandatory=True))
 
-            box = Box(name, playbook, ip, user, extra=ext)
+            box = Box(name, playbook, hostname, ip, user, extra=ext)
             self.add_box(box)
             print "\nBox %s added." % box
         except Exception as e:

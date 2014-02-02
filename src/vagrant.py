@@ -28,8 +28,9 @@ class VagrantProvider(FactoryProvider):
 
     def register(self):
         try:
+            name = input_string('box name')
             playbook = input_string('playbook path')
-            name = self.fetch_box_name(playbook)
+            hostname = self.fetch_box_hostname(playbook)
             ip = input_string('internal IP')
 
             ext = VagrantExt()
@@ -41,7 +42,7 @@ class VagrantProvider(FactoryProvider):
 
             ext.set_shares(self._input_shares())
 
-            box = Box(name, playbook, ip, self.DEFAULT_VAGRANT_USER, self.DEFAULT_VAGRANT_PWD, ext)
+            box = Box(name, playbook, hostname, ip, self.DEFAULT_VAGRANT_USER, self.DEFAULT_VAGRANT_PWD, ext)
             self.add_box(box)
             print "\nBox %s added." % box
         except Exception as e:
@@ -58,16 +59,16 @@ class VagrantProvider(FactoryProvider):
         self._generate_vagrant_file()
         return b
 
-    def reconfigure(self, box):
+    def reconfigure(self, previous_box):
         try:
-            self.remove_box(box)
+            self.remove_box(previous_box)
 
-            playbook = input_string('playbook path', previous=box.playbook)
-            name = self.fetch_box_name(playbook)
-            ip = input_string('internal IP', previous=box.ip)
+            playbook = input_string('playbook path', previous=previous_box.playbook)
+            hostname = self.fetch_box_hostname(playbook)
+            ip = input_string('internal IP', previous=previous_box.ip)
 
             ext = VagrantExt()
-            mem = input_string('amount of RAM in GB', previous=str(box.extra.mem / 1024), mandatory=True)
+            mem = input_string('amount of RAM in GB', previous=str(previous_box.extra.mem / 1024), mandatory=True)
             if mem:
                 ext.set_mem(1024)
             else:
@@ -75,7 +76,7 @@ class VagrantProvider(FactoryProvider):
 
             ext.set_shares(self._input_shares())
 
-            box = Box(name, playbook, ip, self.DEFAULT_VAGRANT_USER, self.DEFAULT_VAGRANT_PWD, ext)
+            box = Box(previous_box.name, playbook, hostname, ip, self.DEFAULT_VAGRANT_USER, self.DEFAULT_VAGRANT_PWD, ext)
             self.add_box(box)
             print "\nBox %s reconfigured." % box
         except Exception as e:

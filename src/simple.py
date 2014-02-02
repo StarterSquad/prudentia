@@ -165,17 +165,17 @@ class SimpleProvider(object):
         self.remove_box(box)
         print "\nBox %s removed." % box.name
 
-    def fetch_box_name(self, playbook):
+    def fetch_box_hostname(self, playbook):
         with open(playbook, 'r') as f:
-            box_name = None
+            hostname = None
             for i, line in enumerate(f):
                 if i == 1:  # 2nd line contains the host box_name
                     match = self.box_name_pattern.match(line)
-                    box_name = match.group(1)
+                    hostname = match.group(1)
                 elif i > 1:
                     break
 
-        return box_name
+        return hostname
 
     def provision(self, box, tag=None):
         remote_user = C.DEFAULT_REMOTE_USER

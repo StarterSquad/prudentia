@@ -7,18 +7,18 @@ from src.domain import Environment, Box
 class TestEnvironment(unittest.TestCase):
     def setUp(self):
         self.env = Environment('./env')
-        self.test_box = Box('box-name', 'dev.yml', '0.0.0.0')
+        self.test_box = Box('box-name', 'dev.yml', 'box-host', '0.0.0.0')
 
     def test_add(self):
         self.env.add(self.test_box)
-        box = json.load(open('./env/.boxes', 'r'))[0]
+        box = json.load(open('./env/' + Environment.ENVIRONMENT_FILE_NAME, 'r'))[0]
         self.assertEqual(box['name'], self.test_box.name)
         self.assertFalse('remote_user' in box)
         self.assertFalse('remote_pwd' in box)
         self.assertFalse('extra' in box)
 
     def test_add_existing_name(self):
-        b2 = Box('box-name', 'dev2', '1.2.3.4')
+        b2 = Box('box-name', 'dev2', 'box-hostname', '1.2.3.4')
         self.assertRaises(ValueError, self.env.add, b2)
 
     def test_get_valid_box(self):

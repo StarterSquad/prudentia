@@ -5,7 +5,7 @@ from util import xstr, prudentia_python_dir
 
 
 class Environment(object):
-    ENVIRONMENT_FILE_NAME = '.boxes'
+    ENVIRONMENT_FILE_NAME = '.boxes.json'
 
     def __init__(self, path, general_type=None, box_extra_type=None, name=ENVIRONMENT_FILE_NAME):
         if not os.path.exists(path):
@@ -33,7 +33,7 @@ class Environment(object):
             self.boxes[box.name] = box
             self._save()
         else:
-            raise ValueError("Box '%s' already exists." % box.name)
+            raise ValueError("Box name must be unique: '%s' already exists!" % box.name)
 
     def get(self, box_name):
         return self.boxes.get(box_name)
@@ -79,9 +79,10 @@ class Environment(object):
 
 
 class Box(object):
-    def __init__(self, name, playbook, ip, remote_user=None, remote_pwd=None, extra=None, use_prudentia_lib=False):
+    def __init__(self, name, playbook, hostname, ip, remote_user=None, remote_pwd=None, extra=None, use_prudentia_lib=False):
         self.name = name
         self.playbook = playbook
+        self.hostname = hostname
         self.ip = ip
         self.remote_user = remote_user
         self.remote_pwd = remote_pwd
@@ -92,19 +93,20 @@ class Box(object):
         return self.remote_pwd is None
 
     def inventory(self):
-        inv = '[' + self.name + ']\n' + self.ip
+        inv = '[' + self.hostname + ']\n' + self.ip
         if self.use_prudentia_lib:
             inv = inv + ' ansible_python_interpreter=' + prudentia_python_dir() + '/p-env/bin/python'
         return inv
 
     def __repr__(self):
-        values = [self.playbook, self.ip, self.remote_user, '*****' if self.remote_pwd else '', xstr(self.extra)]
+        values = [self.playbook, self.hostname, self.ip, self.remote_user, '*****' if self.remote_pwd else '', xstr(self.extra)]
         return '%s -> (%s)' % (self.name, ', '.join(i for i in values if i and i.strip()))
 
     def to_json(self):
         json_obj = {
             'name': self.name,
             'playbook': self.playbook,
+            'hostname': self.hostname,
             'ip': self.ip
         }
         if self.remote_user:
@@ -120,6 +122,7 @@ class Box(object):
         return Box(
             json_obj.get('name'),
             json_obj.get('playbook'),
+            json_obj.get('hostname'),
             json_obj.get('ip'),
             json_obj.get('remote_user'),
             json_obj.get('remote_pwd'),
