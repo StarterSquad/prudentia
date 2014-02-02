@@ -123,6 +123,7 @@ class SimpleProvider(object):
         self.extra_vars = {'prudentia_dir': prudentia_python_dir()}
         self.tags = {}
         self.load_tags()
+        self.provisioned = None
 
     def boxes(self):
         return self.env.boxes.values()
@@ -198,7 +199,7 @@ class SimpleProvider(object):
         if tag:
             only_tags = [tag]
 
-        self.run_playbook(
+        self.provisioned = self.run_playbook(
             playbook_file=box.playbook,
             inventory=self._generate_inventory(box),
             remote_user=remote_user,
@@ -226,6 +227,7 @@ class SimpleProvider(object):
             stats=stats
         )
 
+        provision_success = False
         try:
             start = datetime.now()
             playbook.run()
@@ -241,10 +243,13 @@ class SimpleProvider(object):
                     self._colorize('changed', t['changed'], 'yellow'),
                     self._colorize('unreachable', t['unreachable'], 'red'),
                     self._colorize('failed', t['failures'], 'red'))
+                if t['unreachable'] == 0 and t['failures'] == 0:
+                    provision_success = True
 
             print "Play run took {0} minutes\n".format((datetime.now() - start).seconds / 60)
         except errors.AnsibleError, e:
             print >> sys.stderr, "ERROR: %s" % e
+        return provision_success
 
     def create_user(self, box):
         user = box.remote_user
@@ -255,35 +260,35 @@ class SimpleProvider(object):
                 user_home = '/home/' + user
             inventory = self._generate_inventory(box)
             print 'Creating group \'{0}\' ...'.format(user)
-            self.ansible_run_and_check(Runner(
+            self.run_ansible_module(Runner(
                 inventory=inventory,
                 remote_user='root',
                 module_name='group',
                 module_args='name={0} state=present'.format(user)
             ))
             print 'Creating user \'{0}\' ...'.format(user)
-            self.ansible_run_and_check(Runner(
+            self.run_ansible_module(Runner(
                 inventory=inventory,
                 remote_user='root',
                 module_name='user',
                 module_args='name={0} home={1} state=present shell=/bin/bash generate_ssh_key=yes group={0} groups=sudo'.format(user, user_home)
             ))
             print 'Copy authorized_keys from root ...'
-            self.ansible_run_and_check(Runner(
+            self.run_ansible_module(Runner(
                 inventory=inventory,
                 remote_user='root',
                 module_name='command',
                 module_args="cp /root/.ssh/authorized_keys {0}/.ssh/authorized_keys".format(user_home)
             ))
             print 'Set permission on authorized_keys ...'
-            self.ansible_run_and_check(Runner(
+            self.run_ansible_module(Runner(
                 inventory=inventory,
                 remote_user='root',
                 module_name='file',
                 module_args="path={0}/.ssh/authorized_keys mode=600 owner={1} group={1}".format(user_home, user)
             ))
             print 'Ensuring sudoers no pwd prompting ...'
-            self.ansible_run_and_check(Runner(
+            self.run_ansible_module(Runner(
                 inventory=inventory,
                 remote_user='root',
                 module_name='lineinfile',
@@ -291,7 +296,7 @@ class SimpleProvider(object):
                 module_args="dest=/etc/sudoers state=present regexp=%sudo line='%sudo ALL=(ALL:ALL) NOPASSWD:ALL'"
             ))
 
-    def ansible_run_and_check(self, runner):
+    def run_ansible_module(self, runner):
         failed = False
         results = runner.run()
         if len(results['dark']):

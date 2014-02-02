@@ -31,7 +31,7 @@ class DigitalOceanCli(FactoryCli):
 
 class CLI(Cmd):
     parent_loop = False
-    cli = None
+    env_cli = None
 
     environments = {
         'ssh': SshCli,
@@ -57,15 +57,15 @@ class CLI(Cmd):
 
     def do_use(self, env):
         if env in self.environments.keys():
-            self.cli = self.environments[env]()
+            self.env_cli = self.environments[env]()
             if len(sys.argv) > 2:
                 cmd = ' '.join(sys.argv[2:])
-                print "Executing: '%s'\n" % cmd
-                self.cli.onecmd(cmd)
+                print "Executing: '{0}'\n".format(cmd)
+                self.env_cli.onecmd(cmd)
             else:
-                self.cli.cmdloop()
+                self.env_cli.cmdloop()
         else:
-            print 'Provider %s NOT found.' % env
+            print "Provider '{0}' NOT found.".format(env)
         return not self.parent_loop
 
     def do_EOF(self, line):
