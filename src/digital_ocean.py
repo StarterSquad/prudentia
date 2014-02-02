@@ -33,9 +33,9 @@ class DigitalOceanProvider(FactoryProvider):
         try:
             # TODO register using existing id (or name) ?
 
-            name = input_string('box name')
             playbook = input_string('playbook path')
             hostname = self.fetch_box_hostname(playbook)
+            name = input_string('box name', default_value=self.suggest_name(hostname))
             ip = 'localhost'
             user = input_string('remote user', default_value=C.active_user)
 

@@ -14,9 +14,9 @@ class SshProvider(SimpleProvider):
 
     def register(self):
         try:
-            name = input_string('box name')
             playbook = input_string('playbook path')
             hostname = self.fetch_box_hostname(playbook)
+            name = input_string('box name', default_value=self.suggest_name(hostname))
             ip = input_string('address of the instance')
             user = input_string('remote user', default_value=C.active_user)
             pwd = input_string('password for the remote user', default_description='ssh key', mandatory=False)

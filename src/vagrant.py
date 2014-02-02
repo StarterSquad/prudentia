@@ -28,9 +28,9 @@ class VagrantProvider(FactoryProvider):
 
     def register(self):
         try:
-            name = input_string('box name')
             playbook = input_string('playbook path')
             hostname = self.fetch_box_hostname(playbook)
+            name = input_string('box name', default_value=self.suggest_name(hostname))
             ip = input_string('internal IP')
 
             ext = VagrantExt()

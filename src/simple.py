@@ -14,6 +14,7 @@ from ansible.playbook import PlayBook
 from ansible.playbook.play import Play
 from ansible.runner import Runner
 import ansible.constants as C
+import random
 
 from domain import Environment
 from util import prudentia_python_dir
@@ -174,8 +175,13 @@ class SimpleProvider(object):
                     hostname = match.group(1)
                 elif i > 1:
                     break
-
         return hostname
+
+    def suggest_name(self, hostname):
+        if hostname not in self.env.boxes:
+            return hostname
+        else:
+            return hostname + '-' + str(random.randint(0, 100))
 
     def provision(self, box, tag=None):
         remote_user = C.DEFAULT_REMOTE_USER
