@@ -7,8 +7,7 @@ from src.domain import Environment, Box
 class TestEnvironment(unittest.TestCase):
     def setUp(self):
         self.env = Environment('./env')
-        box = Box('box-name', 'dev.yml', '0.0.0.0')
-        self.test_box = box
+        self.test_box = Box('box-name', 'dev.yml', '0.0.0.0')
 
     def test_add(self):
         self.env.add(self.test_box)
