@@ -1,14 +1,10 @@
 from os.path import dirname
-import sys
 import re
 import os
 from abc import ABCMeta, abstractmethod
 from cmd import Cmd
-from datetime import datetime
 
-from ansible import callbacks, errors
 from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
-from ansible.color import stringc
 from ansible.inventory import Inventory
 from ansible.playbook import PlayBook
 from ansible.playbook.play import Play
@@ -17,6 +13,7 @@ import ansible.constants as C
 import random
 
 from domain import Environment
+from util_ansible import run_playbook, run_modules
 from util_io import prudentia_python_dir
 
 
@@ -199,7 +196,7 @@ class SimpleProvider(object):
         if tag:
             only_tags = [tag]
 
-        self.provisioned = self.run_playbook(
+        self.provisioned = run_playbook(
             playbook_file=box.playbook,
             inventory=self._generate_inventory(box),
             remote_user=remote_user,
@@ -209,105 +206,62 @@ class SimpleProvider(object):
             only_tags=only_tags
         )
 
-    def run_playbook(self, playbook_file, inventory, remote_user=C.DEFAULT_REMOTE_USER,
-                     remote_pass=C.DEFAULT_REMOTE_PASS, transport=C.DEFAULT_TRANSPORT, extra_vars=None, only_tags=None):
-        stats = callbacks.AggregateStats()
-        playbook_cb = callbacks.PlaybookCallbacks(verbose=True)
-        runner_cb = callbacks.PlaybookRunnerCallbacks(stats, verbose=True)
-        playbook = PlayBook(
-            playbook=playbook_file,
-            inventory=inventory,
-            remote_user=remote_user,
-            remote_pass=remote_pass,
-            transport=transport,
-            extra_vars=extra_vars,
-            only_tags=only_tags,
-            callbacks=playbook_cb,
-            runner_callbacks=runner_cb,
-            stats=stats
-        )
-
-        provision_success = False
-        try:
-            start = datetime.now()
-            playbook.run()
-
-            hosts = sorted(playbook.stats.processed.keys())
-            print callbacks.banner("PLAY RECAP")
-            playbook_cb.on_stats(playbook.stats)
-            for h in hosts:
-                t = playbook.stats.summarize(h)
-                print "%s : %s %s %s %s\n" % (
-                    self._hostcolor(h, t),
-                    self._colorize('ok', t['ok'], 'green'),
-                    self._colorize('changed', t['changed'], 'yellow'),
-                    self._colorize('unreachable', t['unreachable'], 'red'),
-                    self._colorize('failed', t['failures'], 'red'))
-                if t['unreachable'] == 0 and t['failures'] == 0:
-                    provision_success = True
-
-            print "Play run took {0} minutes\n".format((datetime.now() - start).seconds / 60)
-        except errors.AnsibleError, e:
-            print >> sys.stderr, "ERROR: %s" % e
-        return provision_success
-
     def create_user(self, box):
         user = box.remote_user
         if 'root' not in user:
+            # TODO add user_home information to the box
             if 'jenkins' in user:
                 user_home = '/var/lib/jenkins'
             else:
                 user_home = '/home/' + user
             inventory = self._generate_inventory(box)
-            print 'Creating group \'{0}\' ...'.format(user)
-            self.run_ansible_module(Runner(
-                inventory=inventory,
-                remote_user='root',
-                module_name='group',
-                module_args='name={0} state=present'.format(user)
-            ))
-            print 'Creating user \'{0}\' ...'.format(user)
-            self.run_ansible_module(Runner(
-                inventory=inventory,
-                remote_user='root',
-                module_name='user',
-                module_args='name={0} home={1} state=present shell=/bin/bash generate_ssh_key=yes group={0} groups=sudo'.format(user, user_home)
-            ))
-            print 'Copy authorized_keys from root ...'
-            self.run_ansible_module(Runner(
-                inventory=inventory,
-                remote_user='root',
-                module_name='command',
-                module_args="cp /root/.ssh/authorized_keys {0}/.ssh/authorized_keys".format(user_home)
-            ))
-            print 'Set permission on authorized_keys ...'
-            self.run_ansible_module(Runner(
-                inventory=inventory,
-                remote_user='root',
-                module_name='file',
-                module_args="path={0}/.ssh/authorized_keys mode=600 owner={1} group={1}".format(user_home, user)
-            ))
-            print 'Ensuring sudoers no pwd prompting ...'
-            self.run_ansible_module(Runner(
-                inventory=inventory,
-                remote_user='root',
-                module_name='lineinfile',
-                # TODO Add validate='visudo -cf %s' when upgrading to Ansible 1.4
-                module_args="dest=/etc/sudoers state=present regexp=%sudo line='%sudo ALL=(ALL:ALL) NOPASSWD:ALL'"
-            ))
-
-    def run_ansible_module(self, runner):
-        failed = False
-        results = runner.run()
-        if len(results['dark']):
-            failed = True
-            print 'Host not contacted: %s' % results
-        else:
-            for (hostname, result) in results['contacted'].items():
-                if 'failed' in result:
-                    failed = True
-                    print 'Run failed: %s' % result['msg']
-        return failed
+            run_modules([
+                {
+                    'summary': 'Creating group \'{0}\' ...'.format(user),
+                    'module': Runner(
+                        inventory=inventory,
+                        remote_user='root',
+                        module_name='group',
+                        module_args='name={0} state=present'.format(user))
+                },
+                {
+                    'summary': 'Creating user \'{0}\' ...'.format(user),
+                    'module': Runner(
+                        inventory=inventory,
+                        remote_user='root',
+                        module_name='user',
+                        module_args='name={0} home={1} state=present shell=/bin/bash generate_ssh_key=yes group={0} groups=sudo'.format(user, user_home)
+                    )
+                },
+                {
+                    'summary': 'Copy authorized_keys from root ...',
+                    'module': Runner(
+                        inventory=inventory,
+                        remote_user='root',
+                        module_name='command',
+                        module_args="cp /root/.ssh/authorized_keys {0}/.ssh/authorized_keys".format(user_home)
+                    )
+                },
+                {
+                    'summary': 'Set permission on authorized_keys ...',
+                    'module': Runner(
+                        inventory=inventory,
+                        remote_user='root',
+                        module_name='file',
+                        module_args="path={0}/.ssh/authorized_keys mode=600 owner={1} group={1}".format(user_home, user)
+                    )
+                },
+                {
+                    'summary': 'Ensuring sudoers no pwd prompting ...',
+                    'module': Runner(
+                        inventory=inventory,
+                        remote_user='root',
+                        module_name='lineinfile',
+                        # TODO Add validate='visudo -cf %s' when upgrading to Ansible 1.4
+                        module_args="dest=/etc/sudoers state=present regexp=%sudo line='%sudo ALL=(ALL:ALL) NOPASSWD:ALL'"
+                    )
+                }
+            ])
 
     def _generate_inventory(self, box):
         f = None
@@ -319,20 +273,3 @@ class SimpleProvider(object):
         finally:
             f.close()
         return Inventory(self.DEFAULT_PRUDENTIA_INVENTORY)
-
-    def _colorize(self, lead, num, color):
-        """ Print 'lead' = 'num' in 'color' """
-        if num != 0 and color is not None:
-            return "%s%s%-15s" % (stringc(lead, color), stringc("=", color), stringc(str(num), color))
-        else:
-            return "%s=%-4s" % (lead, str(num))
-
-    def _hostcolor(self, host, stats, color=True):
-        if color:
-            if stats['failures'] != 0 or stats['unreachable'] != 0:
-                return "%-37s" % stringc(host, 'red')
-            elif stats['changed'] != 0:
-                return "%-37s" % stringc(host, 'yellow')
-            else:
-                return "%-37s" % stringc(host, 'green')
-        return "%-26s" % host
