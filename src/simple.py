@@ -21,8 +21,18 @@ from utils.io import prudentia_python_dir
 class SimpleCli(Cmd):
     provider = None  # Set by his children
 
+    def cmdloop(self, intro=None):
+        try:
+            Cmd.cmdloop(self, intro)
+        except Exception as e:
+            print '\nThere was some problem executing the action: %s\n' % e
+        finally:
+            Cmd.cmdloop(self, intro)
+
     def _get_box(self, box_name):
-        return self.provider.env.get(box_name)
+        b = self.provider.env.get(box_name)
+        if not b:
+            raise ValueError("Box name '%s' does not exists!" % box_name)
 
     def complete_box_names(self, text, line, begidx, endidx):
         tokens = line.split(' ')
@@ -133,7 +143,7 @@ class SimpleProvider(object):
     def load_tags(self, box=None):
         for b in ([box] if box else self.boxes()):
             if not os.path.exists(b.playbook):
-                print 'Box \'{0}\' points to a not existing playbook. ' \
+                print 'WARNING: Box \'{0}\' points to a not existing playbook. ' \
                       'Please reconfigure it or unregister the box.\n'.format(b.name)
             else:
                 playbook = PlayBook(
@@ -215,6 +225,7 @@ class SimpleProvider(object):
                 user_home = '/var/lib/jenkins'
             else:
                 user_home = '/home/' + user
+
             inventory = self._generate_inventory(box)
             run_modules([
                 {
