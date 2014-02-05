@@ -1,0 +1,10 @@
+---
+  version: master
+  hostname: example.com
+  git_repository: <path to project with client and server directory>
+  install_dir: /opt/example
+  install_dir_client: $install_dir/client
+  install_dir_server: $install_dir/server
+
+  log_file_path: /opt/example/log
+  log_file_name: api.log

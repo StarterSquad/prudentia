@@ -1,0 +1,14 @@
+description "Example API"
+author "StarterSquad"
+
+start on runlevel [2345]
+stop on runlevel [016]
+
+respawn
+console log
+setuid {{ansible_user_id}}
+setgid {{ansible_user_id}}
+
+env HOME={{install_dir_server}}
+
+exec start-stop-daemon --chdir ${HOME} --start --exec /usr/bin/node -- server

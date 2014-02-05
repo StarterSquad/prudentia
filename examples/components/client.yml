@@ -1,0 +1,74 @@
+---
+  - include: $prudentia_dir/tasks/nodejs.yml
+
+  - name: Example Client | Check if grunt is installed
+    command: test -x /usr/bin/grunt
+    ignore_errors: yes
+    register: grunt_present
+    tags: client
+
+  - name: Example Client | Install grunt-cli
+    command: npm -g install grunt-cli
+    when: grunt_present|failed
+    sudo: yes
+    tags: client
+
+  - name: Example Client | Install karma
+    command: npm -g install karma
+    when: grunt_present|failed
+    sudo: yes
+    tags: client
+
+  - name: Example Client | Install and update node modules
+    command: chdir=$install_dir_client npm update
+    tags:
+      - client
+      - update
+
+  - name: Example Client | Install fontforge
+    apt: pkg=fontforge state=present
+    sudo: yes
+    tags: client
+
+  - include: $prudentia_dir/tasks/ruby.yml
+
+  # we use bash -l because we need to get ruby and gems in PATH
+  - name: Example Client | Install bundler
+    shell: /bin/bash -lc 'gem install bundler'
+    tags: client
+
+  - name: Example Client | Install ruby modules
+    shell: chdir=$install_dir_client /bin/bash -lc 'bundle install'
+    tags: client
+
+  - name: Example Client | Compile
+    shell: chdir=$install_dir_client /bin/bash -lc 'grunt build'
+    tags:
+      - client
+      - update
+
+  - include: $prudentia_dir/tasks/nginx.yml
+
+  - name: Example Client | Removing Nginx default site configuration
+    command: rm -f /etc/nginx/sites-enabled/default
+    sudo: yes
+    tags: client
+
+  - name: Example Client | Copy Nginx configuration
+    template: src=$root_dir/components/templates/nginx.conf.j2 dest=/etc/nginx/sites-available/example.com
+    sudo: yes
+    tags:
+      - client
+      - update
+
+  - name: Example Client | Enable website
+    command: ln -fs /etc/nginx/sites-available/Example.com /etc/nginx/sites-enabled/example.com
+    sudo: yes
+    tags: client
+
+  - name: Example Client | Restart Nginx
+    command: /etc/init.d/nginx restart
+    sudo: yes
+    tags:
+      - client
+      - update

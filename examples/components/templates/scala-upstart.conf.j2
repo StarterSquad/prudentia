@@ -1,0 +1,15 @@
+description "Example API"
+author "StarterSquad"
+
+start on runlevel [2345]
+stop on runlevel [016]
+
+respawn
+console log
+setuid {{ansible_user_id}}
+setgid {{ansible_user_id}}
+
+env HOME={{install_dir_server}}
+env JAVA_OPTS="-Xmx1024M -Dfile.encoding=utf8"
+
+exec start-stop-daemon --chdir ${HOME} --start --exec ${HOME}/target/start (or /usr/bin/java -- -cp . Boot)

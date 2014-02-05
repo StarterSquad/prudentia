@@ -1,0 +1,37 @@
+---
+  # Remember to add the public key as deploy key for this repository
+  #- include: $prudentia_dir/tasks/ssh-key.yml ssh_user=$ansible_user_id ssh_group=$ansible_user_id ssh_dir=/home/$ansible_user_id files_dir=$root_dir/components/files/ssh key_name=id_rsa
+
+  - include: $prudentia_dir/tasks/github.yml ssh_dir=/home/$ansible_user_id
+
+  - name: Example Base | Dump mounts
+    command: /bin/mount
+    register: machine_mounts
+    tags:
+      - base
+      - update
+
+  - name: Example Base | Create directory
+    action: file dest=$install_dir owner=$ansible_user_id group=$ansible_user_id mode=755 state=directory
+    when: "'$install_dir' not in machine_mounts.stdout"
+    sudo: yes
+    tags:
+      - base
+
+  - name: Example Base | Checkout git repository
+    git: repo=$git_repository dest=$install_dir version=$version
+    when: "'$install_dir' not in machine_mounts.stdout"
+    register: checkout
+    tags:
+      - update
+      - client
+      - server
+
+  - name: Example Base | Fake Checkout (use source code from Host machine)
+    command: /bin/true
+    when: "'$install_dir' in machine_mounts.stdout"
+    register: checkout
+    tags:
+      - update
+      - client
+      - server

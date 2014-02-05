@@ -1,0 +1,44 @@
+---
+  - include: $prudentia_dir/tasks/java7.yml
+
+  - include: $prudentia_dir/tasks/sbt_0.12.1.yml
+
+  - name: Example Server | Create log dir
+    file: dest=$log_file_path owner=$ansible_user_id group=$ansible_user_id mode=755 state=directory
+    tags: server
+
+  - name: Example Server | Generate start script
+    action: command chdir=$install_dir/server sbt start-script
+    when: checkout.changed
+    tags:
+      - server
+      - update
+
+#  - name: Example Server | Fetch fat jar (jar contains all classes + libs)
+#    get_url: url=$server_fat_jar_url dest=$install_dir_server mode=0555
+#    tags:
+#      - server
+#      - update
+#
+#  - name: Example Server | Unpack server artifact
+#    command: chdir=$install_server_dir /usr/bin/jar xf $server_fat_jar_name
+#    tags:
+#      - update
+#      - server
+
+
+  - name: Example Server | Copy upstart script
+    template: src=$root_dir/components/templates/scala-upstart.conf.j2 dest=/etc/init/example-api.conf backup=yes
+    register: server_upstart
+    sudo: yes
+    tags:
+      - server
+      - update
+
+  - name: Example Server | Restart
+    service: name=example-api state=restarted
+    when: checkout.changed or server_upstart.changed
+    sudo: yes
+    tags:
+      - server
+      - update
