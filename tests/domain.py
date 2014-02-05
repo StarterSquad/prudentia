@@ -31,8 +31,4 @@ class TestEnvironment(unittest.TestCase):
 
     def test_remove(self):
         self.env.remove('box-name')
-        self.assertEqual(json.load(open('./env/.boxes', 'r')), [])
-
-
-if __name__ == '__main__':
-    unittest.main()
+        self.assertEqual(json.load(open('./env/' + Environment.ENVIRONMENT_FILE_NAME, 'r')), [])
