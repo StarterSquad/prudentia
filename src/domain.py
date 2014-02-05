@@ -7,11 +7,10 @@ from utils.io import xstr, prudentia_python_dir
 class Environment(object):
     ENVIRONMENT_FILE_NAME = '.boxes.json'
 
-    def __init__(self, path, general_type=None, box_extra_type=None, name=ENVIRONMENT_FILE_NAME):
-        if not os.path.exists(path):
-            print "Environment doesn't exists, creating ..."
-            os.makedirs(path)
-        self.file = path + '/' + name
+    def __init__(self, id_env, general_type=None, box_extra_type=None, name=ENVIRONMENT_FILE_NAME):
+        if not os.path.exists(id_env):
+            os.makedirs(id_env)
+        self.file = id_env + '/' + name
         self.general_type = general_type
         self.box_extra_type = box_extra_type
         self.general = None
@@ -22,7 +21,7 @@ class Environment(object):
                 self.initialized = True
         except IOError:
             self.initialized = False
-            print 'No environment file: %s' % self.file
+            print '\'{0}\' environment NOT found!'.format(id_env)
 
     def set_general(self, general):
         self.general = general
@@ -33,7 +32,7 @@ class Environment(object):
             self.boxes[box.name] = box
             self._save()
         else:
-            raise ValueError("Box name must be unique: '%s' already exists!" % box.name)
+            raise ValueError("Box name must be unique: '{0}' already exists!".format(box.name))
 
     def get(self, box_name):
         return self.boxes.get(box_name)
