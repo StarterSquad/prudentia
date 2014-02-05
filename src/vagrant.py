@@ -7,8 +7,8 @@ from jinja2.loaders import FileSystemLoader
 from domain import Box
 from factory import FactoryProvider
 from simple import SimpleProvider
-from util_bash import BashCmd
-from util_io import input_string
+from utils.bash import BashCmd
+from utils.io import input_string
 
 
 class VagrantProvider(FactoryProvider):
