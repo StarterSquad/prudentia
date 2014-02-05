@@ -4,11 +4,11 @@ import os
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 
-from bash import BashCmd
 from domain import Box
 from factory import FactoryProvider
 from simple import SimpleProvider
-from util import input_string
+from util_bash import BashCmd
+from util_io import input_string
 
 
 class VagrantProvider(FactoryProvider):

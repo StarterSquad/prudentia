@@ -3,7 +3,7 @@ import ansible.constants as C
 
 from domain import Box
 from simple import SimpleProvider
-from util import input_string
+from util_io import input_string
 
 
 class SshProvider(SimpleProvider):

@@ -5,7 +5,7 @@ import ansible.constants as C
 from dopy.manager import DoManager, DoError
 from domain import Box
 from factory import FactoryProvider
-from util import input_string
+from util_io import input_string
 
 
 class DigitalOceanProvider(FactoryProvider):

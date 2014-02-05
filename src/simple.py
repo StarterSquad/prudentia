@@ -17,7 +17,7 @@ import ansible.constants as C
 import random
 
 from domain import Environment
-from util import prudentia_python_dir
+from util_io import prudentia_python_dir
 
 
 class SimpleCli(Cmd):

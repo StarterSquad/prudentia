@@ -1,7 +1,7 @@
 import json
 import os
 
-from util import xstr, prudentia_python_dir
+from util_io import xstr, prudentia_python_dir
 
 
 class Environment(object):
