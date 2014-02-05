@@ -26,13 +26,13 @@ class SimpleCli(Cmd):
             Cmd.cmdloop(self, intro)
         except Exception as e:
             print '\nThere was some problem executing the action: %s\n' % e
-        finally:
-            Cmd.cmdloop(self, intro)
 
     def _get_box(self, box_name):
         b = self.provider.env.get(box_name)
         if not b:
             raise ValueError("Box name '%s' does not exists!" % box_name)
+        else:
+            return b
 
     def complete_box_names(self, text, line, begidx, endidx):
         tokens = line.split(' ')
