@@ -8,7 +8,7 @@ from domain import Box
 from factory import FactoryProvider
 from simple import SimpleProvider
 from utils.bash import BashCmd
-from utils.io import input_string
+from utils.io import input_string, input_yes_no
 
 
 class VagrantProvider(FactoryProvider):
@@ -87,8 +87,7 @@ class VagrantProvider(FactoryProvider):
         shares = []
         loop = True
         while loop:
-            ans = raw_input('Do you want to share a folder? [y/N] ').strip()
-            if ans.lower() in ('y', 'yes'):
+            if input_yes_no('share a folder'):
                 src = input_string('directory on the HOST machine')
                 if not os.path.exists(src):
                     raise ValueError("Directory '%s' on the HOST machine doesn't exists." % src)
@@ -116,7 +115,8 @@ class VagrantProvider(FactoryProvider):
         self._action(action="halt", action_args=(box.name,))
 
     def destroy(self, box):
-        self._action(action="destroy", action_args=("-f", box.name))
+        if input_yes_no('destroy the instance \'{0}\''.format(box.name)):
+            self._action(action="destroy", action_args=("-f", box.name))
 
     #    def status(self):
     #        output = self.action(action="status", output=False)

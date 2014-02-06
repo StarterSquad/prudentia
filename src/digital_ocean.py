@@ -6,7 +6,7 @@ import ansible.constants as C
 from dopy.manager import DoManager, DoError
 from domain import Box
 from factory import FactoryProvider
-from utils.io import input_string
+from utils.io import input_string, input_yes_no
 
 
 class DigitalOceanProvider(FactoryProvider):
@@ -86,20 +86,21 @@ class DigitalOceanProvider(FactoryProvider):
         self.create_user(box)
 
     def start(self, box):
-        e = box.extra
-        print 'Starting instance %s ...' % e.id
-        self.manager.power_on_droplet(e.id)
-        self._wait_to_be_active(e.id)
+        box_id = box.extra.id
+        print 'Starting instance %s ...' % box_id
+        self.manager.power_on_droplet(box_id)
+        self._wait_to_be_active(box_id)
 
     def stop(self, box):
-        e = box.extra
-        print 'Stopping instance %s ...' % e.id
-        self.manager.power_off_droplet(e.id)
+        box_id = box.extra.id
+        print 'Stopping instance %s ...' % box_id
+        self.manager.power_off_droplet(box_id)
 
     def destroy(self, box):
-        e = box.extra
-        print 'Destroying instance %s ...' % e.id
-        self.manager.destroy_droplet(e.id, scrub_data=True)
+        if input_yes_no('destroy the instance \'{0}\''.format(box.name)):
+            box_id = box.extra.id
+            print 'Destroying instance %s ...' % box_id
+            self.manager.destroy_droplet(box_id, scrub_data=True)
 
     def rebuild(self, box):
         e = box.extra
