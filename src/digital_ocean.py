@@ -11,9 +11,6 @@ from utils.io import input_string, input_yes_no
 
 class DigitalOceanProvider(FactoryProvider):
     NAME = 'digital-ocean'
-    ENV_DIR = './env/' + NAME
-    PLAYBOOK_TEMPLATE = 'do.yml'
-    PLAYBOOK_FILE = ENV_DIR + '/' + PLAYBOOK_TEMPLATE
 
     def __init__(self):
         super(DigitalOceanProvider, self).__init__(self.NAME, DOGeneral, DOExt)
@@ -37,7 +34,7 @@ class DigitalOceanProvider(FactoryProvider):
             playbook = input_string('playbook path')
             hostname = self.fetch_box_hostname(playbook)
             name = input_string('box name', default_value=self.suggest_name(hostname))
-            ip = 'localhost'
+            ip = 'TBD'
             user = input_string('remote user', default_value=C.active_user)
 
             ext = DOExt()
