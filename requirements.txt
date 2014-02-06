@@ -7,4 +7,3 @@ ecdsa==0.8
 paramiko==1.12.0
 pycrypto==2.6
 requests==2.1.0
-wsgiref==0.1.2
