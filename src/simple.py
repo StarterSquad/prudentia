@@ -98,6 +98,24 @@ class SimpleCli(Cmd):
         self.provider.unregister(box)
 
 
+    def help_set(self):
+        print "Set the value of a environment variable. " \
+              "It will forcibly override an existing one defined in any box playbook.\n"
+
+    def do_set(self, line):
+        tokens = line.split(' ')
+        variable = tokens[0]
+        value = tokens[1]
+        self.provider.set_var(variable, value)
+
+
+    def help_unset(self):
+        print "Unset an existing environment variable.\n"
+
+    def do_unset(self, line):
+        self.provider.unset_var(line)
+
+
     def help_list(self):
         print "Show list of current boxes.\n"
 
@@ -136,6 +154,12 @@ class SimpleProvider(object):
     def boxes(self):
         return self.env.boxes.values()
 
+    def set_var(self, var, value):
+        self.extra_vars[var] = value
+
+    def unset_var(self, var):
+        self.extra_vars.pop(var, None)
+
     def add_box(self, box):
         self.env.add(box)
         self.load_tags(box)
@@ -143,8 +167,8 @@ class SimpleProvider(object):
     def load_tags(self, box=None):
         for b in ([box] if box else self.boxes()):
             if not os.path.exists(b.playbook):
-                print 'WARNING: Box \'{0}\' points to a not existing playbook. ' \
-                      'Please reconfigure it or unregister the box.\n'.format(b.name)
+                print 'WARNING: Box \'{0}\' points to a NON existing playbook. ' \
+                      'Please `reconfigure` or `unregister` the box.\n'.format(b.name)
             else:
                 playbook = PlayBook(
                     playbook=b.playbook,
