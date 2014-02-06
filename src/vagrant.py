@@ -41,7 +41,7 @@ class VagrantProvider(FactoryProvider):
             ip = input_string('internal IP')
 
             ext = VagrantExt()
-            mem = input_string('amount of RAM in GB', default_value=str(1), mandatory=True)
+            mem = input_string('amount of RAM in GB', default_value=str(1))
             if mem:
                 ext.set_mem(1024)
             else:
