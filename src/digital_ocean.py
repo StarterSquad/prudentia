@@ -5,8 +5,15 @@ import ansible.constants as C
 
 from dopy.manager import DoManager, DoError
 from domain import Box
-from factory import FactoryProvider
+from factory import FactoryProvider, FactoryCli
 from utils.io import input_string, input_yes_no
+
+
+class DigitalOceanCli(FactoryCli):
+    def __init__(self):
+        FactoryCli.__init__(self)
+        self.prompt = '(Prudentia > DigitalOcean) '
+        self.provider = DigitalOceanProvider()
 
 
 class DigitalOceanProvider(FactoryProvider):
@@ -163,7 +170,7 @@ class DOExt(object):
 
     def __repr__(self):
         return 'DOExt[id: %s, image: %s, size: %s, keys: %s, region: %s]' % (
-        self.id, self.image, self.size, self.keys, self.region)
+            self.id, self.image, self.size, self.keys, self.region)
 
     def to_json(self):
         return {'id': self.id, 'image': self.image, 'size': self.size, 'keys': self.keys, 'region': self.region}

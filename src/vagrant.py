@@ -5,10 +5,17 @@ from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 
 from domain import Box
-from factory import FactoryProvider
+from factory import FactoryProvider, FactoryCli
 from simple import SimpleProvider
 from utils.bash import BashCmd
 from utils.io import input_string, input_yes_no
+
+
+class VagrantCli(FactoryCli):
+    def __init__(self):
+        FactoryCli.__init__(self)
+        self.prompt = '(Prudentia > Vagrant) '
+        self.provider = VagrantProvider()
 
 
 class VagrantProvider(FactoryProvider):
@@ -17,8 +24,8 @@ class VagrantProvider(FactoryProvider):
     VAGRANT_FILE_NAME = 'Vagrantfile'
     CONF_FILE = ENV_DIR + '/' + VAGRANT_FILE_NAME
 
-    DEFAULT_VAGRANT_USER = 'vagrant'
-    DEFAULT_VAGRANT_PWD = 'vagrant'
+    DEFAULT_USER = 'vagrant'
+    DEFAULT_PWD = 'vagrant'
 
     def __init__(self):
         super(VagrantProvider, self).__init__(self.NAME, box_extra_type=VagrantExt)
@@ -42,7 +49,7 @@ class VagrantProvider(FactoryProvider):
 
             ext.set_shares(self._input_shares())
 
-            box = Box(name, playbook, hostname, ip, self.DEFAULT_VAGRANT_USER, self.DEFAULT_VAGRANT_PWD, ext)
+            box = Box(name, playbook, hostname, ip, self.DEFAULT_USER, self.DEFAULT_PWD, ext)
             self.add_box(box)
             print "\nBox %s added." % box
         except Exception as e:
@@ -76,7 +83,7 @@ class VagrantProvider(FactoryProvider):
 
             ext.set_shares(self._input_shares())
 
-            box = Box(previous_box.name, playbook, hostname, ip, self.DEFAULT_VAGRANT_USER, self.DEFAULT_VAGRANT_PWD, ext)
+            box = Box(previous_box.name, playbook, hostname, ip, self.DEFAULT_USER, self.DEFAULT_PWD, ext)
             self.add_box(box)
             print "\nBox %s reconfigured." % box
         except Exception as e:

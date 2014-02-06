@@ -3,8 +3,15 @@ import logging
 import ansible.constants as C
 
 from domain import Box
-from simple import SimpleProvider
+from simple import SimpleProvider, SimpleCli
 from utils.io import input_string
+
+
+class SshCli(SimpleCli):
+    def __init__(self):
+        SimpleCli.__init__(self)
+        self.prompt = '(Prudentia > Ssh) '
+        self.provider = SshProvider()
 
 
 class SshProvider(SimpleProvider):
