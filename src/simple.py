@@ -100,7 +100,7 @@ class SimpleCli(Cmd):
 
     def help_set(self):
         print "Set the value of a environment variable. " \
-              "It will forcibly override an existing one defined in any box playbook.\n"
+              "It will forcibly override an existing one defined in any boxes.\n"
 
     def do_set(self, line):
         tokens = line.split(' ')
@@ -156,9 +156,11 @@ class SimpleProvider(object):
 
     def set_var(self, var, value):
         self.extra_vars[var] = value
+        print "\nSet \'{0}\' -> {1}\n".format(var, value)
 
     def unset_var(self, var):
         self.extra_vars.pop(var, None)
+        print "\nUnset \'{0}\'\n".format(var)
 
     def add_box(self, box):
         self.env.add(box)
@@ -197,7 +199,7 @@ class SimpleProvider(object):
 
     def unregister(self, box):
         self.remove_box(box)
-        print "\nBox %s removed." % box.name
+        print "\nBox %s removed.\n" % box.name
 
     def fetch_box_hostname(self, playbook):
         with open(playbook, 'r') as f:
