@@ -6,7 +6,7 @@ import ansible.constants as C
 from dopy.manager import DoManager, DoError
 from domain import Box
 from factory import FactoryProvider, FactoryCli
-from utils.io import input_string, input_yes_no
+from utils.io import input_string, input_yes_no, input_value
 
 
 class DigitalOceanCli(FactoryCli):
@@ -18,6 +18,10 @@ class DigitalOceanCli(FactoryCli):
 
 class DigitalOceanProvider(FactoryProvider):
     NAME = 'digital-ocean'
+
+    DEFAULT_IMAGE_ID = 1505447
+    DEFAULT_SIZE_ID = 63
+    DEFAULT_REGION_ID = 5
 
     def __init__(self):
         super(DigitalOceanProvider, self).__init__(self.NAME, DOGeneral, DOExt)
@@ -38,28 +42,29 @@ class DigitalOceanProvider(FactoryProvider):
         try:
             # TODO register using existing id (or name) ?
 
-            playbook = input_string('playbook path')
+            playbook = input_value('playbook path')
             hostname = self.fetch_box_hostname(playbook)
-            name = input_string('box name', default_value=self.suggest_name(hostname))
+            name = input_value('box name', self.suggest_name(hostname))
             ip = 'TBD'
-            user = input_string('remote user', default_value=C.active_user)
+            user = input_value('remote user', C.active_user)
 
             ext = DOExt()
-            ext.set_image(input_string('image', default_description='Ubuntu 12.04.3 x64', default_value='1505447',
-                                       mandatory=True))
+            all_images = self.manager.all_images()
+            print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
+            ext.set_image(input_value('image', self.DEFAULT_IMAGE_ID))
 
             all_sizes = self.manager.sizes()
-            print '\nAvailable sizes: \n%s' % self._print_id_name(all_sizes)
-            ext.set_size(input_string('size', default_description='1GB', default_value='63', mandatory=True))
+            print '\nAvailable sizes: \n%s' % self._print_object_id_name(all_sizes)
+            ext.set_size(input_value('size', self.DEFAULT_SIZE_ID))
 
             all_keys = self.manager.all_ssh_keys()
+            print '\nAvailable keys: \n%s' % self._print_object_id_name(all_keys)
             default_keys = ', '.join([str(k['id']) for k in all_keys])
-            print '\nAvailable keys: \n%s' % self._print_id_name(all_keys)
-            ext.set_keys(input_string('keys', default_description='All', default_value=default_keys, mandatory=True))
+            ext.set_keys(input_value('keys', default_keys))
 
             all_regions = self.manager.all_regions()
-            print '\nAvailable regions: \n%s' % self._print_id_name(all_regions)
-            ext.set_region(input_string('region', default_description='Amsterdam 2', default_value='5', mandatory=True))
+            print '\nAvailable regions: \n%s' % self._print_object_id_name(all_regions)
+            ext.set_region(input_value('region', self.DEFAULT_REGION_ID))
 
             box = Box(name, playbook, hostname, ip, user, extra=ext)
             self.add_box(box)
@@ -68,12 +73,44 @@ class DigitalOceanProvider(FactoryProvider):
             logging.exception('Box not added.')
             print '\nThere was some problem while adding the box: %s\n' % e
 
-    def _print_id_name(self, objs):
+    def _print_object_id_name(self, objs):
         return '\n'.join([str(o['id']) + ' -> ' + o['name'] for o in objs])
 
-    def reconfigure(self, box):
-        # TODO
-        pass
+    def _find_object_name(self, objs, id):
+        return next(o for o in objs if o['id'] == id)['name']
+
+    def reconfigure(self, previous_box):
+        try:
+            self.remove_box(previous_box)
+
+            playbook = input_value('playbook path', previous_box.playbook)
+            hostname = self.fetch_box_hostname(playbook)
+            ip = 'TBD'
+            user = input_value('remote user', previous_box.remote_user)
+
+            ext = DOExt()
+            all_images = self.manager.all_images()
+            print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
+            ext.set_image(input_value('image', previous_box.extra.image))
+
+            all_sizes = self.manager.sizes()
+            print '\nAvailable sizes: \n%s' % self._print_object_id_name(all_sizes)
+            ext.set_size(input_value('size', previous_box.extra.size))
+
+            all_keys = self.manager.all_ssh_keys()
+            print '\nAvailable keys: \n%s' % self._print_object_id_name(all_keys)
+            ext.set_keys(input_value('keys', previous_box.extra.keys))
+
+            all_regions = self.manager.all_regions()
+            print '\nAvailable regions: \n%s' % self._print_object_id_name(all_regions)
+            ext.set_region(input_value('region', previous_box.extra.region))
+
+            box = Box(previous_box.name, playbook, hostname, ip, user, extra=ext)
+            self.add_box(box)
+            print "\nBox %s reconfigured." % box
+        except Exception as e:
+            logging.exception('Box not reconfigured.')
+            print '\nThere was some problem while reconfiguring the box: %s\n' % e
 
     def create(self, box):
         e = box.extra
