@@ -19,9 +19,9 @@ class DigitalOceanCli(FactoryCli):
 class DigitalOceanProvider(FactoryProvider):
     NAME = 'digital-ocean'
 
-    DEFAULT_IMAGE_ID = 1505447
-    DEFAULT_SIZE_ID = 63
-    DEFAULT_REGION_ID = 5
+    DEFAULT_IMAGE_ID = 1505447  # Ubuntu 12.04.3 x64
+    DEFAULT_SIZE_ID = 63        # 1GB
+    DEFAULT_REGION_ID = 5       # Amsterdam 2
 
     def __init__(self):
         super(DigitalOceanProvider, self).__init__(self.NAME, DOGeneral, DOExt)
@@ -40,8 +40,6 @@ class DigitalOceanProvider(FactoryProvider):
 
     def register(self):
         try:
-            # TODO register using existing id (or name) ?
-
             playbook = input_value('playbook path')
             hostname = self.fetch_box_hostname(playbook)
             name = input_value('box name', self.suggest_name(hostname))
@@ -59,7 +57,7 @@ class DigitalOceanProvider(FactoryProvider):
 
             all_keys = self.manager.all_ssh_keys()
             print '\nAvailable keys: \n%s' % self._print_object_id_name(all_keys)
-            default_keys = ', '.join([str(k['id']) for k in all_keys])
+            default_keys = ','.join([str(k['id']) for k in all_keys])
             ext.set_keys(input_value('keys', default_keys))
 
             all_regions = self.manager.all_regions()
