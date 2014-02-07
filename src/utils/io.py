@@ -57,6 +57,8 @@ def input_value(topic, default_value=None, default_description=None, mandatory=T
 def input_yes_no(topic, default='N'):
     input_msg = 'Do you want to %s? [default: %s]: ' % (topic, default.upper())
     answer = raw_input(input_msg).strip()
+    if not len(answer):
+        answer = default
     if answer.lower() in ('y', 'yes'):
         return True
     else:
