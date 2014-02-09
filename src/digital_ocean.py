@@ -6,7 +6,7 @@ import ansible.constants as C
 from dopy.manager import DoManager, DoError
 from domain import Box
 from factory import FactoryProvider, FactoryCli
-from utils.io import input_string, input_yes_no, input_value
+from utils.io import input_yes_no, input_value
 
 
 class DigitalOceanCli(FactoryCli):
@@ -32,8 +32,8 @@ class DigitalOceanProvider(FactoryProvider):
         self.manager = DoManager(g.client_id, g.api_key)
 
     def _input_general_env_conf(self):
-        client_id = input_string('client id')
-        api_key = input_string('api key')
+        client_id = input_value('client id')
+        api_key = input_value('api key')
         do_general = DOGeneral(client_id, api_key)
         self.env.set_general(do_general)
         return do_general

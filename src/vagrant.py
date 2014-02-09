@@ -8,7 +8,7 @@ from domain import Box
 from factory import FactoryProvider, FactoryCli
 from simple import SimpleProvider
 from utils.bash import BashCmd
-from utils.io import input_string, input_yes_no
+from utils.io import input_value, input_yes_no
 
 
 class VagrantCli(FactoryCli):
@@ -35,17 +35,14 @@ class VagrantProvider(FactoryProvider):
 
     def register(self):
         try:
-            playbook = input_string('playbook path')
+            playbook = input_value('playbook path')
             hostname = self.fetch_box_hostname(playbook)
-            name = input_string('box name', default_value=self.suggest_name(hostname))
-            ip = input_string('internal IP')
+            name = input_value('box name', self.suggest_name(hostname))
+            ip = input_value('internal IP')
 
             ext = VagrantExt()
-            mem = input_string('amount of RAM in GB', default_value=str(1))
-            if mem:
-                ext.set_mem(1024)
-            else:
-                ext.set_mem(int(mem) * 1024)
+            mem = input_value('amount of RAM in GB', 1)
+            ext.set_mem(mem * 1024)
 
             ext.set_shares(self._input_shares())
 
@@ -70,16 +67,13 @@ class VagrantProvider(FactoryProvider):
         try:
             self.remove_box(previous_box)
 
-            playbook = input_string('playbook path', previous=previous_box.playbook)
+            playbook = input_value('playbook path', previous_box.playbook)
             hostname = self.fetch_box_hostname(playbook)
-            ip = input_string('internal IP', previous=previous_box.ip)
+            ip = input_value('internal IP', previous_box.ip)
 
             ext = VagrantExt()
-            mem = input_string('amount of RAM in GB', previous=str(previous_box.extra.mem / 1024), mandatory=True)
-            if mem:
-                ext.set_mem(1024)
-            else:
-                ext.set_mem(int(mem) * 1024)
+            mem = input_value('amount of RAM in GB', previous_box.extra.mem / 1024)
+            ext.set_mem(mem * 1024)
 
             ext.set_shares(self._input_shares())
 
@@ -95,10 +89,10 @@ class VagrantProvider(FactoryProvider):
         loop = True
         while loop:
             if input_yes_no('share a folder'):
-                src = input_string('directory on the HOST machine')
+                src = input_value('directory on the HOST machine')
                 if not os.path.exists(src):
                     raise ValueError("Directory '%s' on the HOST machine doesn't exists." % src)
-                dst = input_string('directory on the GUEST machine')
+                dst = input_value('directory on the GUEST machine')
                 shares.append((src, dst))
             else:
                 loop = False
