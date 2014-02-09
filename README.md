@@ -38,7 +38,7 @@ and run:
 
     $ ./prudentia.ssh setup
 
-## Start the CLI
+## Start the CLI and use the SSH provider
 
     $ prudentia ssh
 
@@ -85,6 +85,13 @@ Good so now I have a box. In this case it's localhost, so that is not very inter
 
 Now Prudentia has done the reasonable uninteresting uname task for me on the 'remote' machine.
 
+## What's next
+
+This is the easiest example I could come up with to show you the use of the SSH providers bundled in Prudentia.
+
+Right now there are other two providers way more powerful: `vagrant` and `digital-ocean`.
+Those providers are more powerful because they don't only allow you to provision the target instance but they can change
+its life cycle, so that you could restart it, destroy it or phoenix it.
 
 Philosophy
 ==========
