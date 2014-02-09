@@ -6,7 +6,6 @@ from cmd import Cmd
 import random
 
 from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
-
 from ansible.inventory import Inventory
 from ansible.playbook import PlayBook
 from ansible.playbook.play import Play
@@ -99,8 +98,8 @@ class SimpleCli(Cmd):
 
 
     def help_set(self):
-        print "Set the value of a environment variable. " \
-              "It will forcibly override an existing one defined in any boxes.\n"
+        print "Sets the value of an environment variable. " \
+              "During provisioning it will forcibly override the one defined in any playbook.\n"
 
     def do_set(self, line):
         tokens = line.split(' ')
@@ -110,19 +109,19 @@ class SimpleCli(Cmd):
 
 
     def help_unset(self):
-        print "Unset an existing environment variable.\n"
+        print "Unsets an existing environment variable.\n"
 
     def do_unset(self, line):
         self.provider.unset_var(line)
 
 
     def help_list(self):
-        print "Show list of current boxes.\n"
+        print "Shows a list of current boxes.\n"
 
     def do_list(self, line):
         boxes = self.provider.boxes()
         if not len(boxes):
-            print 'No box has been configured.\n'
+            print 'No box has been registered yet.\n'
         else:
             for b in boxes:
                 print b
@@ -268,7 +267,8 @@ class SimpleProvider(object):
                         inventory=inventory,
                         remote_user='root',
                         module_name='user',
-                        module_args='name={0} home={1} state=present shell=/bin/bash generate_ssh_key=yes group={0} groups=sudo'.format(user, user_home)
+                        module_args='name={0} home={1} state=present shell=/bin/bash generate_ssh_key=yes group={0} groups=sudo'.format(
+                            user, user_home)
                     )
                 },
                 {
