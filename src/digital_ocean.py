@@ -2,17 +2,26 @@ import logging
 import time
 
 import ansible.constants as C
+
 from dopy.manager import DoManager, DoError
 from domain import Box
-from factory import FactoryProvider
-from util import input_string
+from factory import FactoryProvider, FactoryCli
+from utils.io import input_yes_no, input_value
+
+
+class DigitalOceanCli(FactoryCli):
+    def __init__(self):
+        FactoryCli.__init__(self)
+        self.prompt = '(Prudentia > DigitalOcean) '
+        self.provider = DigitalOceanProvider()
 
 
 class DigitalOceanProvider(FactoryProvider):
     NAME = 'digital-ocean'
-    ENV_DIR = './env/' + NAME
-    PLAYBOOK_TEMPLATE = 'do.yml'
-    PLAYBOOK_FILE = ENV_DIR + '/' + PLAYBOOK_TEMPLATE
+
+    DEFAULT_IMAGE_ID = 1505447  # Ubuntu 12.04.3 x64
+    DEFAULT_SIZE_ID = 63        # 1GB
+    DEFAULT_REGION_ID = 5       # Amsterdam 2
 
     def __init__(self):
         super(DigitalOceanProvider, self).__init__(self.NAME, DOGeneral, DOExt)
@@ -23,51 +32,83 @@ class DigitalOceanProvider(FactoryProvider):
         self.manager = DoManager(g.client_id, g.api_key)
 
     def _input_general_env_conf(self):
-        client_id = input_string('client id')
-        api_key = input_string('api key')
+        client_id = input_value('client id')
+        api_key = input_value('api key')
         do_general = DOGeneral(client_id, api_key)
         self.env.set_general(do_general)
         return do_general
 
     def register(self):
         try:
-            # TODO register using existing id (or name) ?
-
-            playbook = input_string('playbook path')
-            name = self.fetch_box_name(playbook)
-            ip = 'localhost'
-            user = input_string('remote user', default_value=C.active_user)
+            playbook = input_value('playbook path')
+            hostname = self.fetch_box_hostname(playbook)
+            name = input_value('box name', self.suggest_name(hostname))
+            ip = 'TBD'
+            user = input_value('remote user', C.active_user)
 
             ext = DOExt()
-            ext.set_image(input_string('image', default_description='Ubuntu 12.04.3 x64', default_value='1505447',
-                                       mandatory=True))
+            all_images = self.manager.all_images()
+            print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
+            ext.set_image(input_value('image', self.DEFAULT_IMAGE_ID))
 
             all_sizes = self.manager.sizes()
-            print '\nAvailable sizes: \n%s' % self._print_id_name(all_sizes)
-            ext.set_size(input_string('size', default_description='1GB', default_value='63', mandatory=True))
+            print '\nAvailable sizes: \n%s' % self._print_object_id_name(all_sizes)
+            ext.set_size(input_value('size', self.DEFAULT_SIZE_ID))
 
             all_keys = self.manager.all_ssh_keys()
-            default_keys = ', '.join([str(k['id']) for k in all_keys])
-            print '\nAvailable keys: \n%s' % self._print_id_name(all_keys)
-            ext.set_keys(input_string('keys', default_description='All', default_value=default_keys, mandatory=True))
+            print '\nAvailable keys: \n%s' % self._print_object_id_name(all_keys)
+            default_keys = ','.join([str(k['id']) for k in all_keys])
+            ext.set_keys(input_value('keys', default_keys))
 
             all_regions = self.manager.all_regions()
-            print '\nAvailable regions: \n%s' % self._print_id_name(all_regions)
-            ext.set_region(input_string('region', default_description='Amsterdam 2', default_value='5', mandatory=True))
+            print '\nAvailable regions: \n%s' % self._print_object_id_name(all_regions)
+            ext.set_region(input_value('region', self.DEFAULT_REGION_ID))
 
-            box = Box(name, playbook, ip, user, extra=ext)
+            box = Box(name, playbook, hostname, ip, user, extra=ext)
             self.add_box(box)
             print "\nBox %s added." % box
         except Exception as e:
             logging.exception('Box not added.')
             print '\nThere was some problem while adding the box: %s\n' % e
 
-    def _print_id_name(self, objs):
+    def _print_object_id_name(self, objs):
         return '\n'.join([str(o['id']) + ' -> ' + o['name'] for o in objs])
 
-    def reconfigure(self, box):
-        # TODO
-        pass
+    def _find_object_name(self, objs, id):
+        return next(o for o in objs if o['id'] == id)['name']
+
+    def reconfigure(self, previous_box):
+        try:
+            self.remove_box(previous_box)
+
+            playbook = input_value('playbook path', previous_box.playbook)
+            hostname = self.fetch_box_hostname(playbook)
+            ip = 'TBD'
+            user = input_value('remote user', previous_box.remote_user)
+
+            ext = DOExt()
+            all_images = self.manager.all_images()
+            print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
+            ext.set_image(input_value('image', previous_box.extra.image))
+
+            all_sizes = self.manager.sizes()
+            print '\nAvailable sizes: \n%s' % self._print_object_id_name(all_sizes)
+            ext.set_size(input_value('size', previous_box.extra.size))
+
+            all_keys = self.manager.all_ssh_keys()
+            print '\nAvailable keys: \n%s' % self._print_object_id_name(all_keys)
+            ext.set_keys(input_value('keys', previous_box.extra.keys))
+
+            all_regions = self.manager.all_regions()
+            print '\nAvailable regions: \n%s' % self._print_object_id_name(all_regions)
+            ext.set_region(input_value('region', previous_box.extra.region))
+
+            box = Box(previous_box.name, playbook, hostname, ip, user, extra=ext)
+            self.add_box(box)
+            print "\nBox %s reconfigured." % box
+        except Exception as e:
+            logging.exception('Box not reconfigured.')
+            print '\nThere was some problem while reconfiguring the box: %s\n' % e
 
     def create(self, box):
         e = box.extra
@@ -84,20 +125,21 @@ class DigitalOceanProvider(FactoryProvider):
         self.create_user(box)
 
     def start(self, box):
-        e = box.extra
-        print 'Starting instance %s ...' % e.id
-        self.manager.power_on_droplet(e.id)
-        self._wait_to_be_active(e.id)
+        box_id = box.extra.id
+        print 'Starting instance %s ...' % box_id
+        self.manager.power_on_droplet(box_id)
+        self._wait_to_be_active(box_id)
 
     def stop(self, box):
-        e = box.extra
-        print 'Stopping instance %s ...' % e.id
-        self.manager.power_off_droplet(e.id)
+        box_id = box.extra.id
+        print 'Stopping instance %s ...' % box_id
+        self.manager.power_off_droplet(box_id)
 
     def destroy(self, box):
-        e = box.extra
-        print 'Destroying instance %s ...' % e.id
-        self.manager.destroy_droplet(e.id, scrub_data=True)
+        if input_yes_no('destroy the instance \'{0}\''.format(box.name)):
+            box_id = box.extra.id
+            print 'Destroying instance %s ...' % box_id
+            self.manager.destroy_droplet(box_id, scrub_data=True)
 
     def rebuild(self, box):
         e = box.extra
@@ -163,7 +205,7 @@ class DOExt(object):
 
     def __repr__(self):
         return 'DOExt[id: %s, image: %s, size: %s, keys: %s, region: %s]' % (
-        self.id, self.image, self.size, self.keys, self.region)
+            self.id, self.image, self.size, self.keys, self.region)
 
     def to_json(self):
         return {'id': self.id, 'image': self.image, 'size': self.size, 'keys': self.keys, 'region': self.region}

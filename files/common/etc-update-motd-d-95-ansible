@@ -2,7 +2,7 @@
 
 echo
 echo "*************************************************"
-echo "* This server is configured using Ansible.      *"
+echo "* This server is managed using Prudentia.       *"
 echo "*                                               *"
 echo "* For more information:                         *"
 echo "* https://github.com/TizianoPerrucci/prudentia  *"

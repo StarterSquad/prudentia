@@ -51,7 +51,7 @@ fi
 source ./p-env/bin/activate
 
 TMP_DEPS=/tmp/prudentia_temp_deps_${RANDOM}
-pip freeze > ${TMP_DEPS}
+pip freeze -l > ${TMP_DEPS}
 if ! cmp ./requirements.txt ${TMP_DEPS} > /dev/null 2>&1
 then
   echo "Installing Python dependencies ..."

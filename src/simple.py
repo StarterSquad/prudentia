@@ -1,14 +1,11 @@
 from os.path import dirname
-import sys
 import re
 import os
 from abc import ABCMeta, abstractmethod
 from cmd import Cmd
-from datetime import datetime
+import random
 
-from ansible import callbacks, errors
 from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
-from ansible.color import stringc
 from ansible.inventory import Inventory
 from ansible.playbook import PlayBook
 from ansible.playbook.play import Play
@@ -16,14 +13,25 @@ from ansible.runner import Runner
 import ansible.constants as C
 
 from domain import Environment
-from util import prudentia_python_dir
+from utils.provisioning import run_playbook, run_modules
+from utils.io import prudentia_python_dir
 
 
 class SimpleCli(Cmd):
     provider = None  # Set by his children
 
+    def cmdloop(self, intro=None):
+        try:
+            Cmd.cmdloop(self, intro)
+        except Exception as e:
+            print '\nThere was some problem executing the action: %s\n' % e
+
     def _get_box(self, box_name):
-        return self.provider.env.get(box_name)
+        b = self.provider.env.get(box_name)
+        if not b:
+            raise ValueError("Box name '%s' does not exists!" % box_name)
+        else:
+            return b
 
     def complete_box_names(self, text, line, begidx, endidx):
         tokens = line.split(' ')
@@ -89,13 +97,31 @@ class SimpleCli(Cmd):
         self.provider.unregister(box)
 
 
+    def help_set(self):
+        print "Sets the value of an environment variable. " \
+              "During provisioning it will forcibly override the one defined in any playbook.\n"
+
+    def do_set(self, line):
+        tokens = line.split(' ')
+        variable = tokens[0]
+        value = tokens[1]
+        self.provider.set_var(variable, value)
+
+
+    def help_unset(self):
+        print "Unsets an existing environment variable.\n"
+
+    def do_unset(self, line):
+        self.provider.unset_var(line)
+
+
     def help_list(self):
-        print "Show list of current boxes.\n"
+        print "Shows a list of current boxes.\n"
 
     def do_list(self, line):
         boxes = self.provider.boxes()
         if not len(boxes):
-            print 'No box has been configured.\n'
+            print 'No box has been registered yet.\n'
         else:
             for b in boxes:
                 print b
@@ -122,9 +148,18 @@ class SimpleProvider(object):
         self.extra_vars = {'prudentia_dir': prudentia_python_dir()}
         self.tags = {}
         self.load_tags()
+        self.provisioned = None
 
     def boxes(self):
         return self.env.boxes.values()
+
+    def set_var(self, var, value):
+        self.extra_vars[var] = value
+        print "\nSet \'{0}\' -> {1}\n".format(var, value)
+
+    def unset_var(self, var):
+        self.extra_vars.pop(var, None)
+        print "\nUnset \'{0}\'\n".format(var)
 
     def add_box(self, box):
         self.env.add(box)
@@ -133,8 +168,8 @@ class SimpleProvider(object):
     def load_tags(self, box=None):
         for b in ([box] if box else self.boxes()):
             if not os.path.exists(b.playbook):
-                print 'Box \'{0}\' points to a not existing playbook. ' \
-                      'Please reconfigure it or unregister the box.\n'.format(b.name)
+                print 'WARNING: Box \'{0}\' points to a NON existing playbook. ' \
+                      'Please `reconfigure` or `unregister` the box.\n'.format(b.name)
             else:
                 playbook = PlayBook(
                     playbook=b.playbook,
@@ -149,7 +184,8 @@ class SimpleProvider(object):
                 self.tags[b.name] = list(unmatched_tags)
 
     def remove_box(self, box):
-        self.tags.pop(box.name)
+        if box.name in self.tags:
+            self.tags.pop(box.name)
         return self.env.remove(box.name)
 
     @abstractmethod
@@ -162,19 +198,24 @@ class SimpleProvider(object):
 
     def unregister(self, box):
         self.remove_box(box)
-        print "\nBox %s removed." % box.name
+        print "\nBox %s removed.\n" % box.name
 
-    def fetch_box_name(self, playbook):
+    def fetch_box_hostname(self, playbook):
         with open(playbook, 'r') as f:
-            box_name = None
+            hostname = None
             for i, line in enumerate(f):
                 if i == 1:  # 2nd line contains the host box_name
                     match = self.box_name_pattern.match(line)
-                    box_name = match.group(1)
+                    hostname = match.group(1)
                 elif i > 1:
                     break
+        return hostname
 
-        return box_name
+    def suggest_name(self, hostname):
+        if hostname not in self.env.boxes:
+            return hostname
+        else:
+            return hostname + '-' + str(random.randint(0, 100))
 
     def provision(self, box, tag=None):
         remote_user = C.DEFAULT_REMOTE_USER
@@ -191,7 +232,7 @@ class SimpleProvider(object):
         if tag:
             only_tags = [tag]
 
-        self.run_playbook(
+        self.provisioned = run_playbook(
             playbook_file=box.playbook,
             inventory=self._generate_inventory(box),
             remote_user=remote_user,
@@ -201,101 +242,64 @@ class SimpleProvider(object):
             only_tags=only_tags
         )
 
-    def run_playbook(self, playbook_file, inventory, remote_user=C.DEFAULT_REMOTE_USER,
-                     remote_pass=C.DEFAULT_REMOTE_PASS, transport=C.DEFAULT_TRANSPORT, extra_vars=None, only_tags=None):
-        stats = callbacks.AggregateStats()
-        playbook_cb = callbacks.PlaybookCallbacks(verbose=True)
-        runner_cb = callbacks.PlaybookRunnerCallbacks(stats, verbose=True)
-        playbook = PlayBook(
-            playbook=playbook_file,
-            inventory=inventory,
-            remote_user=remote_user,
-            remote_pass=remote_pass,
-            transport=transport,
-            extra_vars=extra_vars,
-            only_tags=only_tags,
-            callbacks=playbook_cb,
-            runner_callbacks=runner_cb,
-            stats=stats
-        )
-
-        try:
-            start = datetime.now()
-            playbook.run()
-
-            hosts = sorted(playbook.stats.processed.keys())
-            print callbacks.banner("PLAY RECAP")
-            playbook_cb.on_stats(playbook.stats)
-            for h in hosts:
-                t = playbook.stats.summarize(h)
-                print "%s : %s %s %s %s\n" % (
-                    self._hostcolor(h, t),
-                    self._colorize('ok', t['ok'], 'green'),
-                    self._colorize('changed', t['changed'], 'yellow'),
-                    self._colorize('unreachable', t['unreachable'], 'red'),
-                    self._colorize('failed', t['failures'], 'red'))
-
-            print "Play run took {0} minutes\n".format((datetime.now() - start).seconds / 60)
-        except errors.AnsibleError, e:
-            print >> sys.stderr, "ERROR: %s" % e
-
     def create_user(self, box):
         user = box.remote_user
         if 'root' not in user:
+            # TODO add user_home information to the box
             if 'jenkins' in user:
                 user_home = '/var/lib/jenkins'
             else:
                 user_home = '/home/' + user
-            inventory = self._generate_inventory(box)
-            print 'Creating group \'{0}\' ...'.format(user)
-            self.ansible_run_and_check(Runner(
-                inventory=inventory,
-                remote_user='root',
-                module_name='group',
-                module_args='name={0} state=present'.format(user)
-            ))
-            print 'Creating user \'{0}\' ...'.format(user)
-            self.ansible_run_and_check(Runner(
-                inventory=inventory,
-                remote_user='root',
-                module_name='user',
-                module_args='name={0} home={1} state=present shell=/bin/bash generate_ssh_key=yes group={0} groups=sudo'.format(user, user_home)
-            ))
-            print 'Copy authorized_keys from root ...'
-            self.ansible_run_and_check(Runner(
-                inventory=inventory,
-                remote_user='root',
-                module_name='command',
-                module_args="cp /root/.ssh/authorized_keys {0}/.ssh/authorized_keys".format(user_home)
-            ))
-            print 'Set permission on authorized_keys ...'
-            self.ansible_run_and_check(Runner(
-                inventory=inventory,
-                remote_user='root',
-                module_name='file',
-                module_args="path={0}/.ssh/authorized_keys mode=600 owner={1} group={1}".format(user_home, user)
-            ))
-            print 'Ensuring sudoers no pwd prompting ...'
-            self.ansible_run_and_check(Runner(
-                inventory=inventory,
-                remote_user='root',
-                module_name='lineinfile',
-                # TODO Add validate='visudo -cf %s' when upgrading to Ansible 1.4
-                module_args="dest=/etc/sudoers state=present regexp=%sudo line='%sudo ALL=(ALL:ALL) NOPASSWD:ALL'"
-            ))
 
-    def ansible_run_and_check(self, runner):
-        failed = False
-        results = runner.run()
-        if len(results['dark']):
-            failed = True
-            print 'Host not contacted: %s' % results
-        else:
-            for (hostname, result) in results['contacted'].items():
-                if 'failed' in result:
-                    failed = True
-                    print 'Run failed: %s' % result['msg']
-        return failed
+            inventory = self._generate_inventory(box)
+            run_modules([
+                {
+                    'summary': 'Creating group \'{0}\' ...'.format(user),
+                    'module': Runner(
+                        inventory=inventory,
+                        remote_user='root',
+                        module_name='group',
+                        module_args='name={0} state=present'.format(user))
+                },
+                {
+                    'summary': 'Creating user \'{0}\' ...'.format(user),
+                    'module': Runner(
+                        inventory=inventory,
+                        remote_user='root',
+                        module_name='user',
+                        module_args='name={0} home={1} state=present shell=/bin/bash generate_ssh_key=yes group={0} groups=sudo'.format(
+                            user, user_home)
+                    )
+                },
+                {
+                    'summary': 'Copy authorized_keys from root ...',
+                    'module': Runner(
+                        inventory=inventory,
+                        remote_user='root',
+                        module_name='command',
+                        module_args="cp /root/.ssh/authorized_keys {0}/.ssh/authorized_keys".format(user_home)
+                    )
+                },
+                {
+                    'summary': 'Set permission on authorized_keys ...',
+                    'module': Runner(
+                        inventory=inventory,
+                        remote_user='root',
+                        module_name='file',
+                        module_args="path={0}/.ssh/authorized_keys mode=600 owner={1} group={1}".format(user_home, user)
+                    )
+                },
+                {
+                    'summary': 'Ensuring sudoers no pwd prompting ...',
+                    'module': Runner(
+                        inventory=inventory,
+                        remote_user='root',
+                        module_name='lineinfile',
+                        # TODO Add validate='visudo -cf %s' when upgrading to Ansible 1.4
+                        module_args="dest=/etc/sudoers state=present regexp=%sudo line='%sudo ALL=(ALL:ALL) NOPASSWD:ALL'"
+                    )
+                }
+            ])
 
     def _generate_inventory(self, box):
         f = None
@@ -307,20 +311,3 @@ class SimpleProvider(object):
         finally:
             f.close()
         return Inventory(self.DEFAULT_PRUDENTIA_INVENTORY)
-
-    def _colorize(self, lead, num, color):
-        """ Print 'lead' = 'num' in 'color' """
-        if num != 0 and color is not None:
-            return "%s%s%-15s" % (stringc(lead, color), stringc("=", color), stringc(str(num), color))
-        else:
-            return "%s=%-4s" % (lead, str(num))
-
-    def _hostcolor(self, host, stats, color=True):
-        if color:
-            if stats['failures'] != 0 or stats['unreachable'] != 0:
-                return "%-37s" % stringc(host, 'red')
-            elif stats['changed'] != 0:
-                return "%-37s" % stringc(host, 'yellow')
-            else:
-                return "%-37s" % stringc(host, 'green')
-        return "%-26s" % host

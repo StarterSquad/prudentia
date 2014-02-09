@@ -1,7 +1,7 @@
+import logging
 import os
 from subprocess import PIPE, Popen
 from threading import Thread
-import traceback
 import sys
 
 
@@ -50,8 +50,8 @@ class BashCmd:
             self.stderr = "".join(self.output_stderr)
             self.returncode = p.returncode
         except Exception as e:
+            logging.exception('Command not executed.')
             print("ERROR - Problem running {0}: {1}".format(self.cmd_args, e))
-            print traceback.format_exc()
 
     def __repr__(self):
         return "{0}" \

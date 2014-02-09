@@ -1,0 +1,29 @@
+---
+  - include: $prudentia_dir/tasks/nodejs.yml
+
+  - name: Example Server | Create log dir
+    file: dest=$log_file_path owner=$ansible_user_id group=$ansible_user_id mode=755 state=directory
+    tags:
+      - server
+
+  - name: Example Server | Install node modules
+    command: chdir=$install_dir_server npm update
+    tags:
+      - update
+      - server
+
+  - name: Example Server | Copy upstart script
+    template: src=$root_dir/components/templates/nodejs-upstart.conf.j2 dest=/etc/init/example-api.conf backup=yes
+    register: server_upstart
+    sudo: yes
+    tags:
+      - server
+      - update
+
+  - name: Example Server | Restart
+    service: name=example-api state=restarted
+    when: checkout.changed or server_upstart.changed
+    sudo: yes
+    tags:
+      - server
+      - update

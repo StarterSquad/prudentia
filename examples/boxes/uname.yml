@@ -1,0 +1,6 @@
+---
+- hosts: example-host
+
+  tasks:
+  - name: uname
+    command: uname -a

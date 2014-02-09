@@ -10,11 +10,15 @@ logging.basicConfig(
 
 cli = CLI()
 
+exit_error = 0
 if len(sys.argv) > 1:
     env = sys.argv[1]
-    if not cli.do_use(env):
+    one_cmd_executed = cli.do_use(env)
+    if not one_cmd_executed:
         cli.cmdloop()
+    else:
+        exit_error = 0 if cli.env_cli.provider.provisioned else 1
 else:
     cli.cmdloop()
 
-sys.exit(0)
+sys.exit(exit_error)
