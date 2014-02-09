@@ -1,8 +1,16 @@
-# Overview
+Prudentia
+=========
+[![Build Status](https://travis-ci.org/StarterSquad/prudentia.png?branch=master)](https://travis-ci.org/StarterSquad/prudentia)
 
-Prudentia is a Continuous Deployment toolkit. It contains a collection of providers and tasks that allow you to deploy any application to most popular virtual environments out of the box. Of course you can extend the toolkit with providers and tasks of your own.
+Prudentia is a Continuous Deployment toolkit that offers a command line interface to interact with.
 
-#Getting started
+It contains a collection of providers and tasks that allow you to deploy any application to most popular virtual
+environments out of the box.
+
+Of course you can extend the toolkit with providers and tasks of your own.
+
+# Getting started
+
 Getting started with Prudentia is super easy.
 
 ## Prerequisites
@@ -19,46 +27,50 @@ Later versions should work too. You know how that is.
 
 Also **make sure you have a box that you can ssh onto**.
 
+## Install
+
 Check out Prudentia:
 
     $ git clone git@github.com:StarterSquad/prudentia.git
     $ cd prudentia
 
+and run:
+
+    $ ./prudentia.ssh setup
+
 ## Start the CLI
 
-    $ ./prudentia.sh ssh
+    $ prudentia ssh
 
 This will pull in some python dependencies the first time. After that you can see what prudentia can do using tab completion:
 
     (Prudentia > Ssh)
-    EOF          help         list         provision    reconfigure  register     unregister
+    EOF          help         list         provision    reconfigure  register     set          unregister   unset
     (Prudentia > Ssh) register
     Specify the playbook path:
 
-Now register is asking for a playbook. This is actually an [Ansible][1] playbook that could look like this:
+Now register is asking for a playbook path, and this is actually an [Ansible][1] playbook.
 
-    ---
-    - hosts: example
-
-      tasks:
-      - name: uname
-        command: uname -a
+You can use one of the samples that you can find in the `examples/boxes` directory.
+For instance the `uname.yml` that will print the operative system name of the target machine.
         
-Save it under `/tmp/temp.yml`. Now let's continue:
+So let's continue using the `uname.yml`:
 
-    $ ./prudentia.sh ssh
+    $ prudentia ssh
     (Prudentia > Ssh) register
-    Specify the playbook path: /tmp/temp.yml
+    Specify the playbook path: /path/to/prudentia/examples/boxes/uname.yml
+    Specify the box name [default: example-host]: example
     Specify the address of the instance: localhost
-    Specify the remote user [default: iwein]:
+    Specify the remote user [default: tiziano]:
     Specify the password for the remote user [default: ssh key]:
 
-    Box example -> (/tmp/temp.yml, localhost, iwein) added.
+    Box example -> (/path/to/prudentia/examples/boxes/uname.yml, example-host, localhost, tiziano) added.
 
 Good so now I have a box. In this case it's localhost, so that is not very interesting, but at least we can play around. Let's provision it:
 
     (Prudentia > Ssh) provision example
-    PLAY [example] ***************************************************************
+
+    PLAY [example-host] ***************************************************************
     
     GATHERING FACTS ***************************************************************
     ok: [localhost]
@@ -69,14 +81,13 @@ Good so now I have a box. In this case it's localhost, so that is not very inter
     PLAY RECAP ********************************************************************
     localhost                  : ok=2    changed=1    unreachable=0    failed=0
     
-    Provisioning took 0 minutes
+    Play run took 0 minutes
 
-Now Prudentia has done the reasonable uninteresting uname task for me on the 'remote' system.
+Now Prudentia has done the reasonable uninteresting uname task for me on the 'remote' machine.
 
-## A more advanced example
-TODO
 
-## Philosophy
+Philosophy
+==========
 
 Prudentia (often associated with wisdom) is the ability to govern and discipline oneself by the use of reason.
 
