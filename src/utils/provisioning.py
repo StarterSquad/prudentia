@@ -3,6 +3,7 @@ from datetime import datetime
 
 from ansible.inventory import Inventory
 from ansible.playbook import PlayBook
+from ansible.runner import Runner
 from ansible import callbacks, errors
 import ansible.constants as C
 from ansible.color import stringc
@@ -77,7 +78,8 @@ def run_modules(items):
         print item['summary']
         success, result = run_module(item['module'])
         if not success:
-            break
+            return False
+    return True
 
 
 def run_module(runner):
@@ -113,3 +115,71 @@ def generate_inventory(box):
 
 def local_inventory():
     return generate_inventory(Box('local', None, 'local', '127.0.0.1', use_prudentia_lib=True))
+
+
+def create_user(box):
+    user = box.remote_user
+    if 'root' not in user:
+        # TODO add user_home information to the box
+        if 'jenkins' in user:
+            user_home = '/var/lib/jenkins'
+        else:
+            user_home = '/home/' + user
+
+        inventory = generate_inventory(box)
+        run_modules([
+            {
+                'summary': 'Wait for SSH port to become open ...',
+                'module': Runner(
+                    transport='local',
+                    inventory=local_inventory(),
+                    module_name='wait_for',
+                    module_args='host={0} port=22 delay=10 timeout=60'.format(box.ip))
+            },
+            {
+                'summary': 'Creating group \'{0}\' ...'.format(user),
+                'module': Runner(
+                    inventory=inventory,
+                    remote_user='root',
+                    module_name='group',
+                    module_args='name={0} state=present'.format(user))
+            },
+            {
+                'summary': 'Creating user \'{0}\' ...'.format(user),
+                'module': Runner(
+                    inventory=inventory,
+                    remote_user='root',
+                    module_name='user',
+                    module_args='name={0} home={1} state=present shell=/bin/bash generate_ssh_key=yes group={0} groups=sudo'.format(
+                        user, user_home)
+                )
+            },
+            {
+                'summary': 'Copy authorized_keys from root ...',
+                'module': Runner(
+                    inventory=inventory,
+                    remote_user='root',
+                    module_name='command',
+                    module_args="cp /root/.ssh/authorized_keys {0}/.ssh/authorized_keys".format(user_home)
+                )
+            },
+            {
+                'summary': 'Set permission on authorized_keys ...',
+                'module': Runner(
+                    inventory=inventory,
+                    remote_user='root',
+                    module_name='file',
+                    module_args="path={0}/.ssh/authorized_keys mode=600 owner={1} group={1}".format(user_home, user)
+                )
+            },
+            {
+                'summary': 'Ensuring sudoers no pwd prompting ...',
+                'module': Runner(
+                    inventory=inventory,
+                    remote_user='root',
+                    module_name='lineinfile',
+                    # TODO Add validate='visudo -cf %s' when upgrading to Ansible 1.4
+                    module_args="dest=/etc/sudoers state=present regexp=%sudo line='%sudo ALL=(ALL:ALL) NOPASSWD:ALL'"
+                )
+            }
+        ])

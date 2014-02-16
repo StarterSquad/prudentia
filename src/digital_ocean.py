@@ -7,7 +7,7 @@ from ansible.runner import Runner
 from dopy.manager import DoManager, DoError
 from domain import Box
 from factory import FactoryProvider, FactoryCli
-from utils.provisioning import run_module, local_inventory
+from utils.provisioning import run_module, local_inventory, create_user
 from utils.io import input_yes_no, input_value
 
 
@@ -130,39 +130,39 @@ class DigitalOceanProvider(FactoryProvider):
             droplet = result['droplet']
             box.extra.id = droplet['id']
             box.ip = droplet['ip_address']
-            print 'Instance created with id: {0} -> {1}\n'.format(box.extra.id, box.ip)
+            print 'Droplet created with id: {0} -> {1}\n'.format(box.extra.id, box.ip)
         else:
-            print 'Droplet {0} already created'.format(e.id)
-        self.create_user(box)
+            print 'Droplet {0} already exists.'.format(e.id)
+        create_user(box)
 
     def start(self, box):
         box_id = box.extra.id
-        print 'Starting instance %s ...' % box_id
+        print 'Starting droplet %s ...' % box_id
         self.manager.power_on_droplet(box_id)
         self._wait_to_be_active(box_id)
 
     def stop(self, box):
         box_id = box.extra.id
-        print 'Stopping instance %s ...' % box_id
+        print 'Stopping droplet %s ...' % box_id
         self.manager.power_off_droplet(box_id)
 
     def destroy(self, box):
-        if input_yes_no('destroy the instance \'{0}\''.format(box.name)):
+        if input_yes_no('destroy the droplet \'{0}\''.format(box.name)):
             box_id = box.extra.id
-            print 'Destroying instance %s ...' % box_id
+            print 'Destroying droplet %s ...' % box_id
             self.manager.destroy_droplet(box_id, scrub_data=True)
 
     def rebuild(self, box):
         e = box.extra
-        print 'Rebuilding instance %s ...' % e.id
+        print 'Rebuilding droplet %s ...' % e.id
         self.manager.rebuild_droplet(e.id, e.image)
         self._wait_to_be_active(e.id)
-        self.create_user(box)
+        create_user(box)
 
     def _wait_to_be_active(self, droplet_id, wait_timeout=300):
         end_time = time.time() + wait_timeout
         while time.time() < end_time:
-            print 'Waiting for instance %s to be active ...' % droplet_id
+            print 'Waiting for droplet %s to be active ...' % droplet_id
             time.sleep(min(20, end_time - time.time()))
 
             droplet = self.manager.show_droplet(droplet_id)
@@ -170,7 +170,7 @@ class DigitalOceanProvider(FactoryProvider):
                 droplet_ip_address = droplet['ip_address']
                 if not droplet_ip_address:
                     raise DoError('No ip is found.', droplet_id)
-                print '\nInstance %s is now active with ip %s\n' % (droplet_id, droplet_ip_address)
+                print '\nDroplet %s is now active with ip %s\n' % (droplet_id, droplet_ip_address)
                 time.sleep(20)  # Wait for SSH to be up
                 return droplet_ip_address
         raise DoError('Wait for droplet running timeout', droplet_id)
