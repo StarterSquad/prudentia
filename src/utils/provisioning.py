@@ -1,10 +1,13 @@
 import sys
 from datetime import datetime
 
+from ansible.inventory import Inventory
 from ansible.playbook import PlayBook
 from ansible import callbacks, errors
 import ansible.constants as C
 from ansible.color import stringc
+
+from src.domain import Box
 
 
 def run_playbook(playbook_file, inventory, remote_user=C.DEFAULT_REMOTE_USER,
@@ -50,27 +53,6 @@ def run_playbook(playbook_file, inventory, remote_user=C.DEFAULT_REMOTE_USER,
     return provision_success
 
 
-def run_modules(items):
-    for item in items:
-        print item['summary']
-        if not run_module(item['module']):
-            break
-
-
-def run_module(runner):
-    module_success = True
-    results = runner.run()
-    if len(results['dark']):
-        module_success = False
-        print 'Host not contacted: %s' % results
-    else:
-        for (hostname, result) in results['contacted'].items():
-            if 'failed' in result:
-                module_success = False
-                print 'Run failed: %s' % result['msg']
-    return module_success
-
-
 def _colorize(lead, num, color):
     """ Print 'lead' = 'num' in 'color' """
     if num != 0 and color is not None:
@@ -88,3 +70,46 @@ def _hostcolor(host, stats, color=True):
         else:
             return "%-37s" % stringc(host, 'green')
     return "%-26s" % host
+
+
+def run_modules(items):
+    for item in items:
+        print item['summary']
+        success, result = run_module(item['module'])
+        if not success:
+            break
+
+
+def run_module(runner):
+    module_success = True
+    module_result = ''
+    results = runner.run()
+    if len(results['dark']):
+        module_success = False
+        print 'Host not contacted: %s' % results
+    else:
+        for (hostname, result) in results['contacted'].items():
+            if 'failed' in result:
+                module_success = False
+                module_result = result['msg']
+                print 'Run failed: %s' % result['msg']
+            else:
+                module_result = result
+    return module_success, module_result
+
+
+def generate_inventory(box):
+    tmp_inventory = '/tmp/prudentia-inventory'
+    f = None
+    try:
+        f = open(tmp_inventory, 'w')
+        f.write(box.inventory())
+    except IOError, e:
+        print e
+    finally:
+        f.close()
+    return Inventory(tmp_inventory)
+
+
+def local_inventory():
+    return generate_inventory(Box('local', None, 'local', '127.0.0.1', use_prudentia_lib=True))

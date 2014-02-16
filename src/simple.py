@@ -13,7 +13,7 @@ from ansible.runner import Runner
 import ansible.constants as C
 
 from domain import Environment
-from utils.provisioning import run_playbook, run_modules
+from utils.provisioning import run_playbook, run_modules, generate_inventory, local_inventory
 from utils.io import prudentia_python_dir
 
 
@@ -139,7 +139,6 @@ class SimpleProvider(object):
     __metaclass__ = ABCMeta
 
     DEFAULT_ENVIRONMENTS_PATH = './env/'
-    DEFAULT_PRUDENTIA_INVENTORY = '/tmp/prudentia-inventory'
 
     box_name_pattern = re.compile('- hosts: (.*)')
 
@@ -234,7 +233,7 @@ class SimpleProvider(object):
 
         self.provisioned = run_playbook(
             playbook_file=box.playbook,
-            inventory=self._generate_inventory(box),
+            inventory=generate_inventory(box),
             remote_user=remote_user,
             remote_pass=remote_pwd,
             transport=transport,
@@ -251,8 +250,16 @@ class SimpleProvider(object):
             else:
                 user_home = '/home/' + user
 
-            inventory = self._generate_inventory(box)
+            inventory = generate_inventory(box)
             run_modules([
+                {
+                    'summary': 'Wait for SSH port to become open ...',
+                    'module': Runner(
+                        transport='local',
+                        inventory=local_inventory(),
+                        module_name='wait_for',
+                        module_args='host={0} port=22 delay=10 timeout=60'.format(box.ip))
+                },
                 {
                     'summary': 'Creating group \'{0}\' ...'.format(user),
                     'module': Runner(
@@ -300,14 +307,3 @@ class SimpleProvider(object):
                     )
                 }
             ])
-
-    def _generate_inventory(self, box):
-        f = None
-        try:
-            f = open(self.DEFAULT_PRUDENTIA_INVENTORY, 'w')
-            f.write(box.inventory())
-        except IOError, e:
-            print e
-        finally:
-            f.close()
-        return Inventory(self.DEFAULT_PRUDENTIA_INVENTORY)

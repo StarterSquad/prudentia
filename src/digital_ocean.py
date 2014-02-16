@@ -2,10 +2,12 @@ import logging
 import time
 
 import ansible.constants as C
+from ansible.runner import Runner
 
 from dopy.manager import DoManager, DoError
 from domain import Box
 from factory import FactoryProvider, FactoryCli
+from utils.provisioning import run_module, local_inventory
 from utils.io import input_yes_no, input_value
 
 
@@ -20,8 +22,8 @@ class DigitalOceanProvider(FactoryProvider):
     NAME = 'digital-ocean'
 
     DEFAULT_IMAGE_ID = 1505447  # Ubuntu 12.04.3 x64
-    DEFAULT_SIZE_ID = 63        # 1GB
-    DEFAULT_REGION_ID = 5       # Amsterdam 2
+    DEFAULT_SIZE_ID = 63  # 1GB
+    DEFAULT_REGION_ID = 5  # Amsterdam 2
 
     def __init__(self):
         super(DigitalOceanProvider, self).__init__(self.NAME, DOGeneral, DOExt)
@@ -49,20 +51,20 @@ class DigitalOceanProvider(FactoryProvider):
             ext = DOExt()
             all_images = self.manager.all_images()
             print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
-            ext.set_image(input_value('image', self.DEFAULT_IMAGE_ID))
+            ext.image = input_value('image', self.DEFAULT_IMAGE_ID)
 
             all_sizes = self.manager.sizes()
             print '\nAvailable sizes: \n%s' % self._print_object_id_name(all_sizes)
-            ext.set_size(input_value('size', self.DEFAULT_SIZE_ID))
+            ext.size = input_value('size', self.DEFAULT_SIZE_ID)
 
             all_keys = self.manager.all_ssh_keys()
             print '\nAvailable keys: \n%s' % self._print_object_id_name(all_keys)
             default_keys = ','.join([str(k['id']) for k in all_keys])
-            ext.set_keys(input_value('keys', default_keys))
+            ext.keys = input_value('keys', default_keys)
 
             all_regions = self.manager.all_regions()
             print '\nAvailable regions: \n%s' % self._print_object_id_name(all_regions)
-            ext.set_region(input_value('region', self.DEFAULT_REGION_ID))
+            ext.region = input_value('region', self.DEFAULT_REGION_ID)
 
             box = Box(name, playbook, hostname, ip, user, extra=ext)
             self.add_box(box)
@@ -89,19 +91,19 @@ class DigitalOceanProvider(FactoryProvider):
             ext = DOExt()
             all_images = self.manager.all_images()
             print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
-            ext.set_image(input_value('image', previous_box.extra.image))
+            ext.image = input_value('image', previous_box.extra.image)
 
             all_sizes = self.manager.sizes()
             print '\nAvailable sizes: \n%s' % self._print_object_id_name(all_sizes)
-            ext.set_size(input_value('size', previous_box.extra.size))
+            ext.size = input_value('size', previous_box.extra.size)
 
             all_keys = self.manager.all_ssh_keys()
             print '\nAvailable keys: \n%s' % self._print_object_id_name(all_keys)
-            ext.set_keys(input_value('keys', previous_box.extra.keys))
+            ext.keys = input_value('keys', previous_box.extra.keys)
 
             all_regions = self.manager.all_regions()
             print '\nAvailable regions: \n%s' % self._print_object_id_name(all_regions)
-            ext.set_region(input_value('region', previous_box.extra.region))
+            ext.region = input_value('region', previous_box.extra.region)
 
             box = Box(previous_box.name, playbook, hostname, ip, user, extra=ext)
             self.add_box(box)
@@ -111,17 +113,26 @@ class DigitalOceanProvider(FactoryProvider):
             print '\nThere was some problem while reconfiguring the box: %s\n' % e
 
     def create(self, box):
+        g = self.env.general
         e = box.extra
         if not e.id:
-            print 'Creating instance %s ...' % box.name
-            res = self.manager.new_droplet(box.name, e.size, e.image, e.region, e.keys)
-            droplet_id = res['id']
-            box.extra.set_id(droplet_id)
-            print 'Instance created: %s' % droplet_id
+            print '\nCreating instance \'{0}\' ...'.format(box.name)
+            success, result = run_module(Runner(
+                transport='local',
+                inventory=local_inventory(),
+                remote_user='root',
+                module_name='digital_ocean',
+                module_args='state=present command=droplet client_id={0} api_key={1} '
+                            'name={2} size_id={3} image_id={4} region_id={5} ssh_key_ids={6} wait_timeout=500'
+                .format(g.client_id, g.api_key, box.name, e.size, e.image, e.region, e.keys))
+            )
+
+            droplet = result['droplet']
+            box.extra.id = droplet['id']
+            box.ip = droplet['ip_address']
+            print 'Instance created with id: {0} -> {1}\n'.format(box.extra.id, box.ip)
         else:
-            droplet_id = e.id
-            print 'Droplet already created'
-        box.ip = self._wait_to_be_active(droplet_id)
+            print 'Droplet {0} already created'.format(e.id)
         self.create_user(box)
 
     def start(self, box):
@@ -188,21 +199,6 @@ class DOExt(object):
     keys = None
     region = None
 
-    def set_id(self, box_id):
-        self.id = box_id
-
-    def set_image(self, image):
-        self.image = image
-
-    def set_size(self, size):
-        self.size = size
-
-    def set_keys(self, keys):
-        self.keys = keys
-
-    def set_region(self, region):
-        self.region = region
-
     def __repr__(self):
         return 'DOExt[id: %s, image: %s, size: %s, keys: %s, region: %s]' % (
             self.id, self.image, self.size, self.keys, self.region)
@@ -213,9 +209,9 @@ class DOExt(object):
     @staticmethod
     def from_json(json):
         e = DOExt()
-        e.set_id(json['id'])
-        e.set_image(json['image'])
-        e.set_size(json['size'])
-        e.set_keys(json['keys'])
-        e.set_region(json['region'])
+        e.id = json['id']
+        e.image = json['image']
+        e.size = json['size']
+        e.keys = json['keys']
+        e.region = json['region']
         return e
