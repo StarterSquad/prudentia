@@ -8,7 +8,7 @@
     sudo: yes
 
   - name: Chrome | Add apt repository
-    copy: src=$prudentia_dir/files/chrome/apt-source dest=/etc/apt/sources.list.d/google.list mode=644
+    copy: src=$prudentia_dir/files/chrome/apt-source dest=/etc/apt/sources.list.d/google-chrome.list mode=644
     tags: chrome
     sudo: yes
 
