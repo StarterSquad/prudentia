@@ -55,6 +55,7 @@ pip freeze -l > ${TMP_DEPS}
 if ! cmp ./requirements.txt ${TMP_DEPS} > /dev/null 2>&1
 then
   echo "Installing Python dependencies ..."
+  cat ${TMP_DEPS}
   pip install -r ./requirements.txt
 fi
 
