@@ -1,8 +1,7 @@
 #!/bin/bash
 
 OS=$(uname -s)
-VAGRANT_HASH="b12c7e8814171c1295ef82416ffe51e8a168a244"
-VAGRANT_VERSION="1.3.1"
+VAGRANT_VERSION="1.4.3"
 
 if [[ "${OS}" == *Linux* ]]
 then
@@ -33,12 +32,12 @@ echo -e "Virtualbox is present"
 function install_vagrant {
    if [[ "${OS}" == *Linux* ]]
     then
-        wget http://files.vagrantup.com/packages/${VAGRANT_HASH}/vagrant_${VAGRANT_VERSION}_x86_64.deb -O vagrant.deb
+        wget https://dl.bintray.com/mitchellh/vagrant/vagrant_${VAGRANT_VERSION}_x86_64.deb -O vagrant.deb
         sudo dpkg -i vagrant.deb
         rm vagrant.deb
     elif [[ "${OS}" == *Darwin* ]]
     then
-        curl -Lo Vagrant.dmg http://files.vagrantup.com/packages/${VAGRANT_HASH}/Vagrant-${VAGRANT_VERSION}.dmg
+        curl -Lo Vagrant.dmg https://dl.bintray.com/mitchellh/vagrant/Vagrant-${VAGRANT_VERSION}.dmg
         hdiutil attach Vagrant.dmg
         sudo /Volumes/Vagrant/uninstall.tool
         sudo installer -pkg /Volumes/Vagrant/Vagrant.pkg -target /
