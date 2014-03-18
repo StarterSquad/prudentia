@@ -1,8 +1,8 @@
 import unittest
 import json
-from src.domain import Box, Environment
 
 from src.ssh import SshProvider
+from src.domain import Box, Environment
 
 
 class TestSshProvider(unittest.TestCase):
