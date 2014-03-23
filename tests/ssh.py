@@ -1,9 +1,9 @@
 import unittest
 import json
 
-from ansible import errors
-from ansible import callbacks
-from ansible import utils
+# this import workaround an issue related with circular dependencies
+# https://groups.google.com/forum/#!msg/ansible-devel/wE7fNbGyWbo/IvuUpbJI4aoJ
+import ansible.playbook
 
 from src.ssh import SshProvider
 from src.domain import Box, Environment

@@ -8,3 +8,4 @@ httplib2==0.8
 paramiko==1.12.2
 pycrypto==2.6.1
 requests==2.1.0
+nose==1.3.1
