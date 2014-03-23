@@ -2,7 +2,8 @@
   # Parameters:
   #  $prudentia_dir
 
+  # nginx-extras comes bundled with more modules, for instance headers-more-module
   - name: Nginx | Install
-    action: apt update-cache=yes force=yes state=present pkg=nginx
+    action: apt update-cache=yes force=yes state=present pkg=nginx-extras
     tags: nginx
     sudo: yes
