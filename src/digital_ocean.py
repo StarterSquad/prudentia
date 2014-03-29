@@ -123,7 +123,7 @@ class DigitalOceanProvider(FactoryProvider):
                 remote_user='root',
                 module_name='digital_ocean',
                 module_args='state=present command=droplet client_id={0} api_key={1} '
-                            'name={2} size_id={3} image_id={4} region_id={5} ssh_key_ids={6} wait_timeout=500'
+                            'name={2} size_id={3} image_id={4} region_id={5} ssh_key_ids={6} wait_timeout=300'
                 .format(g.client_id, g.api_key, box.name, e.size, e.image, e.region, e.keys))
             )
 
@@ -171,7 +171,7 @@ class DigitalOceanProvider(FactoryProvider):
                 if not droplet_ip_address:
                     raise DoError('No ip is found.', droplet_id)
                 print '\nDroplet %s is now active with ip %s\n' % (droplet_id, droplet_ip_address)
-                time.sleep(20)  # Wait for SSH to be up
+                time.sleep(10)  # Wait for some network latency ...
                 return droplet_ip_address
         raise DoError('Wait for droplet running timeout', droplet_id)
 
