@@ -1,16 +1,12 @@
 ---
   # Parameters:
-  #  $prudentia_dir
+  #  prudentia_dir
 
   - name: Java 7 | Check if is present
     command: test -x /usr/bin/java
     ignore_errors: yes
     register: java_present
     tags: java
-
-# OTN license must be acknoweldged and the installer was not using the correct cookie
-# source http://www.webupd8.org/2012/01/install-oracle-java-jdk-7-in-ubuntu-via.html
-# I found out a guy that maintains a temporary ppa to overcome the issue: apt_repository repo=ppa:feniix/java
 
   - name: Java 7 | Add apt repository
     action: apt_repository repo=ppa:webupd8team/java

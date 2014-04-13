@@ -1,5 +1,5 @@
 ---
-  - include: $prudentia_dir/tasks/nodejs.yml
+  - include: {{prudentia_dir}}/tasks/nodejs.yml
 
   - name: Example Client | Check if grunt is installed
     command: test -x /usr/bin/grunt
@@ -20,7 +20,7 @@
     tags: client
 
   - name: Example Client | Install and update node modules
-    command: chdir=$install_dir_client npm update
+    command: chdir={{install_dir_client}} npm update
     tags:
       - client
       - update
@@ -30,7 +30,7 @@
     sudo: yes
     tags: client
 
-  - include: $prudentia_dir/tasks/ruby.yml
+  - include: {{prudentia_dir}}/tasks/ruby.yml
 
   # we use bash -l because we need to get ruby and gems in PATH
   - name: Example Client | Install bundler
@@ -38,16 +38,16 @@
     tags: client
 
   - name: Example Client | Install ruby modules
-    shell: chdir=$install_dir_client /bin/bash -lc 'bundle install'
+    shell: chdir={{install_dir_client}} /bin/bash -lc 'bundle install'
     tags: client
 
   - name: Example Client | Compile
-    shell: chdir=$install_dir_client /bin/bash -lc 'grunt build'
+    shell: chdir={{install_dir_client}} /bin/bash -lc 'grunt build'
     tags:
       - client
       - update
 
-  - include: $prudentia_dir/tasks/nginx.yml
+  - include: {{prudentia_dir}}/tasks/nginx.yml
 
   - name: Example Client | Removing Nginx default site configuration
     command: rm -f /etc/nginx/sites-enabled/default
@@ -55,7 +55,7 @@
     tags: client
 
   - name: Example Client | Copy Nginx configuration
-    template: src=$root_dir/components/templates/nginx.conf.j2 dest=/etc/nginx/sites-available/example.com
+    template: src={{root_dir}}/components/templates/nginx.conf.j2 dest=/etc/nginx/sites-available/example.com
     sudo: yes
     tags:
       - client

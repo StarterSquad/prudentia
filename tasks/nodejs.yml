@@ -1,6 +1,6 @@
 ---
   # Parameters:
-  #  $prudentia_dir
+  #  prudentia_dir
 
   - name: Node.js | Check if is present
     command: test -x /usr/bin/nodejs

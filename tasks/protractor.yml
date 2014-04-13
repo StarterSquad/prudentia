@@ -1,11 +1,11 @@
 ---
   # Parameters:
-  #  $prudentia_dir
+  #  prudentia_dir
 
-  - include: $prudentia_dir/tasks/chrome.yml
+  - include: "{{prudentia_dir}}/tasks/chrome.yml"
 
   # selenium needs java
-  - include: $prudentia_dir/tasks/java7.yml
+  - include: "{{prudentia_dir}}/tasks/java7.yml"
 
   - name: Xvfb | Install
     apt: force=yes state=present pkg=xvfb
@@ -19,7 +19,7 @@
     tags: protractor
 
   - name: Protractor and Webdriver | Install
-    command: $item
+    command: "{{item}}"
     with_items:
       - npm install -g protractor
       - webdriver-manager update
@@ -28,6 +28,6 @@
     tags: protractor
 
   - name: Webdriver daemon | Copy upstart script
-    action: template src=$prudentia_dir/files/protractor/webdriver-upstart.conf dest=/etc/init/webdriver.conf
+    action: template src={{prudentia_dir}}/files/protractor/webdriver-upstart.conf dest=/etc/init/webdriver.conf
     sudo: yes
     tags: protractor

@@ -1,6 +1,6 @@
 ---
   # Parameters:
-  #  $prudentia_dir
+  #  prudentia_dir
 
   # nginx-extras comes bundled with more modules, for instance headers-more-module
   - name: Nginx | Install

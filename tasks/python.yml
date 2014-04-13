@@ -1,9 +1,9 @@
 ---
   # Parameters:
-  #  $prudentia_dir
+  #  prudentia_dir
 
   - name: Python | Install
-    apt: update-cache=yes pkg=$item state=present
+    apt: update-cache=yes pkg={{item}} state=present
     tags: python
     sudo: yes
     with_items:

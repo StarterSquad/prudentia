@@ -1,6 +1,6 @@
 ---
   # Parameters:
-  #  $prudentia_dir
+  #  prudentia_dir
 
   - name: Redis | Add apt repository
     action: apt_repository repo=ppa:rwky/redis

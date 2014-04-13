@@ -1,6 +1,6 @@
 ---
   # Parameters:
-  #  $prudentia_dir
+  #  prudentia_dir
 
   - name: MongoDB | Check if is present
     command: test -x /usr/bin/mongo
@@ -16,7 +16,7 @@
     tags: mongodb
 
   - name: MongoDB | Add apt repository
-    action: copy src=$prudentia_dir/files/mongodb/apt-source dest=/etc/apt/sources.list.d/mongodb.list mode=644
+    action: copy src={{prudentia_dir}}/files/mongodb/apt-source dest=/etc/apt/sources.list.d/mongodb.list mode=644
     sudo: yes
     when: mongo_present|failed
     tags: mongodb

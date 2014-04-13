@@ -1,36 +1,36 @@
 ---
   # Parameters:
-  #  $ssh_user
-  #  $ssh_group
-  #  $ssh_dir
-  #  $files_dir
-  #  $key_name
+  #  ssh_user
+  #  ssh_group
+  #  ssh_dir
+  #  files_dir
+  #  key_name
 
-  - name: SSH $ssh_user | Create $ssh_dir/.ssh directory
-    file: dest=$ssh_dir/.ssh state=directory mode=700 owner=$ssh_user group=$ssh_group
+  - name: SSH {{ssh_user}} | Create {{ssh_dir}}/.ssh directory
+    file: dest={{ssh_dir}}/.ssh state=directory mode=700 owner={{ssh_user}} group={{ssh_group}}
     sudo: yes
     tags: ssh
 
-  - name: SSH $ssh_user | Copy private key
-    copy: src=$files_dir/$key_name dest=$ssh_dir/.ssh/$key_name mode=600 owner=$ssh_user group=$ssh_group
+  - name: SSH {{ssh_user}} | Copy private key
+    copy: src={{files_dir}}/{{key_name}} dest={{ssh_dir}}/.ssh/{{key_name}} mode=600 owner={{ssh_user}} group={{ssh_group}}
     sudo: yes
     tags: ssh
 
-  - name: SSH $ssh_user | Copy public key
-    copy: src=$files_dir/$key_name.pub dest=$ssh_dir/.ssh/$key_name.pub mode=644 owner=$ssh_user group=$ssh_group
+  - name: SSH {{ssh_user}} | Copy public key
+    copy: src={{files_dir}}/{{key_name}}.pub dest={{ssh_dir}}/.ssh/{{key_name}}.pub mode=644 owner={{ssh_user}} group={{ssh_group}}
     sudo: yes
     tags: ssh
 
-  - name: SSH $ssh_user | Touch known_hosts
-    command: touch $ssh_dir/.ssh/known_hosts
+  - name: SSH {{ssh_user}} | Touch known_hosts
+    command: touch {{ssh_dir}}/.ssh/known_hosts
     sudo: yes
     tags: ssh
 
-  - name: SSH $ssh_user | Set permission known_hosts
-    file: path=$ssh_dir/.ssh/known_hosts mode=644 state=file owner=$ssh_user group=$ssh_group
+  - name: SSH {{ssh_user}} | Set permission known_hosts
+    file: path={{ssh_dir}}/.ssh/known_hosts mode=644 state=file owner={{ssh_user}} group={{ssh_group}}
     sudo: yes
     tags: ssh
 
-#  - name: SSH $ssh_user | Copy multi-repository configuration
-#    action: copy src=$files_dir/ssh_config dest=$ssh_dir/.ssh/config
+#  - name: SSH {{ssh_user}} | Copy multi-repository configuration
+#    action: copy src={{files_dir}}/ssh_config dest={{ssh_dir}}/.ssh/config
 #    tags: ssh

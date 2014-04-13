@@ -1,6 +1,6 @@
 ---
   # Parameters:
-  #  $prudentia_dir
+  #  prudentia_dir
 
   - name: Tor | Check if installed
     action: test -x /usr/sbin/tor
@@ -8,7 +8,7 @@
     tags: tor
 
   - name: Tor | Add apt repository
-    action: copy src=$prudentia_dir/components/worky/files/tor-apt-source dest=/etc/apt/sources.list.d/tor.list mode=644
+    action: copy src={{prudentia_dir}}/components/worky/files/tor-apt-source dest=/etc/apt/sources.list.d/tor.list mode=644
     when: tor_present|failed
     tags: tor
     sudo: yes
@@ -26,7 +26,7 @@
     sudo: yes
 
   - name: Tor | Install
-    action: apt update-cache=yes pkg=$item state=present
+    action: apt update-cache=yes pkg={{item}} state=present
     with_items:
       - deb.torproject.org-keyring
       - tor

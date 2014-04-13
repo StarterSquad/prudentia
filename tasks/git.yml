@@ -1,7 +1,7 @@
 ---
   # Parameters:
-  #  $prudentia_dir
-  #  $ssh_dir
+  #  prudentia_dir
+  #  ssh_dir
 
   - name: Git | Install git-core
     action: apt update-cache=yes pkg=git-core state=present
@@ -9,7 +9,7 @@
     sudo: yes
 
   - name: Git | Configure bash custom prompt
-    action: lineinfile dest=$ssh_dir/.bashrc regexp="^PS1.*git_ps1.*" line="PS1='\u@\h:\[\033[0;33m\]\w\[\033[0;31m\]$(__git_ps1 \" (%s)\")\[\e[0m\]\$ '"
+    action: lineinfile dest={{ssh_dir}}/.bashrc regexp="^PS1.*git_ps1.*" line="PS1='\u@\h:\[\033[0;33m\]\w\[\033[0;31m\]$(__git_ps1 \" (%s)\")\[\e[0m\]\$ '"
     ignore_errors: yes
     tags: git
     when: not testing

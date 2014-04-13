@@ -6,14 +6,14 @@
     - root_dir: ..
 
   vars_files:
-    - $prudentia_dir/vars/global.yml
+    - {{prudentia_dir}}/vars/global.yml
     - ./example_vars.yml
 
   tasks:
-    - include: $prudentia_dir/tasks/common-setup.yml
+    - include: {{prudentia_dir}}/tasks/common-setup.yml
 
-    - include: $root_dir/components/base.yml
+    - include: {{root_dir}}/components/base.yml
 
-    - include: $root_dir/components/python-server.yml
+    - include: {{root_dir}}/components/python-server.yml
 
-    - include: $root_dir/components/client.yml
+    - include: {{root_dir}}/components/client.yml
