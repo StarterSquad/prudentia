@@ -1,5 +1,5 @@
 ---
-  - include: {{prudentia_dir}}/tasks/nodejs.yml
+  - include: "{{prudentia_dir}}/tasks/nodejs.yml"
 
   - name: Example Client | Check if grunt is installed
     command: test -x /usr/bin/grunt
@@ -30,7 +30,7 @@
     sudo: yes
     tags: client
 
-  - include: {{prudentia_dir}}/tasks/ruby.yml
+  - include: "{{prudentia_dir}}/tasks/ruby.yml"
 
   # we use bash -l because we need to get ruby and gems in PATH
   - name: Example Client | Install bundler
@@ -47,7 +47,7 @@
       - client
       - update
 
-  - include: {{prudentia_dir}}/tasks/nginx.yml
+  - include: "{{prudentia_dir}}/tasks/nginx.yml"
 
   - name: Example Client | Removing Nginx default site configuration
     command: rm -f /etc/nginx/sites-enabled/default

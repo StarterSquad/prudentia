@@ -1,5 +1,5 @@
 ---
-  - include: {{prudentia_dir}}/tasks/python.yml
+  - include: "{{prudentia_dir}}/tasks/python.yml"
 
   - name: Example Server | Create log dir
     file: dest={{log_file_path}} owner={{ansible_user_id}} group={{ansible_user_id}} mode=755 state=directory

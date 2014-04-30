@@ -1,7 +1,7 @@
 ---
-  - include: {{prudentia_dir}}/tasks/java7.yml
+  - include: "{{prudentia_dir}}/tasks/java7.yml"
 
-  - include: {{prudentia_dir}}/tasks/sbt_0.12.1.yml
+  - include: "{{prudentia_dir}}/tasks/sbt_0.12.1.yml"
 
   - name: Example Server | Create log dir
     file: dest={{log_file_path}} owner={{ansible_user_id}} group={{ansible_user_id}} mode=755 state=directory
