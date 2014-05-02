@@ -23,10 +23,11 @@
   - name: Common setup | Install common apt packages
     action: apt pkg={{item}} update-cache=yes state=present
     with_items:
-      - python-software-properties
+      - build-essential
       - reptyr
       - htop
       - curl
-      - build-essential
+      - python-software-properties
+      - python-httplib2
     sudo: yes
     tags: common
