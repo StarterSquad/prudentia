@@ -1,7 +1,8 @@
 #!/bin/bash
 
 OS=$(uname -s)
-VAGRANT_VERSION="1.4.3"
+VAGRANT_HASH="1e0133f501e6666123388786b28715d9670903a8b51f330b2b3039fb5b2a599e"
+VAGRANT_VERSION="1.6.1"
 
 if [[ "${OS}" == *Linux* ]]
 then
@@ -66,6 +67,6 @@ if [ -z "$( vagrant box list | grep ${DEFAULT_BOX_NAME} )" ]; then
 
     if [ "${answer}" = "y" ]; then
         # http://www.vagrantbox.es/
-        vagrant box add ${DEFAULT_BOX_NAME} http://files.vagrantup.com/precise64.box
+        vagrant box add ${DEFAULT_BOX_NAME} http://files.vagrantup.com/precise64.box 2>&1
     fi
 fi
