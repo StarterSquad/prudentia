@@ -1,0 +1,15 @@
+---
+  - name: OpenCV | Add repository GPG key to apt keyring
+    command: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 21A5093ED551D62B
+    sudo: yes
+    tags: opencv
+
+  - name: OpenCV | Add apt repository
+    copy: src={{prudentia_dir}}/files/opencv/apt-source dest=/etc/apt/sources.list.d/opencv.list mode=644
+    sudo: yes
+    tags: opencv
+
+  - name: OpenCV | Install
+    apt: update-cache=yes force=yes state=present pkg=opencv
+    sudo: yes
+    tags: opencv
