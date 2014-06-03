@@ -20,6 +20,12 @@
     tags: sbt
     sudo: yes
 
+  - name: SBT | Remove installer
+    file: path=/opt/sbt.0.12.1.deb state=absent
+    when: sbt_present|failed
+    tags: sbt
+    sudo: yes
+
   - name: SBT | Fix issue with running batch
     action: command sed -i 's/run $@/run "$@"/g' /usr/bin/sbt
     when: sbt_present|failed
