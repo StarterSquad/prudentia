@@ -3,7 +3,7 @@
   #  prudentia_dir
   #  mysql_root_password
 
-  - name: MySQL | Check if installed
+  - name: MySQL | Check if is installed
     command: test -x /usr/bin/mysql
     register: mysql_present
     ignore_errors: yes
@@ -18,7 +18,7 @@
     tags: mysql
     sudo: yes
 
-  - name: MySQL | Install MySQL server
+  - name: MySQL | Install
     apt: update-cache=yes force=yes state=present pkg=mysql-server
     when: mysql_present|failed
     tags: mysql
