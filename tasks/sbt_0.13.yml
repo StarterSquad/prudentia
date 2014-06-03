@@ -1,0 +1,27 @@
+---
+  # Parameters:
+  #  prudentia_dir
+
+  - name: SBT | Check if is present
+    command: test -x /usr/bin/sbt
+    ignore_errors: yes
+    register: sbt_present
+    tags: sbt
+
+  - name: SBT | Download 0.13.1
+    get_url: url=http://scalasbt.artifactoryonline.com/scalasbt/sbt-native-packages/org/scala-sbt/sbt/0.13.1/sbt.deb dest=/opt/sbt.0.13.1.deb
+    when: sbt_present|failed
+    tags: sbt
+    sudo: yes
+
+  - name: SBT | Install
+    command: dpkg -i /opt/sbt.0.13.1.deb
+    when: sbt_present|failed
+    tags: sbt
+    sudo: yes
+
+  - name: SBT | Remove installer
+    file: path=/opt/sbt.0.13.1.deb state=absent
+    when: sbt_present|failed
+    tags: sbt
+    sudo: yes
