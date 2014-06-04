@@ -21,7 +21,7 @@ class DigitalOceanCli(FactoryCli):
 class DigitalOceanProvider(FactoryProvider):
     NAME = 'digital-ocean'
 
-    DEFAULT_IMAGE_ID = 1505447  # Ubuntu 12.04.3 x64
+    DEFAULT_IMAGE_ID = 3101045  # Ubuntu 12.04.4 x64
     DEFAULT_SIZE_ID = 63  # 1GB
     DEFAULT_REGION_ID = 5  # Amsterdam 2
 
