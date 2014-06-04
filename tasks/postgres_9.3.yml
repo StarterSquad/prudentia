@@ -1,0 +1,30 @@
+---
+  # Parameters:
+  #  prudentia_dir
+
+  - name: PostgreSQL | Check if is installed
+    command: test -x /usr/bin/psql
+    register: psql_present
+    ignore_errors: yes
+    tags: psql
+
+  - name: PostgreSQL | Add GPG key to apt keyring
+    shell: wget -q -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+    when: psql_present|failed
+    tags: psql
+    sudo: yes
+
+  - name: PostgreSQL | Add apt repository
+    copy: src={{prudentia_dir}}/files/postgres/apt-source dest=/etc/apt/sources.list.d/postgresql.list mode=644
+    tags: chrome
+    sudo: yes
+
+  - name: PostgreSQL | Install
+    apt: update-cache=yes force=yes state=present pkg={{item}}
+    with_items:
+      - postgresql-9.3
+      - libpq-dev
+      - python-psycopg2
+    sudo: yes
+    when: psql_present|failed
+    tags: psql
