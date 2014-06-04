@@ -2,6 +2,9 @@
   # Parameters:
   #  prudentia_dir
 
+  - include: "{{prudentia_dir}}/tasks/java7.yml"
+    tags: sbt
+
   - name: SBT | Check if is present
     command: test -x /usr/bin/sbt
     ignore_errors: yes
@@ -9,13 +12,13 @@
     tags: sbt
 
   - name: SBT | Download 0.12.1
-    action: get_url url=http://scalasbt.artifactoryonline.com/scalasbt/sbt-native-packages/org/scala-sbt/sbt/0.12.1/sbt.deb dest=/opt/sbt.0.12.1.deb
+    get_url: url=http://scalasbt.artifactoryonline.com/scalasbt/sbt-native-packages/org/scala-sbt/sbt/0.12.1/sbt.deb dest=/opt/sbt.0.12.1.deb
     when: sbt_present|failed
     tags: sbt
     sudo: yes
 
   - name: SBT | Install
-    action: command dpkg -i /opt/sbt.0.12.1.deb
+    command: dpkg -i /opt/sbt.0.12.1.deb
     when: sbt_present|failed
     tags: sbt
     sudo: yes
@@ -27,7 +30,7 @@
     sudo: yes
 
   - name: SBT | Fix issue with running batch
-    action: command sed -i 's/run $@/run "$@"/g' /usr/bin/sbt
+    command: sed -i 's/run $@/run "$@"/g' /usr/bin/sbt
     when: sbt_present|failed
     tags: sbt
     sudo: yes

@@ -2,6 +2,9 @@
   # Parameters:
   #  prudentia_dir
 
+  - include: "{{prudentia_dir}}/tasks/java7.yml"
+    tags: sbt
+
   - name: SBT | Check if is present
     command: test -x /usr/bin/sbt
     ignore_errors: yes

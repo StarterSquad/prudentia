@@ -4,15 +4,16 @@
   #  ssh_dir
   
   - include: "{{prudentia_dir}}/tasks/git.yml"
+    tags: github
 
     # If known_hosts does not exists, make sure to use the ssh_key task
   - name: GitHub | Read known_hosts content
-    action: shell [ -f {{ssh_dir}}/.ssh/known_hosts ] && [ -n "$(grep github {{ssh_dir}}/.ssh/known_hosts)" ] && echo 'found!' || echo ''
+    shell: '[ -f "{{ssh_dir}}/.ssh/known_hosts" ] && [ -n "$(grep github {{ssh_dir}}/.ssh/known_hosts)" ] && echo "found!" || echo ""'
     register: github_known
     tags: github
 
   - name: GitHub | Add github.com to known_hosts
-    action: shell ssh-keyscan github.com >> {{ssh_dir}}/.ssh/known_hosts
+    shell: ssh-keyscan github.com >> {{ssh_dir}}/.ssh/known_hosts
     when: github_known.stdout == ''
     sudo: yes
     tags: github

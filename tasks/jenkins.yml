@@ -3,19 +3,20 @@
   #  prudentia_dir
 
   - include: "{{prudentia_dir}}/tasks/java7.yml"
+    tags: jenkins
 
   - name: Jenkins | Add GPG key to apt keyring
-    action: shell wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -
+    shell: wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -
     tags: jenkins
     sudo: yes
 
   - name: Jenkins | Add apt repository
-    action: copy src={{prudentia_dir}}/files/jenkins/apt-source dest=/etc/apt/sources.list.d/jenkins.list mode=644
+    copy: src={{prudentia_dir}}/files/jenkins/apt-source dest=/etc/apt/sources.list.d/jenkins.list mode=644
     tags: jenkins
     sudo: yes
 
   - name: Jenkins | Install
-    action: apt update-cache=yes force=yes state=present pkg=jenkins
+    apt: update-cache=yes force=yes state=present pkg=jenkins
     tags: jenkins
     register: jenkins_installed
     sudo: yes

@@ -9,19 +9,19 @@
     tags: java
 
   - name: Java 7 | Add apt repository
-    action: apt_repository repo=ppa:webupd8team/java
+    apt_repository: repo=ppa:webupd8team/java
     when: java_present|failed
     tags: java
     sudo: yes
 
   - name: Java 7 | Accept the Oracle license before the installation
-    action: shell echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+    shell: echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
     when: java_present|failed
     tags: java
     sudo: yes
 
   - name: Java 7 | Install
-    action: apt update-cache=yes force=yes state=present pkg=oracle-java7-installer
+    apt: update-cache=yes force=yes state=present pkg=oracle-java7-installer
     when: java_present|failed
     tags: java
     sudo: yes

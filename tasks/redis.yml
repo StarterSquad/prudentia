@@ -3,11 +3,11 @@
   #  prudentia_dir
 
   - name: Redis | Add apt repository
-    action: apt_repository repo=ppa:rwky/redis
+    apt_repository: repo=ppa:rwky/redis
     tags: redis
     sudo: yes
 
   - name: Redis | Install
-    action: apt update-cache=yes force=yes state=present pkg=redis-server
+    apt: update-cache=yes force=yes state=present pkg=redis-server
     tags: redis
     sudo: yes

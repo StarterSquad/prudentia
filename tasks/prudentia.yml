@@ -5,6 +5,7 @@
   #  remote_prudentia_version
 
   - include: "{{prudentia_dir}}/tasks/python.yml"
+    tags: prudentia
 
   - name: Prudentia | Install Virtualenv
     pip: name=virtualenv
