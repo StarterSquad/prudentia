@@ -17,6 +17,7 @@
   - name: PostgreSQL | Add apt repository
     copy: src={{prudentia_dir}}/files/postgres/apt-source dest=/etc/apt/sources.list.d/postgresql.list mode=644
     tags: chrome
+    tags: psql
     sudo: yes
 
   - name: PostgreSQL | Install
