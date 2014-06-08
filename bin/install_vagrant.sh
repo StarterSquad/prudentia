@@ -1,8 +1,7 @@
 #!/bin/bash
 
 OS=$(uname -s)
-VAGRANT_HASH="1e0133f501e6666123388786b28715d9670903a8b51f330b2b3039fb5b2a599e"
-VAGRANT_VERSION="1.6.1"
+VAGRANT_VERSION="1.6.3"
 
 if [[ "${OS}" == *Linux* ]]
 then
@@ -19,7 +18,7 @@ elif [[ "${OS}" == *Darwin* ]]
 then
     if [[ -z "$( which VirtualBox )" ]]
     then
-        curl -Lo VirtualBox.dmg http://download.virtualbox.org/virtualbox/4.3.8/VirtualBox-4.3.8-92456-OSX.dmg
+        curl -SLo VirtualBox.dmg http://download.virtualbox.org/virtualbox/4.3.8/VirtualBox-4.3.8-92456-OSX.dmg 2>&1
         hdiutil attach VirtualBox.dmg
         sudo /Volumes/VirtualBox/VirtualBox_Uninstall.tool
         sudo installer -pkg /Volumes/VirtualBox/VirtualBox.pkg -target /
@@ -33,12 +32,12 @@ echo -e "Virtualbox is present"
 function install_vagrant {
    if [[ "${OS}" == *Linux* ]]
     then
-        wget https://dl.bintray.com/mitchellh/vagrant/vagrant_${VAGRANT_VERSION}_x86_64.deb -O vagrant.deb
+        wget https://dl.bintray.com/mitchellh/vagrant/vagrant_${VAGRANT_VERSION}_x86_64.deb -O vagrant.deb 2>&1
         sudo dpkg -i vagrant.deb
         rm vagrant.deb
     elif [[ "${OS}" == *Darwin* ]]
     then
-        curl -Lo Vagrant.dmg https://dl.bintray.com/mitchellh/vagrant/Vagrant-${VAGRANT_VERSION}.dmg
+        curl -Lo Vagrant.dmg https://dl.bintray.com/mitchellh/vagrant/vagrant_${VAGRANT_VERSION}.dmg 2>&1
         hdiutil attach Vagrant.dmg
         sudo /Volumes/Vagrant/uninstall.tool
         sudo installer -pkg /Volumes/Vagrant/Vagrant.pkg -target /
@@ -56,7 +55,7 @@ else
     then
         echo ${CURRENT_VERSION}
     else
-        echo -e "Vagrant exists but we'll update it ... (and answer Yes to the next question)\n"
+        echo -e "Vagrant exists but we'll update it ...\n"
         install_vagrant
     fi
 fi
