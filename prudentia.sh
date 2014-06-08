@@ -11,7 +11,7 @@ while [ -h "${SOURCE}" ]; do
 done
 DIR="$( cd -P "$( dirname "${SOURCE}" )" && pwd )"
 
-# Change cwd in prudentia dir
+# Change cwd in Prudentia dir
 cd ${DIR}
 
 SETUP=false
@@ -42,6 +42,13 @@ if [ -z "$( which python )" ]; then
 elif [ -z "$( which virtualenv )" ]; then
     echo "Please, install Virtualenv."
     exit 1
+fi
+
+# If Prudentia runs from the develop branch pulls from origin if the local and remote commit aren't the same
+if [ "$( /usr/bin/git rev-parse --abbrev-ref HEAD )" == "develop" ]; then
+  if [ ! "$( /usr/bin/git log --pretty=%H ...refs/heads/develop^ )" == "$( /usr/bin/git ls-remote origin -h refs/heads/develop |cut -f1 )" ]; then
+    /usr/bin/git pull
+  fi
 fi
 
 if [ ! -d "./p-env/" ]; then
