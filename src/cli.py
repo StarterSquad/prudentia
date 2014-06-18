@@ -2,11 +2,13 @@ import sys
 from cmd import Cmd
 
 from digital_ocean import DigitalOceanCli
+from local import LocalCli
 from ssh import SshCli
 from vagrant import VagrantCli
 
 
 Environments = {
+    'local': LocalCli,
     'ssh': SshCli,
     'vagrant': VagrantCli,
     'digital-ocean': DigitalOceanCli
