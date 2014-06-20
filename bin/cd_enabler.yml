@@ -1,0 +1,12 @@
+---
+- hosts: all
+
+  vars:
+    - prudentia_dir: ..
+    - prudentia_install_version: master
+
+  vars_files:
+    - "{{prudentia_dir}}/vars/global.yml"
+
+  task:
+    - include: "{{prudentia_dir}}/tasks/prudentia.yml"

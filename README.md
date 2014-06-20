@@ -86,6 +86,20 @@ Good so now I have a box. In this case it's localhost, so that is not very inter
 Now Prudentia has done the reasonable uninteresting uname task for me on the 'remote' machine.
 
 
+# Continuous Deployment enabler
+
+If you are already an Ansible user and you have already a CI system running you could start using Prudentia in a single step:
+ 
+    $ ansible-playbook -c local -i localhost, bin/cd_enabler.yml -e prudentia_install_dir="<choose a directory>"
+
+
+# More Info
+
+Here you can find a guide on how to use Prudentia to [provision a Digital Ocean droplet](http://www.startersquad.com/blog/simple-deployments-with-prudentia/) 
+with the StarterSquad website on it.
+
+Another interesting source of information is [Iwein's post](http://www.startersquad.com/blog/getting-ready-for-continuous-delivery/) can help you understand how Automated Deployment fits in the bigger picture Continuos Delivery. 
+
 Philosophy
 ==========
 
