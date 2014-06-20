@@ -7,16 +7,19 @@
 
   - name: Jenkins | Add GPG key to apt keyring
     shell: wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -
+    when: ansible_os_family == "Debian"
     tags: jenkins
     sudo: yes
 
   - name: Jenkins | Add apt repository
     copy: src={{prudentia_dir}}/files/jenkins/apt-source dest=/etc/apt/sources.list.d/jenkins.list mode=644
+    when: ansible_os_family == "Debian"
     tags: jenkins
     sudo: yes
 
   - name: Jenkins | Install
     apt: update-cache=yes force=yes state=present pkg=jenkins
+    when: ansible_os_family == "Debian"
     tags: jenkins
     register: jenkins_installed
     sudo: yes

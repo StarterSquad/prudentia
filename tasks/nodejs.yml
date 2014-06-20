@@ -4,18 +4,19 @@
 
   - name: Node.js | Check if is present
     command: test -x /usr/bin/nodejs
+    when: ansible_system == "Linux"
     ignore_errors: yes
     register: nodejs_present
     tags: nodejs
 
   - name: Node.js | Add apt repository
     apt_repository: repo=ppa:chris-lea/node.js
+    when: ansible_distribution == "Ubuntu" and nodejs_present|failed
     sudo: yes
-    when: nodejs_present|failed
     tags: nodejs
 
   - name: Node.js | Install last stable
     apt: update-cache=yes force=yes state=present pkg=nodejs
+    when: ansible_distribution == "Ubuntu" and nodejs_present|failed
     sudo: yes
-    when: nodejs_present|failed
     tags: nodejs

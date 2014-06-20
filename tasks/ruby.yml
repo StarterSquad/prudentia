@@ -4,16 +4,19 @@
 
   - name: Ruby | Check if RVM is present
     shell: test -x ~/.rvm/scripts/rvm
+    when: ansible_system == "Linux"
     ignore_errors: yes
     register: rvm_present
     tags: ruby
 
   - name: Ruby | Install last stable
     shell: curl -L https://get.rvm.io | bash -s stable --ruby
+    when: ansible_system == "Linux"
     when: rvm_present|failed
     tags: ruby
 
   # we use bash -l because we need to get rvm in PATH
   - name: Ruby | Install bundler
     shell: /bin/bash -lc 'rvm install ruby-2.1.1'
+    when: ansible_system == "Linux"
     tags: ruby

@@ -1,25 +1,27 @@
 ---
   # Parameters:
   #  prudentia_dir
-  #  remote_prudentia_install_dir
-  #  remote_prudentia_version
+  #
+  #  prudentia_install_dir
+  #  prudentia_install_version
 
   - include: "{{prudentia_dir}}/tasks/python.yml"
     tags: prudentia
 
   - name: Prudentia | Install Virtualenv
     pip: name=virtualenv
+    when: ansible_os_family == "Debian"
     sudo: yes
     tags: prudentia
 
   - name: Prudentia | Checkout git repository
-    git: repo={{prudentia_git_repository}} dest={{remote_prudentia_install_dir}} version={{remote_prudentia_version}}
+    git: repo={{prudentia_git_repository}} dest={{prudentia_install_dir}}/prudentia version={{prudentia_install_version}}
     tags:
       - prudentia
       - update
 
   - name: Prudentia | Setup
-    command: "{{remote_prudentia_install_dir}}/./prudentia.sh setup"
+    command: "{{prudentia_install_dir}}/prudentia/prudentia.sh setup"
     tags:
       - prudentia
       - update
