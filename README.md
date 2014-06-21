@@ -9,11 +9,17 @@ environments out of the box.
 
 Of course you can extend the toolkit with providers and tasks of your own.
 
-# Getting started
+## Getting started
 
-Getting started with Prudentia is super easy.
+Getting started with Prudentia is super easy. Just:
 
-## Prerequisites
+- make sure you have python
+- clone prudentia and run the setup
+- start the cli
+
+Here the steps are in a bit more detail
+
+### Prerequisites
 
 **Make sure you have python and virtualenv installed**:
 
@@ -27,7 +33,7 @@ Later versions should work too. You know how that is.
 
 Also **make sure you have a box that you can ssh onto**.
 
-## Install
+### Install
 
 Check out Prudentia:
 
@@ -36,9 +42,9 @@ Check out Prudentia:
 
 and run:
 
-    $ ./prudentia.ssh setup
+    $ ./prudentia.sh setup
 
-## Start the CLI
+### Start the CLI
 
     $ prudentia ssh
 
@@ -86,22 +92,21 @@ Good so now I have a box. In this case it's localhost, so that is not very inter
 Now Prudentia has done the reasonable uninteresting uname task for me on the 'remote' machine.
 
 
-# Continuous Deployment enabler
+## Continuous Deployment enabler
 
 If you are already an Ansible user and you have already a CI system running you could start using Prudentia in a single step:
  
     $ ansible-playbook -c local -i localhost, bin/cd_enabler.yml -e prudentia_install_dir="<choose a directory>"
 
 
-# More Info
+## More Info
 
 Here you can find a guide on how to use Prudentia to [provision a Digital Ocean droplet](http://www.startersquad.com/blog/simple-deployments-with-prudentia/) 
 with the StarterSquad website on it.
 
 Another interesting source of information is [Iwein's post](http://www.startersquad.com/blog/getting-ready-for-continuous-delivery/) can help you understand how Automated Deployment fits in the bigger picture Continuos Delivery. 
 
-Philosophy
-==========
+###Philosophy
 
 Prudentia (often associated with wisdom) is the ability to govern and discipline oneself by the use of reason.
 
