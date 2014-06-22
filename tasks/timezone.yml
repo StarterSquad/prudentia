@@ -2,21 +2,21 @@
   # Parameters:
   #  prudentia_dir
   #
-  #  timezone
+  #  tz
 
-  - name: Base | Set default timezone
-    shell: echo {{timezone}} > /etc/timezone
+  - name: Set default timezone
+    shell: echo {{tz}} > /etc/timezone
     when: ansible_os_family == "Debian"
     sudo: yes
     tags: timezone
 
-  - name: Base | Reconfigure timezone data
+  - name: Reconfigure timezone data
     command: dpkg-reconfigure -f noninteractive tzdata
     when: ansible_os_family == "Debian"
     sudo: yes
     tags: timezone
 
-  - name: Base | NTP update
+  - name: Schedule daily NTP update
     cron: name="ntp-update" hour="1" job="/usr/sbin/ntpdate ntp.ubuntu.com pool.ntp.org > /dev/null"
     when: ansible_os_family == "Debian"
     sudo: yes

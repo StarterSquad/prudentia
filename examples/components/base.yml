@@ -1,5 +1,5 @@
 ---
-  - include: "{{prudentia_dir}}/tasks/set_timezone.yml timezone=Europe/Amsterdam"
+  - include: "{{prudentia_dir}}/tasks/timezone.yml tz=Europe/Amsterdam"
     tags: base
 
   - name: Base | Dump mounts
