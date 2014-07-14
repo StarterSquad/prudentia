@@ -21,7 +21,6 @@ class Environment(object):
                 self.initialized = True
         except IOError:
             self.initialized = False
-            print '\'{0}\' environment NOT found!'.format(id_env)
 
     def set_general(self, general):
         self.general = general
