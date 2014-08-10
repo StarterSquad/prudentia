@@ -178,8 +178,7 @@ def create_user(box):
                     inventory=inventory,
                     remote_user='root',
                     module_name='lineinfile',
-                    # TODO Add validate='visudo -cf %s' when upgrading to Ansible 1.4
-                    module_args="dest=/etc/sudoers state=present regexp=%sudo line='%sudo ALL=(ALL:ALL) NOPASSWD:ALL'"
+                    module_args="dest=/etc/sudoers state=present regexp=%sudo line='%sudo ALL=(ALL:ALL) NOPASSWD:ALL' validate='visudo -cf %s'"
                 )
             }
         ])
