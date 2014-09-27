@@ -2,6 +2,8 @@ Prudentia
 =========
 [![Build Status](https://travis-ci.org/StarterSquad/prudentia.png?branch=master)](https://travis-ci.org/StarterSquad/prudentia)
 
+[![Visit our IRC channel](https://kiwiirc.com/buttons/irc.freenode.net/prudentia.png)](https://kiwiirc.com/client/irc.freenode.net/?nick=prudentia-|?#prudentia)
+
 Prudentia is a Continuous Deployment toolkit that offers a command line interface to interact with.
 
 It contains a collection of providers and tasks that allow you to deploy any application to most popular virtual
