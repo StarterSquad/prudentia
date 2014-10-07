@@ -2,8 +2,6 @@ Prudentia
 =========
 [![Build Status](https://travis-ci.org/StarterSquad/prudentia.png?branch=master)](https://travis-ci.org/StarterSquad/prudentia)
 
-[![Visit our IRC channel](https://kiwiirc.com/buttons/irc.freenode.net/prudentia.png)](https://kiwiirc.com/client/irc.freenode.net/?nick=prudentia-|?#prudentia)
-
 Prudentia is a Continuous Deployment toolkit that offers a command line interface to interact with.
 
 It contains a collection of providers and tasks that allow you to deploy any application to most popular virtual
@@ -108,12 +106,17 @@ with the StarterSquad website on it.
 
 Another interesting source of information is [Iwein's post](http://www.startersquad.com/blog/getting-ready-for-continuous-delivery/) can help you understand how Automated Deployment fits in the bigger picture Continuos Delivery. 
 
-###Philosophy
 
-Prudentia (often associated with wisdom) is the ability to govern and discipline oneself by the use of reason.
+## Questions & Contributions
 
-Operationally talking when deploying and orchestrating systems, prudence is used in the sense of reluctance to take risks.
+Questions, Contributions and Feedback are more than welcome.
 
-Our CLI learns (knowledge) and reasons (judge) about components or services within a specific architecture.
+You can e-mail me at:
+
+`tiziano@startersquad.com`
+
+Or get in contact via the IRC channel at `#prudentia` on Freenode
+
+[![Visit our IRC channel](https://kiwiirc.com/buttons/irc.freenode.net/prudentia.png)](https://kiwiirc.com/client/irc.freenode.net/?nick=prudentia-|?#prudentia)
 
 [1]: https://github.com/ansible/ansible "Ansible"
