@@ -1,8 +1,10 @@
 ---
   # Parameters:
-  #  prudentia_dir
-  #
+  #  prudentia_dir (provided)
   #  tz
+  #
+  # Example usage:
+  #  - include: "{{prudentia_dir}}/tasks/timezone.yml tz={{tz}}"
 
   - name: Set default timezone
     shell: echo {{tz}} > /etc/timezone

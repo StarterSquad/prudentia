@@ -1,6 +1,6 @@
 ---
   # Parameters:
-  #  prudentia_dir
+  #  prudentia_dir (provided)
   
   # this tell ucf to keep existing grub configuration and don't update
   - name: Common setup | Preventing ucf to ask information

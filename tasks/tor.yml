@@ -1,6 +1,6 @@
 ---
   # Parameters:
-  #  prudentia_dir
+  #  prudentia_dir (provided)
 
   - name: Tor | Check if installed
     command: test -x /usr/sbin/tor

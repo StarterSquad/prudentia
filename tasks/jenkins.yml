@@ -1,6 +1,6 @@
 ---
   # Parameters:
-  #  prudentia_dir
+  #  prudentia_dir (provided)
 
   - include: "{{prudentia_dir}}/tasks/java7.yml"
     tags: jenkins

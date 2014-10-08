@@ -1,7 +1,4 @@
 ---
-  # Parameters:
-  #  prudentia_dir
-
   - name: Redis | Add apt repository
     apt_repository: repo=ppa:rwky/redis
     when: ansible_distribution == "Ubuntu"

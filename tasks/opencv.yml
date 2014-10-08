@@ -1,6 +1,6 @@
 ---
   # Parameters:
-  #  prudentia_dir
+  #  prudentia_dir (provided)
 
   - name: OpenCV | Add repository GPG key to apt keyring
     command: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 21A5093ED551D62B

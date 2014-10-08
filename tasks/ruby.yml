@@ -1,7 +1,4 @@
 ---
-  # Parameters:
-  #  prudentia_dir
-
   - name: Ruby | Check if RVM is present
     shell: test -x ~/.rvm/scripts/rvm
     when: ansible_system == "Linux"

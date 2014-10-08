@@ -1,7 +1,4 @@
 ---
-  # Parameters:
-  #  prudentia_dir
-
   - name: Java 7 | Check if is present
     command: test -x /usr/bin/java
     when: ansible_system == "Linux"

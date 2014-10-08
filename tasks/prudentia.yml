@@ -1,6 +1,7 @@
 ---
   # Parameters:
-  #  prudentia_dir
+  #  prudentia_dir (provided)
+  #  prudentia_git_repository (provided)
   #
   #  prudentia_install_dir
   #  prudentia_install_version

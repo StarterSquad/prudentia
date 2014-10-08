@@ -1,6 +1,6 @@
 ---
   # Parameters:
-  #  prudentia_dir
+  #  prudentia_dir (provided)
 
   - name: PostgreSQL | Check if is installed
     command: test -x /usr/bin/psql

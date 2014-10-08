@@ -1,8 +1,8 @@
 ---
   # Parameters:
+  #  ssh_dir
   #  ssh_user
   #  ssh_group
-  #  ssh_dir
   #  files_dir
   #  key_name
 

@@ -1,6 +1,6 @@
 ---
   # Parameters:
-  #  prudentia_dir
+  #  prudentia_dir (provided)
   #  mysql_root_password
 
   - name: MySQL | Check if is installed

@@ -1,7 +1,5 @@
 ---
   # Parameters:
-  #  prudentia_dir
-  #
   #  fqdn: A fully qualified domain name
   #  key: Private key file name
   #  crt: Certificate file name
