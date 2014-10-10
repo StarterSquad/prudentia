@@ -28,8 +28,6 @@ if [[ ! -x ${GLOBAL_BIN} ]]; then
     if [ "${answer}" = "y" ]; then
       LINK=true
     fi
-  else
-    LINK=true
   fi
   if ${LINK} ; then
     sudo ln -s ${DIR}/$(basename $0) ${GLOBAL_BIN}
