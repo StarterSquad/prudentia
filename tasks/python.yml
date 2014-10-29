@@ -9,8 +9,8 @@
       - python-dev
       - python-pip
 
-  - name: Python | Distribute setup
-    shell: curl -O http://python-distribute.org/distribute_setup.py && /usr/bin/python2.7 distribute_setup.py
-    when: ansible_os_family == "Debian"
-    sudo: yes
-    tags: python
+#  - name: Python | Distribute setup
+#    shell: curl -O http://python-distribute.org/distribute_setup.py && /usr/bin/python2.7 distribute_setup.py
+#    when: ansible_os_family == "Debian"
+#    sudo: yes
+#    tags: python
