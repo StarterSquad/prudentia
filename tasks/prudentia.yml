@@ -5,7 +5,10 @@
   #
   #  prudentia_install_dir
   #  prudentia_install_version
+  #  prudentia_user
 
+  - include: "{{prudentia_dir}}/tasks/git.yml"
+    tags: prudentia
   - include: "{{prudentia_dir}}/tasks/python.yml"
     tags: prudentia
 
@@ -17,12 +20,23 @@
 
   - name: Prudentia | Checkout git repository
     git: repo={{prudentia_git_repository}} dest={{prudentia_install_dir}}/prudentia version={{prudentia_install_version}}
+    sudo: yes
+    sudo_user: "{{prudentia_user}}"
     tags:
       - prudentia
       - update
 
   - name: Prudentia | Setup
     command: "{{prudentia_install_dir}}/prudentia/prudentia.sh setup"
+    sudo: yes
+    sudo_user: "{{prudentia_user}}"
+    tags:
+      - prudentia
+      - update
+
+  - name: Prudentia | Link for all users
+    file: src={{prudentia_install_dir}}/prudentia/prudentia.sh dest=/usr/bin/prudentia state=link
+    sudo: yes
     tags:
       - prudentia
       - update
