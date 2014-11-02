@@ -58,6 +58,7 @@ class LocalProvider(SimpleProvider):
             remote_pwd = box.remote_pwd
 
         transport = 'local'
+        box.use_prudentia_lib = True
 
         only_tags = None
         if tag:
