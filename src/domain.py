@@ -91,9 +91,14 @@ class Box(object):
         return self.remote_pwd is None
 
     def inventory(self):
+        prudentia_python_interpreter = ' ansible_python_interpreter=' + prudentia_python_dir() + '/p-env/bin/python '
         inv = '[' + self.hostname + ']\n' + self.ip
         if self.use_prudentia_lib:
-            inv = inv + ' ansible_python_interpreter=' + prudentia_python_dir() + '/p-env/bin/python'
+            inv += prudentia_python_interpreter
+
+        if ('local' not in self.hostname) or ('127.0.0.1' or 'localhost' not in self.ip):
+            inv += '\n\n[localhost]'
+            inv += '\nlocalhost ansible_connection=local' + prudentia_python_interpreter
         return inv
 
     def __repr__(self):
