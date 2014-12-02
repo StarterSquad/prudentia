@@ -96,7 +96,7 @@ class Box(object):
         if self.use_prudentia_lib:
             inv += prudentia_python_interpreter
 
-        if ('local' not in self.hostname) or ('127.0.0.1' or 'localhost' not in self.ip):
+        if ('local' not in self.hostname) or ('127.0.0.1' != self.ip and 'localhost' != self.ip):
             inv += '\n\n[localhost]'
             inv += '\nlocalhost ansible_connection=local' + prudentia_python_interpreter
         return inv
