@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cd tests
-nosetests domain.py ssh.py
+nosetests domain_test.py ssh_test.py
