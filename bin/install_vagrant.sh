@@ -37,7 +37,7 @@ function install_vagrant {
         rm vagrant.deb
     elif [[ "${OS}" == *Darwin* ]]
     then
-        curl -Lo Vagrant.dmg https://dl.bintray.com/mitchellh/vagrant/vagrant_${VAGRANT_VERSION}.dmg 2>&1
+        curl -SLo Vagrant.dmg https://dl.bintray.com/mitchellh/vagrant/vagrant_${VAGRANT_VERSION}.dmg 2>&1
         hdiutil attach Vagrant.dmg
         sudo /Volumes/Vagrant/uninstall.tool
         sudo installer -pkg /Volumes/Vagrant/Vagrant.pkg -target /
