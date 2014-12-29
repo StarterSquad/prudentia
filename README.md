@@ -29,22 +29,30 @@ Here the steps are in a bit more detail
     $ virtualenv --version
     1.10
 
-Later versions should work too. You know how that is.
+Later versions should work too.
 
-Also **make sure you have a box that you can ssh onto**.
+### Installation
 
-### Install
+#### If Ansible is NOT present
 
 Check out Prudentia:
 
     $ git clone git@github.com:StarterSquad/prudentia.git
     $ cd prudentia
 
-and run:
+and run the setup:
 
     $ ./prudentia.sh setup
 
-### Start the CLI
+#### If Ansible is present
+
+If you have Ansible already installed on your local system you can:
+ 
+    $ ansible-playbook -c local -i localhost, install.yml
+
+### Use the CLI
+
+**Make sure you have a box that you can ssh onto**.
 
     $ prudentia ssh
 
@@ -90,13 +98,6 @@ Good so now I have a box. In this case it's localhost, so that is not very inter
     Play run took 0 minutes
 
 Now Prudentia has done the reasonable uninteresting uname task for me on the 'remote' machine.
-
-
-## Continuous Deployment enabler
-
-If you are already an Ansible user and you have already a CI system running you could start using Prudentia in a single step:
- 
-    $ ansible-playbook -c local -i localhost, bin/cd_enabler.yml -e prudentia_install_dir="<choose a directory>"
 
 
 ## More Info

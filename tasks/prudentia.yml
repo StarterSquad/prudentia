@@ -14,7 +14,6 @@
 
   - name: Prudentia | Install Virtualenv
     pip: name=virtualenv
-    when: ansible_os_family == "Debian"
     sudo: yes
     tags: prudentia
 

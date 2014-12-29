@@ -1,0 +1,23 @@
+---
+- hosts: all
+
+  vars:
+    - prudentia_dir: ..
+
+  vars_prompt:
+    - name: prudentia_install_dir
+      prompt: "Where do you want to install Prudentia?"
+      private: no
+    - name: prudentia_install_version
+      prompt: "Which version do you want?"
+      default: master
+      private: no
+    - name: prudentia_user
+      prompt: "Which user will use it?"
+      private: no
+
+  vars_files:
+    - "{{prudentia_dir}}/vars/global.yml"
+
+  tasks:
+    - include: "{{prudentia_dir}}/tasks/prudentia.yml"
