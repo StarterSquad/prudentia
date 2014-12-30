@@ -15,4 +15,4 @@ then
   pip install -r ./requirements.txt
 fi
 
-nosetests -c nose.cfg
+nosetests -c nose.cfg $@
