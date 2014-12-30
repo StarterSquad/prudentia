@@ -4,7 +4,8 @@ import os
 def prudentia_python_dir():
     cwd = os.path.realpath(__file__)
     components = cwd.split(os.sep)
-    return str.join(os.sep, components[:components.index("prudentia") + 1])
+    last_prudentia_index = len(components) - components[::-1].index("prudentia")
+    return str.join(os.sep, components[:last_prudentia_index])
 
 
 def xstr(s):

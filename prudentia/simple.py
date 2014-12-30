@@ -37,14 +37,14 @@ class SimpleCli(Cmd):
         action = tokens[0]
         box_name = tokens[1]
         if len(tokens) <= 2:
-            #boxes completion
+            # boxes completion
             if not text:
                 completions = [b.name for b in self.provider.boxes()]
             else:
                 completions = [b.name for b in self.provider.boxes() if b.name.startswith(text)]
         else:
             if action == 'provision':
-                #tags completion
+                # tags completion
                 if not text:
                     completions = self.provider.tags[box_name][:]
                 else:
@@ -137,12 +137,10 @@ class SimpleCli(Cmd):
 class SimpleProvider(object):
     __metaclass__ = ABCMeta
 
-    DEFAULT_ENVIRONMENTS_PATH = './env/'
-
     box_name_pattern = re.compile('- hosts: (.*)')
 
-    def __init__(self, name, general_type=None, box_extra_type=None, env_dir=DEFAULT_ENVIRONMENTS_PATH):
-        self.env = Environment(env_dir + name, general_type, box_extra_type)
+    def __init__(self, name, general_type=None, box_extra_type=None):
+        self.env = Environment(name, general_type, box_extra_type)
         self.extra_vars = {'prudentia_dir': prudentia_python_dir()}
         self.tags = {}
         self.load_tags()

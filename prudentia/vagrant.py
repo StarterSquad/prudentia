@@ -29,7 +29,7 @@ class VagrantProvider(FactoryProvider):
 
     def __init__(self):
         super(VagrantProvider, self).__init__(self.NAME, box_extra_type=VagrantExt)
-        self.template_env = Environment(loader=FileSystemLoader('./src'), auto_reload=True)
+        self.template_env = Environment(loader=FileSystemLoader('./prudentia'), auto_reload=True)
         install_vagrant = BashCmd('./bin/install_vagrant.sh')
         install_vagrant.execute()
 

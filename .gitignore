@@ -4,6 +4,7 @@
 *.pyc
 *inventory*
 p-env
-credential
 tests/env
 env/
+dist
+*egg-info

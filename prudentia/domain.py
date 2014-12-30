@@ -1,16 +1,22 @@
 import json
 import os
+from os.path import expanduser
+import sys
 
-from utils.io import xstr, prudentia_python_dir
+from utils.io import xstr
 
 
 class Environment(object):
-    ENVIRONMENT_FILE_NAME = '.boxes.json'
+    DEFAULT_ENVS_PATH = expanduser('~') + '/prudentia/envs'
+    DEFAULT_ENV_FILE_NAME = 'boxes.json'
 
-    def __init__(self, id_env, general_type=None, box_extra_type=None, name=ENVIRONMENT_FILE_NAME):
-        if not os.path.exists(id_env):
-            os.makedirs(id_env)
-        self.file = id_env + '/' + name
+    def __init__(self, id_env, general_type=None, box_extra_type=None, envs_path=DEFAULT_ENVS_PATH,
+                 file_name=DEFAULT_ENV_FILE_NAME):
+        env_path = envs_path + '/' + id_env
+        if not os.path.exists(env_path):
+            print 'Initializing environment {0} ({1}) ...'.format(id_env, env_path)
+            os.makedirs(env_path)
+        self.file = env_path + '/' + file_name
         self.general_type = general_type
         self.box_extra_type = box_extra_type
         self.general = None
@@ -91,12 +97,12 @@ class Box(object):
         return self.remote_pwd is None
 
     def inventory(self):
-        prudentia_python_interpreter = ' ansible_python_interpreter=' + prudentia_python_dir() + '/p-env/bin/python '
+        prudentia_python_interpreter = ' ansible_python_interpreter=' + sys.executable
         inv = '[' + self.hostname + ']\n' + self.ip
         if self.use_prudentia_lib:
             inv += prudentia_python_interpreter
 
-        if ('local' not in self.hostname) or ('127.0.0.1' != self.ip and 'localhost' != self.ip):
+        if 'local' not in self.hostname and '127.0.0.1' != self.ip and 'localhost' != self.ip:
             inv += '\n\n[localhost]'
             inv += '\nlocalhost ansible_connection=local' + prudentia_python_interpreter
         return inv

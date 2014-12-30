@@ -8,7 +8,7 @@ from ansible import callbacks, errors
 import ansible.constants as C
 from ansible.color import stringc
 
-from src.domain import Box
+from prudentia.domain import Box
 
 
 def run_playbook(playbook_file, inventory, remote_user=C.DEFAULT_REMOTE_USER,

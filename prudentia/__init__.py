@@ -1,3 +1,7 @@
+__version__ = '0.5'
+__author__ = 'Tiziano Perrucci'
+
+
 import readline
 
 if 'libedit' in readline.__doc__:

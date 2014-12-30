@@ -65,7 +65,7 @@ then
 fi
 
 if ! ${SETUP} ; then
-  python -u prudentia.py "$@" 2>&1
+  PYTHONPATH=. python -u bin/prudentia "$@" 2>&1
 else
   exit 0
 fi
