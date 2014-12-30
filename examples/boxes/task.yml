@@ -1,0 +1,8 @@
+---
+- hosts: task-host
+
+  tasks:
+    - name: Uname
+      command: uname -a
+
+    - include: "{{prudentia_dir}}/tasks/noop.yml"

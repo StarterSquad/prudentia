@@ -1,5 +1,5 @@
 ---
-- hosts: prudentia-example
+- hosts: app-host
 
   vars:
     # prudentia_dir -> is passed in the cmd line
@@ -7,7 +7,7 @@
 
   vars_files:
     - "{{prudentia_dir}}/vars/global.yml"
-    - ./example_vars.yml
+    - ./app_vars.yml
 
   tasks:
     - include: "{{prudentia_dir}}/tasks/common-setup.yml"
