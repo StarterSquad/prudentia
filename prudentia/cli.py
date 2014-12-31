@@ -1,3 +1,9 @@
+import os
+from os import path
+
+# Setting ansible config file environment variable as first thing
+os.environ['ANSIBLE_CONFIG'] = path.join(path.dirname(path.realpath(__file__)), 'ansible.cfg')
+
 import sys
 from cmd import Cmd
 
@@ -5,7 +11,6 @@ from digital_ocean import DigitalOceanCli
 from local import LocalCli
 from ssh import SshCli
 from vagrant import VagrantCli
-
 
 Environments = {
     'local': LocalCli,

@@ -7,4 +7,5 @@ p-env
 tests/env
 env/
 dist
-*egg-info
+prudentia.egg-info
+build

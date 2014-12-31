@@ -1,10 +1,11 @@
 import logging
-import os
+from os import path
 
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 
 from domain import Box
+from domain import Environment as PrudentiaEnv
 from factory import FactoryProvider, FactoryCli
 from simple import SimpleProvider
 from utils.bash import BashCmd
@@ -20,18 +21,18 @@ class VagrantCli(FactoryCli):
 
 class VagrantProvider(FactoryProvider):
     NAME = 'vagrant'
-    ENV_DIR = './env/' + NAME
     VAGRANT_FILE_NAME = 'Vagrantfile'
-    CONF_FILE = ENV_DIR + '/' + VAGRANT_FILE_NAME
+    ENV_DIR = path.join(PrudentiaEnv.DEFAULT_ENVS_PATH, NAME)
+    CONF_FILE = path.join(ENV_DIR, VAGRANT_FILE_NAME)
 
     DEFAULT_USER = 'vagrant'
     DEFAULT_PWD = 'vagrant'
 
     def __init__(self):
         super(VagrantProvider, self).__init__(self.NAME, box_extra_type=VagrantExt)
-        self.template_env = Environment(loader=FileSystemLoader('./prudentia'), auto_reload=True)
-        install_vagrant = BashCmd('./bin/install_vagrant.sh')
-        install_vagrant.execute()
+        this_path = path.dirname(path.realpath(__file__))
+        self.template_env = Environment(loader=FileSystemLoader(this_path), auto_reload=True)
+        # BashCmd(path.join(this_path, 'install_vagrant.sh')).execute()
 
     def register(self):
         try:
@@ -90,7 +91,7 @@ class VagrantProvider(FactoryProvider):
         while loop:
             if input_yes_no('share a folder'):
                 src = input_value('directory on the HOST machine')
-                if not os.path.exists(src):
+                if not path.exists(src):
                     raise ValueError("Directory '%s' on the HOST machine doesn't exists." % src)
                 dst = input_value('directory on the GUEST machine')
                 shares.append((src, dst))

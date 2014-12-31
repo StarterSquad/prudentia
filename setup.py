@@ -28,8 +28,6 @@ setup(
     install_requires=['ansible', 'dopy', 'boto'],
     packages=['prudentia', 'prudentia.utils'],
     include_package_data=True,
-    scripts=[
-        'bin/prudentia'
-    ],
+    scripts=['bin/prudentia'],
     platforms='Posix; MacOS X;'
 )

@@ -1,22 +1,22 @@
 import json
 import os
-from os.path import expanduser
+from os import path
 import sys
 
 from utils.io import xstr
 
 
 class Environment(object):
-    DEFAULT_ENVS_PATH = expanduser('~') + '/prudentia/envs'
+    DEFAULT_ENVS_PATH = path.join(path.expanduser('~'), 'prudentia', 'envs')
     DEFAULT_ENV_FILE_NAME = 'boxes.json'
 
     def __init__(self, id_env, general_type=None, box_extra_type=None, envs_path=DEFAULT_ENVS_PATH,
                  file_name=DEFAULT_ENV_FILE_NAME):
-        env_path = envs_path + '/' + id_env
+        env_path = path.join(envs_path, id_env)
         if not os.path.exists(env_path):
             print 'Initializing environment {0} ({1}) ...'.format(id_env, env_path)
             os.makedirs(env_path)
-        self.file = env_path + '/' + file_name
+        self.file = path.join(env_path, file_name)
         self.general_type = general_type
         self.box_extra_type = box_extra_type
         self.general = None
