@@ -1,0 +1,15 @@
+---
+- hosts: tasks-host
+
+  vars:
+    - mylist: [1, 2, 3, 4, 5]
+
+  tasks:
+    - name: Uname
+      command: uname -a
+
+    - name: Shuffle
+      debug: msg={{ item }}
+      with_items: "{{ mylist | shuffle }}"
+
+    - include: "{{ prudentia_dir }}/tasks/noop.yml"
