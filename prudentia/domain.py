@@ -105,6 +105,8 @@ class Box(object):
         if 'local' not in self.hostname and '127.0.0.1' != self.ip and 'localhost' != self.ip:
             inv += '\n\n[localhost]'
             inv += '\nlocalhost ansible_connection=local' + prudentia_python_interpreter
+
+        inv += '\n'
         return inv
 
     def __repr__(self):

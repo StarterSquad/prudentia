@@ -34,6 +34,7 @@ class DigitalOceanProvider(FactoryProvider):
         self.manager = DoManager(g.client_id, g.api_key)
 
     def _input_general_env_conf(self):
+        print '\nThis is the first time you use the Digital Ocean provider, please supply your credentials:'
         client_id = input_value('client id')
         api_key = input_value('api key')
         do_general = DOGeneral(client_id, api_key)

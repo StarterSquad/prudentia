@@ -1,5 +1,6 @@
 import sys
 from datetime import datetime
+from random import randint
 
 from ansible.inventory import Inventory
 from ansible.playbook import PlayBook
@@ -101,7 +102,7 @@ def run_module(runner):
 
 
 def generate_inventory(box):
-    tmp_inventory = '/tmp/prudentia-inventory'
+    tmp_inventory = '/tmp/prudentia-inventory-' + str(randint(1, 999999))
     f = None
     try:
         f = open(tmp_inventory, 'w')
@@ -131,14 +132,15 @@ def create_user(box):
             {
                 'summary': 'Wait for SSH port to become open ...',
                 'module': Runner(
-                    transport='local',
-                    inventory=local_inventory(),
+                    pattern='localhost',
+                    inventory=inventory,
                     module_name='wait_for',
                     module_args='host={0} port=22 delay=10 timeout=60'.format(box.ip))
             },
             {
                 'summary': 'Creating group \'{0}\' ...'.format(user),
                 'module': Runner(
+                    pattern=box.name,
                     inventory=inventory,
                     remote_user='root',
                     module_name='group',
@@ -147,6 +149,7 @@ def create_user(box):
             {
                 'summary': 'Creating user \'{0}\' ...'.format(user),
                 'module': Runner(
+                    pattern=box.name,
                     inventory=inventory,
                     remote_user='root',
                     module_name='user',
@@ -157,6 +160,7 @@ def create_user(box):
             {
                 'summary': 'Copy authorized_keys from root ...',
                 'module': Runner(
+                    pattern=box.name,
                     inventory=inventory,
                     remote_user='root',
                     module_name='command',
@@ -166,6 +170,7 @@ def create_user(box):
             {
                 'summary': 'Set permission on authorized_keys ...',
                 'module': Runner(
+                    pattern=box.name,
                     inventory=inventory,
                     remote_user='root',
                     module_name='file',
@@ -175,6 +180,7 @@ def create_user(box):
             {
                 'summary': 'Ensuring sudoers no pwd prompting ...',
                 'module': Runner(
+                    pattern=box.name,
                     inventory=inventory,
                     remote_user='root',
                     module_name='lineinfile',
