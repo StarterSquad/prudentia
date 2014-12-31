@@ -15,7 +15,7 @@ class TestLocalProvider(unittest.TestCase):
         self.provider = LocalProvider()
 
     def test_provision_sample_task(self):
-        r_box = Box('local-testbox', self.tests_path + '/../examples/boxes/task.yml', 'task-host', '127.0.0.1')
+        r_box = Box('local-testbox', self.tests_path + '/../examples/boxes/tasks.yml', 'tasks-host', '127.0.0.1')
         self.provider.add_box(r_box)
         self.provider.provision(r_box)
         self.provider.remove_box(r_box)
