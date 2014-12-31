@@ -56,7 +56,6 @@ class VagrantProvider(FactoryProvider):
 
     def add_box(self, box):
         SimpleProvider.add_box(self, box)
-        self._generate_vagrant_file()
         self.create(box)
 
     def remove_box(self, box):
@@ -108,6 +107,7 @@ class VagrantProvider(FactoryProvider):
         }).dump(self.CONF_FILE)
 
     def create(self, box):
+        self._generate_vagrant_file()
         self.start(box)
 
     def start(self, box):
