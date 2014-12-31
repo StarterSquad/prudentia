@@ -11,3 +11,11 @@
 
   log_file_path: /opt/example/log
   log_file_name: api.log
+
+  mysql_root_password: mu5tRul3
+  install_dir_db: "{{install_dir}}/db"
+  database_host: 127.0.0.1
+  database_name: app_db
+  database_user: app
+  database_pwd: I4mth3p4ssw0rd
+  import_dump: False

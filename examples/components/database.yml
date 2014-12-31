@@ -1,0 +1,46 @@
+---
+  - include: "{{prudentia_dir}}/tasks/mysql_5.5.yml"
+    tags: db
+
+  - name: Database | Create directory
+    file: dest={{install_dir_db}} owner={{ansible_user_id}} group={{ansible_user_id}} mode=755 state=directory
+    sudo: yes
+    tags:
+      - db
+      - update
+
+  - name: Database | Copy run script
+    copy: src={{root_dir}}/components/files/db/upgrade.sh dest={{install_dir_db}}/upgrade.sh mode=744
+    tags:
+      - db
+      - update
+
+  - name: Database | Copy SQL files
+    action: copy src={{root_dir}}/components/files/db/{{item}} dest={{install_dir_db}}/{{item}}
+    with_items:
+      - 0.create_schema.sql
+      - 1.alter_price.sql
+    tags:
+      - db
+      - update
+
+  - name: Database | Run SQL files
+    action: command ./upgrade.sh root {{mysql_root_password}} {{database_host}} chdir={{install_dir_db}}
+    tags:
+      - db
+      - update
+
+  - name: Database | Copy dump
+    copy: src={{root_dir}}/components/database/files/{{database_dump_file}} dest={{install_dir_db}}/{{database_dump_file}}
+    register: database_copy_dump
+    when: "import_dump"
+    tags:
+      - db
+      - dump
+
+  - name: Database | Import dump
+    shell: zcat flights.dump.gz | mysql --user={{database_user}} --password={{database_pwd}} --host={{database_host}} {{database_name}} chdir={{install_dir_db}}
+    when: "database_copy_dump.changed and import_dump"
+    tags:
+      - db
+      - dump
