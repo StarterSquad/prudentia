@@ -1,10 +1,10 @@
 # !/usr/bin/env python
 
-import os
 import sys
 
 from prudentia import __version__, __author__
 
+from codecs import open
 
 try:
     from setuptools import setup
@@ -13,9 +13,8 @@ except ImportError:
           "Install it using your package manager (usually python-setuptools) or via pip (pip install setuptools)."
     sys.exit(1)
 
-if sys.argv[-1] == 'publish':
-    os.system('python setup.py sdist bdist_wheel upload')
-    sys.exit()
+with open('README.rst', 'r', 'utf-8') as f:
+    readme = f.read()
 
 setup(
     name='prudentia',
@@ -23,6 +22,7 @@ setup(
     description='Continuous Deployment toolkit.',
     author=__author__,
     author_email='tiziano@startersquad.com',
+    long_description=readme,
     url='https://github.com/StarterSquad/prudentia',
     license='MIT',
     install_requires=['ansible', 'dopy', 'boto'],
