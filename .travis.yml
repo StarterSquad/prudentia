@@ -4,3 +4,5 @@ python:
   - "2.6"
 install: "pip install -r requirements.txt"
 script: ./test.sh
+notifications:
+  slack: ssq:8ZFtjmzFiShbxsrecXf2rRU2
