@@ -14,28 +14,8 @@ DIR="$( cd -P "$( dirname "${SOURCE}" )" && pwd )"
 # Change cwd in Prudentia dir
 cd ${DIR}
 
-SETUP=false
-if [ "$1" == "setup" ]; then
-  echo "Setting up Prudentia ..."
-  SETUP=true
-fi
-
-GLOBAL_BIN="/usr/bin/prudentia"
-if [[ ! -x ${GLOBAL_BIN} ]]; then
-  LINK=false
-  if ! ${SETUP} ; then
-    read -p "Do you want to link Prudentia to ${GLOBAL_BIN}? [y/N] " -e answer
-    if [ "${answer}" = "y" ]; then
-      LINK=true
-    fi
-  fi
-  if ${LINK} ; then
-    sudo ln -s ${DIR}/$(basename $0) ${GLOBAL_BIN}
-  fi
-fi
-
 if [ -z "$( which python )" ]; then
-    echo "Please, install Python (>=2.7)."
+    echo "Please, install Python (>=2.6)."
     exit 1
 elif [ -z "$( which virtualenv )" ]; then
     echo "Please, install Virtualenv."
@@ -64,8 +44,4 @@ then
   pip install -r ./requirements.txt
 fi
 
-if ! ${SETUP} ; then
-  PYTHONPATH=. python -u bin/prudentia "$@" 2>&1
-else
-  exit 0
-fi
+PYTHONPATH=. python -u bin/prudentia "$@" 2>&1
