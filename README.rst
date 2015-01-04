@@ -75,7 +75,6 @@ We'll show a usage example of the SshProvider bundled with Prudentia.
 
 **Make sure you have a server that you can ssh onto**.
 
-
 .. code-block:: bash
 
     $ prudentia ssh
@@ -161,7 +160,20 @@ Now that we have double checked that our Box has been registered, we can provisi
 
 Now Prudentia has done the reasonable uninteresting uname, shuffling a list of ints and noop tasks for me on the remote machine.
 
+The same sequence of operations can be executed using the `Here-Document`_ input:
 
+.. code-block:: bash
+
+    $ prudentia ssh <<EOF
+    register
+    /path/to/prudentia/examples/boxes/tasks.yml
+    tasks-host
+    ip.of.your.server
+    _your_user_
+    
+    provision tasks-host
+    EOF
+    
 More Info
 ---------
 Here you can find a guide on how to use Prudentia to `provision a Digital Ocean droplet`_ with the StarterSquad website on it.
