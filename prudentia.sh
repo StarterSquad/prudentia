@@ -44,4 +44,4 @@ then
   pip install -r ./requirements.txt
 fi
 
-PYTHONPATH=. python -u bin/prudentia "$@" 2>&1
+PYTHONPATH=. PYTHONUNBUFFERED=1 bin/prudentia "$@" 2>&1
