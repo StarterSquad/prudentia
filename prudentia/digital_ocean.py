@@ -8,7 +8,7 @@ from dopy.manager import DoManager, DoError
 from domain import Box
 from factory import FactoryProvider, FactoryCli
 from utils.provisioning import run_module, local_inventory, create_user
-from utils.io import input_yes_no, input_value
+from utils.io import input_yes_no, input_value, input_path
 
 
 class DigitalOceanCli(FactoryCli):
@@ -43,7 +43,7 @@ class DigitalOceanProvider(FactoryProvider):
 
     def register(self):
         try:
-            playbook = input_value('playbook path')
+            playbook = input_path('absolute playbook path')
             hostname = self.fetch_box_hostname(playbook)
             name = input_value('box name', self.suggest_name(hostname))
             ip = 'TBD'
@@ -84,7 +84,7 @@ class DigitalOceanProvider(FactoryProvider):
         try:
             self.remove_box(previous_box)
 
-            playbook = input_value('playbook path', previous_box.playbook)
+            playbook = input_path('absolute playbook path', previous_box.playbook)
             hostname = self.fetch_box_hostname(playbook)
             ip = 'TBD'
             user = input_value('remote user', previous_box.remote_user)

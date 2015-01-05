@@ -24,13 +24,27 @@ def input_value(topic, default_value=None, default_description=None, mandatory=T
             answer = default_value
         else:
             if mandatory:
-                raise ValueError('You must give a valid answer because this is mandatory.')
+                raise ValueError('You must enter a valid %s.' % topic)
             else:
                 answer = None
     else:
         if default_value and type(default_value) == int:
             answer = int(answer)
     return answer
+
+
+def input_path(topic, default_value=None, default_description=None, mandatory=True, is_file=True):
+    path = input_value(topic, default_value, default_description, mandatory)
+    if not os.path.exists(path):
+        raise ValueError('The %s you entered does NOT exist.' % topic)
+    elif not os.path.isabs(path):
+        raise ValueError('The %s you entered is NOT absolute.' % topic)
+    elif is_file and not os.path.isfile(path):
+        raise ValueError('The %s you entered is NOT a file.' % topic)
+    elif not is_file and not os.path.isdir(path):
+        raise ValueError('The %s you entered is NOT a directory.' % topic)
+    else:
+        return path
 
 
 def input_yes_no(topic, default='n'):

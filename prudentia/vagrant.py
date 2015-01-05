@@ -9,7 +9,7 @@ from domain import Environment as PrudentiaEnv
 from factory import FactoryProvider, FactoryCli
 from simple import SimpleProvider
 from utils.bash import BashCmd
-from utils.io import input_value, input_yes_no
+from utils.io import input_value, input_yes_no, input_path
 
 
 class VagrantCli(FactoryCli):
@@ -36,7 +36,7 @@ class VagrantProvider(FactoryProvider):
 
     def register(self):
         try:
-            playbook = input_value('playbook path')
+            playbook = input_path('absolute playbook path')
             hostname = self.fetch_box_hostname(playbook)
             name = input_value('box name', self.suggest_name(hostname))
             ip = input_value('internal IP')
@@ -67,7 +67,7 @@ class VagrantProvider(FactoryProvider):
         try:
             self.remove_box(previous_box)
 
-            playbook = input_value('playbook path', previous_box.playbook)
+            playbook = input_path('absolute playbook path', previous_box.playbook)
             hostname = self.fetch_box_hostname(playbook)
             ip = input_value('internal IP', previous_box.ip)
 
@@ -89,10 +89,10 @@ class VagrantProvider(FactoryProvider):
         loop = True
         while loop:
             if input_yes_no('share a folder'):
-                src = input_value('directory on the HOST machine')
+                src = input_path('directory on the HOST machine', is_file=False)
                 if not path.exists(src):
                     raise ValueError("Directory '%s' on the HOST machine doesn't exists." % src)
-                dst = input_value('directory on the GUEST machine')
+                dst = input_path('directory on the GUEST machine', is_file=False)
                 shares.append((src, dst))
             else:
                 loop = False
