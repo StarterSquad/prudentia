@@ -186,6 +186,8 @@ Questions & Contributions
 -------------------------
 Questions, Contributions and Feedback are more than welcome.
 
+You can checkout planned new features on the `Trello Board`_. Feel free to create feature requests on github issues.
+
 You can e-mail me at: 
 
 ``tiziano@startersquad.com``
@@ -199,6 +201,8 @@ You can e-mail me at:
 
 .. _provision a Digital Ocean droplet: http://www.startersquad.com/blog/simple-deployments-with-prudentia/
 .. _Iwein's post: http://www.startersquad.com/blog/getting-ready-for-continuous-delivery/
+
+.. _Trello board: https://trello.com/b/CyRrVZom
 
 .. |build-status| image:: https://travis-ci.org/StarterSquad/prudentia.png?branch=master
    :target: https://travis-ci.org/StarterSquad/prudentia
