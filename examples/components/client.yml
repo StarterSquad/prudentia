@@ -45,9 +45,3 @@
       - client
       - update
       - maintenance
-
-  - name: Client | Health check
-    shell: /usr/bin/curl -sSf --max-time 300 {{url_health_check}} > /dev/null
-    tags:
-      - api
-      - update
