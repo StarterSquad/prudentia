@@ -121,7 +121,6 @@ def local_inventory():
 def create_user(box):
     user = box.remote_user
     if 'root' not in user:
-        # TODO add user_home information to the box
         if 'jenkins' in user:
             user_home = '/var/lib/jenkins'
         else:

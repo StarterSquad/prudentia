@@ -2,28 +2,36 @@
 
 import sys
 import logging
+import os
 from os import path
+
 from prudentia.cli import CLI
 
+
 if __name__ == "__main__":
-  logging.basicConfig(
-      filename=path.join(path.expanduser('~'), 'prudentia', 'cli.log'),
-      format='%(asctime)s.%(msecs).03d [%(name)s] %(levelname)s: %(message)s',
-      datefmt='%d-%m-%Y %H:%M:%S',
-      level=logging.WARNING
-  )
+    PRUDENTIA_USER_DIR = path.join(path.expanduser('~'), 'prudentia')
 
-  cli = CLI()
+    if not os.path.exists(PRUDENTIA_USER_DIR):
+        os.makedirs(PRUDENTIA_USER_DIR)
 
-  exit_error = 0
-  if len(sys.argv) > 1:
-      env = sys.argv[1]
-      one_cmd_executed = cli.do_use(env)
-      if not one_cmd_executed:
-          cli.cmdloop()
-      else:
-          exit_error = 0 if cli.env_cli.provider.provisioned else 1
-  else:
-      cli.cmdloop()
+    logging.basicConfig(
+        filename=path.join(PRUDENTIA_USER_DIR, 'cli.log'),
+        format='%(asctime)s.%(msecs).03d [%(name)s] %(levelname)s: %(message)s',
+        datefmt='%d-%m-%Y %H:%M:%S',
+        level=logging.WARNING
+    )
 
-  sys.exit(exit_error)
+    cli = CLI()
+
+    exit_error = 0
+    if len(sys.argv) > 1:
+        env = sys.argv[1]
+        one_cmd_executed = cli.do_use(env)
+        if not one_cmd_executed:
+            cli.cmdloop()
+        else:
+            exit_error = 0 if cli.env_cli.provider.provisioned else 1
+    else:
+        cli.cmdloop()
+
+    sys.exit(exit_error)
