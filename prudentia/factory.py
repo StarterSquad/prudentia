@@ -12,7 +12,8 @@ class FactoryCli(SimpleCli):
 
     def do_create(self, line):
         box = self._get_box(line)
-        self.provider.create(box)
+        if box:
+            self.provider.create(box)
 
 
     def help_start(self):
@@ -23,7 +24,8 @@ class FactoryCli(SimpleCli):
 
     def do_start(self, line):
         box = self._get_box(line)
-        self.provider.start(box)
+        if box:
+            self.provider.start(box)
 
 
     def help_restart(self):
@@ -34,8 +36,9 @@ class FactoryCli(SimpleCli):
 
     def do_restart(self, line):
         box = self._get_box(line)
-        self.provider.stop(box)
-        self.provider.start(box)
+        if box:
+            self.provider.stop(box)
+            self.provider.start(box)
 
 
     def help_phoenix(self):
@@ -46,8 +49,9 @@ class FactoryCli(SimpleCli):
 
     def do_phoenix(self, line):
         box = self._get_box(line)
-        self.provider.rebuild(box)
-        self.provider.provision(box)
+        if box:
+            self.provider.rebuild(box)
+            self.provider.provision(box)
 
 
     def help_stop(self):
@@ -58,7 +62,8 @@ class FactoryCli(SimpleCli):
 
     def do_stop(self, line):
         box = self._get_box(line)
-        self.provider.stop(box)
+        if box:
+            self.provider.stop(box)
 
 
     def help_destroy(self):
@@ -69,7 +74,8 @@ class FactoryCli(SimpleCli):
 
     def do_destroy(self, line):
         box = self._get_box(line)
-        self.provider.destroy(box)
+        if box:
+            self.provider.destroy(box)
 
 
 class FactoryProvider(SimpleProvider):

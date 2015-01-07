@@ -23,12 +23,13 @@ class SimpleCli(Cmd):
         try:
             Cmd.cmdloop(self, intro)
         except Exception as e:
-            print '\nThere was some problem executing the action: %s\n' % e
+            print '\nGot a nasty error: %s\n' % e
 
     def _get_box(self, box_name):
         b = self.provider.env.get(box_name)
         if not b:
-            raise ValueError("Box name '%s' does not exists!" % box_name)
+            print 'The box \'%s\' you entered does not exists.\n\nAfter typing the command press Tab for box suggestions.\n' % box_name
+            return None
         else:
             return b
 
@@ -69,7 +70,8 @@ class SimpleCli(Cmd):
 
     def do_reconfigure(self, line):
         box = self._get_box(line)
-        self.provider.reconfigure(box)
+        if box:
+            self.provider.reconfigure(box)
 
 
     def help_provision(self):
@@ -81,8 +83,9 @@ class SimpleCli(Cmd):
     def do_provision(self, line):
         tokens = line.split(' ')
         box = self._get_box(tokens[0])
-        tag = tokens[1] if len(tokens) > 1 else None
-        self.provider.provision(box, tag)
+        if box:
+            tag = tokens[1] if len(tokens) > 1 else None
+            self.provider.provision(box, tag)
 
 
     def help_unregister(self):
@@ -93,7 +96,8 @@ class SimpleCli(Cmd):
 
     def do_unregister(self, line):
         box = self._get_box(line)
-        self.provider.unregister(box)
+        if box:
+            self.provider.unregister(box)
 
 
     def help_set(self):
