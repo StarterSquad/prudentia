@@ -1,8 +1,7 @@
 #!/bin/bash
 
 OS=$(uname -s)
-VAGRANT_HASH="b12c7e8814171c1295ef82416ffe51e8a168a244"
-VAGRANT_VERSION="1.3.1"
+VAGRANT_VERSION="1.6.3"
 
 if [[ "${OS}" == *Linux* ]]
 then
@@ -19,9 +18,9 @@ elif [[ "${OS}" == *Darwin* ]]
 then
     if [[ -z "$( which VirtualBox )" ]]
     then
-        curl -Lo VirtualBox.dmg http://download.virtualbox.org/virtualbox/4.2.12/VirtualBox-4.2.12-84980-OSX.dmg
+        curl -SLo VirtualBox.dmg http://download.virtualbox.org/virtualbox/4.3.8/VirtualBox-4.3.8-92456-OSX.dmg 2>&1
         hdiutil attach VirtualBox.dmg
-        #sudo /Volumes/VirtualBox/VirtualBox_Uninstall.tool
+        sudo /Volumes/VirtualBox/VirtualBox_Uninstall.tool
         sudo installer -pkg /Volumes/VirtualBox/VirtualBox.pkg -target /
         hdiutil detach /Volumes/VirtualBox
         rm VirtualBox.dmg
@@ -33,12 +32,12 @@ echo -e "Virtualbox is present"
 function install_vagrant {
    if [[ "${OS}" == *Linux* ]]
     then
-        wget http://files.vagrantup.com/packages/${VAGRANT_HASH}/vagrant_${VAGRANT_VERSION}_x86_64.deb -O vagrant.deb
+        wget https://dl.bintray.com/mitchellh/vagrant/vagrant_${VAGRANT_VERSION}_x86_64.deb -O vagrant.deb 2>&1
         sudo dpkg -i vagrant.deb
         rm vagrant.deb
     elif [[ "${OS}" == *Darwin* ]]
     then
-        curl -Lo Vagrant.dmg http://files.vagrantup.com/packages/${VAGRANT_HASH}/Vagrant-${VAGRANT_VERSION}.dmg
+        curl -SLo Vagrant.dmg https://dl.bintray.com/mitchellh/vagrant/vagrant_${VAGRANT_VERSION}.dmg 2>&1
         hdiutil attach Vagrant.dmg
         sudo /Volumes/Vagrant/uninstall.tool
         sudo installer -pkg /Volumes/Vagrant/Vagrant.pkg -target /
@@ -56,7 +55,7 @@ else
     then
         echo ${CURRENT_VERSION}
     else
-        echo -e "Vagrant exists but we'll update it ... (and answer Yes to the next question)\n"
+        echo -e "Vagrant exists but we'll update it ...\n"
         install_vagrant
     fi
 fi
@@ -67,6 +66,6 @@ if [ -z "$( vagrant box list | grep ${DEFAULT_BOX_NAME} )" ]; then
 
     if [ "${answer}" = "y" ]; then
         # http://www.vagrantbox.es/
-        vagrant box add ${DEFAULT_BOX_NAME} http://files.vagrantup.com/precise64.box
+        vagrant box add ${DEFAULT_BOX_NAME} http://files.vagrantup.com/precise64.box 2>&1
     fi
 fi

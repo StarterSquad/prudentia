@@ -1,0 +1,21 @@
+---
+  version: master
+  hostname: example.com
+  git_repository: <path to project with client and api directory>
+
+  install_dir: /opt/example
+  install_dir_client: "{{install_dir}}/client"
+  install_dir_api: "{{install_dir}}/api"
+
+  api_url_health_check: http://localhost/api
+
+  log_file_path: /opt/example/log
+  log_file_name: api.log
+
+  mysql_root_password: mu5tRul3
+  install_dir_db: "{{install_dir}}/db"
+  database_host: 127.0.0.1
+  database_name: app_db
+  database_user: app
+  database_pwd: I4mth3p4ssw0rd
+  import_dump: False

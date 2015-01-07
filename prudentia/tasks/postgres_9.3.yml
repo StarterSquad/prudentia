@@ -1,0 +1,35 @@
+---
+  # Parameters:
+  #  prudentia_dir (provided)
+
+  - name: PostgreSQL | Check if is installed
+    command: test -x /usr/bin/psql
+    when: ansible_system == "Linux"
+    register: psql_present
+    ignore_errors: yes
+    tags: psql
+
+  - name: PostgreSQL | Add GPG key to apt keyring
+    shell: wget -q -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+    when: ansible_os_family == "Debian"
+    when: psql_present|failed
+    tags: psql
+    sudo: yes
+
+  - name: PostgreSQL | Add apt repository
+    copy: src={{prudentia_dir}}/files/postgres/apt-source dest=/etc/apt/sources.list.d/postgresql.list mode=644
+    when: ansible_os_family == "Debian"
+    tags: psql
+    when: psql_present|failed
+    sudo: yes
+
+  - name: PostgreSQL | Install
+    apt: update-cache=yes force=yes state=present pkg={{item}}
+    when: ansible_os_family == "Debian"
+    with_items:
+      - postgresql-9.3
+      - libpq-dev
+      - python-psycopg2
+    sudo: yes
+    when: psql_present|failed
+    tags: psql

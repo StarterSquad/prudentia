@@ -1,0 +1,12 @@
+---
+  - name: Redis | Add apt repository
+    apt_repository: repo=ppa:rwky/redis
+    when: ansible_distribution == "Ubuntu"
+    tags: redis
+    sudo: yes
+
+  - name: Redis | Install
+    apt: update-cache=yes force=yes state=present pkg=redis-server
+    when: ansible_distribution == "Ubuntu"
+    tags: redis
+    sudo: yes

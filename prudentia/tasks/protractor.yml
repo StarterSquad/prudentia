@@ -1,0 +1,38 @@
+---
+  # Parameters:
+  #  prudentia_dir (provided)
+
+  - include: "{{prudentia_dir}}/tasks/chrome.yml"
+    tags: protractor
+
+  # selenium needs java
+  - include: "{{prudentia_dir}}/tasks/java7.yml"
+    tags: protractor
+
+  - name: Xvfb | Install
+    apt: force=yes state=present pkg=xvfb
+    when: ansible_distribution == "Ubuntu"
+    sudo: yes
+    tags: protractor
+
+  - name: Protractor | Check if is present
+    command: test -x /usr/bin/webdriver-manager
+    when: ansible_system == "Linux"
+    ignore_errors: yes
+    register: protractor_present
+    tags: protractor
+
+  - name: Protractor and Webdriver | Install
+    command: "{{item}}"
+    with_items:
+      - npm install -g protractor
+      - webdriver-manager update
+    sudo: yes
+    when: ansible_system == "Linux" and protractor_present|failed
+    tags: protractor
+
+  - name: Webdriver daemon | Copy upstart script
+    template: src={{prudentia_dir}}/files/protractor/webdriver-upstart.conf dest=/etc/init/webdriver.conf
+    when: ansible_distribution == "Ubuntu"
+    sudo: yes
+    tags: protractor

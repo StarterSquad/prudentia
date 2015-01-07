@@ -1,0 +1,23 @@
+---
+  # Parameters:
+  #  fqdn: A fully qualified domain name
+  #  key: Private key file name
+  #  crt: Certificate file name
+  #  target_dir: Target directory where to install key and crt
+
+  - name: SSL self certificate | Install last stable
+    apt: force=yes state=present pkg=openssl
+    when: ansible_os_family == "Debian"
+    tags: ssl-self
+    sudo: yes
+
+  - name: SSL self certificate | Generate self signed passwordless certificate
+    command: openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 -subj "/C=EU/ST=Denial/L=Lovecity/O=Dis/CN={{fqdn}}" -keyout {{key}}.key  -out {{crt}}.crt
+    when: ansible_os_family == "Debian"
+    tags: ssl-self
+
+  - name: SSL self certificate | Move files to target dir
+    command: mv -t {{target_dir}} {{key}}.key {{crt}}.crt
+    when: ansible_os_family == "Debian"
+    sudo: yes
+    tags: ssl-self

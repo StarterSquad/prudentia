@@ -1,0 +1,36 @@
+---
+  # Parameters:
+  #  prudentia_dir (provided)
+
+  - name: Tor | Check if installed
+    command: test -x /usr/sbin/tor
+    when: ansible_system == "Linux"
+    register: tor_present
+    tags: tor
+
+  - name: Tor | Add apt repository
+    copy: src={{prudentia_dir}}/components/worky/files/tor-apt-source dest=/etc/apt/sources.list.d/tor.list mode=644
+    when: ansible_os_family == "Debian" and tor_present|failed
+    tags: tor
+    sudo: yes
+
+  - name: Tor | Get GPG key
+    command: gpg --keyserver keys.gnupg.net --recv 886DDD89
+    when: ansible_os_family == "Debian" and tor_present|failed
+    tags: tor
+    sudo: yes
+
+  - name: Tor | Add GPG key to apt keyring
+    shell: gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | apt-key add -
+    when: ansible_os_family == "Debian" and tor_present|failed
+    tags: tor
+    sudo: yes
+
+  - name: Tor | Install
+    apt: update-cache=yes pkg={{item}} state=present
+    when: ansible_os_family == "Debian" and tor_present|failed
+    with_items:
+      - deb.torproject.org-keyring
+      - tor
+    tags: tor
+    sudo: yes

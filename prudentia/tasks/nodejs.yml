@@ -1,0 +1,46 @@
+---
+  # Parameters:
+  #  nvm_version (provided)
+  #  node_version (provided)
+  #  node_path (provided)
+
+  - name: Node.js | Check if nvm is present
+    command: test -s ~/.nvm/nvm.sh
+    when: ansible_system == "Linux"
+    ignore_errors: yes
+    register: nvm_present
+    tags: nodejs
+
+  - name: Node.js | Install nvm
+    shell: curl https://raw.githubusercontent.com/creationix/nvm/{{nvm_version}}/install.sh | /bin/bash
+    when: ansible_system == "Linux" and nvm_present|failed
+    tags: nodejs
+
+  - name: Node.js | Check if Node is present
+    command: test -x /usr/local/bin/node
+    when: ansible_system == "Linux"
+    ignore_errors: yes
+    register: node_present
+    tags: nodejs
+
+  - name: Node.js | Install node
+    shell: . ~/.nvm/nvm.sh && nvm install {{node_version}} && nvm alias default {{node_version}}
+    when: ansible_system == "Linux" and node_present|failed
+    args:
+      executable: /bin/bash
+    tags: nodejs
+
+  - name: Node.js | Change permissions for nvm scripts
+    file: path={{ node_path }}/bin state=directory mode=755 recurse=yes
+    when: ansible_system == "Linux" and node_present|failed
+    tags: nodejs
+
+  - name: Node.js | Link node globally
+    command: cp -r {{ node_path }}/{{ item }} /usr/local
+    with_items:
+      - bin
+      - lib
+      - share
+    when: ansible_system == "Linux" and node_present|failed
+    sudo: yes
+    tags: nodejs

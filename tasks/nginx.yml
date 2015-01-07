@@ -1,8 +1,0 @@
----
-  # Parameters:
-  #  $prudentia_dir
-
-  - name: Nginx | Install
-    action: apt update-cache=yes force=yes state=present pkg=nginx
-    tags: nginx
-    sudo: yes

@@ -1,0 +1,16 @@
+---
+  - name: Python | Install
+    apt: update-cache=yes pkg={{item}} state=present
+    when: ansible_os_family == "Debian"
+    tags: python
+    sudo: yes
+    with_items:
+      - python
+      - python-dev
+      - python-pip
+
+  - name: Python | Upgrade Setuptools
+    pip: name=setuptools state=latest
+    when: ansible_os_family == "Debian"
+    sudo: yes
+    tags: python

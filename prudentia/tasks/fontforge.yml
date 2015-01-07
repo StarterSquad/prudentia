@@ -1,0 +1,19 @@
+---
+  - name: FontForge | Check if is present
+    command: test -x /usr/bin/fontforge
+    when: ansible_system == "Linux"
+    ignore_errors: yes
+    register: fontforge_present
+    tags: fontforge
+
+  - name: FontForge | Add apt repository
+    apt_repository: repo=ppa:fontforge/fontforge
+    when: ansible_distribution == "Ubuntu" and fontforge_present|failed
+    sudo: yes
+    tags: fontforge
+
+  - name: FontForge | Install last stable
+    apt: update-cache=yes force=yes state=present pkg=fontforge
+    when: ansible_distribution == "Ubuntu" and fontforge_present|failed
+    sudo: yes
+    tags: fontforge
