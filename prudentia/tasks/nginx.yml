@@ -1,0 +1,7 @@
+---
+  # nginx-extras comes bundled with more modules, for instance headers-more-module
+  - name: Nginx | Install
+    apt: update-cache=yes force=yes state=present pkg=nginx-extras
+    when: ansible_os_family == "Debian"
+    tags: nginx
+    sudo: yes

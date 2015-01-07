@@ -1,0 +1,30 @@
+---
+  # Parameters:
+  #  prudentia_dir (provided)
+  
+  # this tell ucf to keep existing grub configuration and don't update
+  - name: Common setup | Preventing ucf to ask information
+    copy: src={{prudentia_dir}}/files/common/ucf.conf dest=/etc/ucf.conf mode=644 backup=yes
+    when: ansible_system == "Linux"
+    when: not testing
+    sudo: yes
+    tags: common
+
+  - name: Common setup | Message of the day explaining server is under Ansible control
+    copy: src={{prudentia_dir}}/files/common/etc-update-motd-d-95-ansible dest=/etc/update-motd.d/95-ansible mode=755
+    when: ansible_system == "Linux"
+    sudo: yes
+    tags: common
+
+  - name: Common setup | Install common apt packages
+    apt: pkg={{item}} update-cache=yes state=present
+    when: ansible_os_family == "Debian"
+    with_items:
+      - build-essential
+      - reptyr
+      - htop
+      - curl
+      - python-software-properties
+      - python-httplib2
+    sudo: yes
+    tags: common

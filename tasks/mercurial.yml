@@ -1,8 +1,0 @@
----
-  # Parameters:
-  #  $prudentia_dir
-
-  - name: Mercurial | Install
-    apt: update-cache=yes pkg=mercurial state=present
-    tags: mercurial
-    sudo: yes

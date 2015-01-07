@@ -1,0 +1,23 @@
+---
+  - name: Ruby | Check if RVM is present
+    shell: test -x ~/.rvm/scripts/rvm
+    when: ansible_system == "Linux"
+    ignore_errors: yes
+    register: rvm_present
+    tags: ruby
+
+  - name: Ruby | Get RVM GPG key
+    command: gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3
+    when: ansible_system == "Linux" and rvm_present|failed
+    tags: ruby
+
+  - name: Ruby | Install RVM
+    shell: curl -L https://get.rvm.io | bash -s stable --ruby
+    when: ansible_system == "Linux" and rvm_present|failed
+    tags: ruby
+
+  # we use bash -l because we need to get rvm in PATH
+  - name: Ruby | Install 2.1.2
+    shell: /bin/bash -lc 'rvm install ruby-2.1.2'
+    when: ansible_system == "Linux" and rvm_present|failed
+    tags: ruby

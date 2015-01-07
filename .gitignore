@@ -2,8 +2,8 @@
 .idea
 *.iml
 *.pyc
-*inventory*
 p-env
-credential
 tests/env
-env/
+dist
+prudentia.egg-info
+build

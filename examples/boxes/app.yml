@@ -1,0 +1,21 @@
+---
+- hosts: app-host
+
+  vars:
+    # prudentia_dir -> is passed in the cmd line
+    - root_dir: ..
+
+  vars_files:
+    - "{{prudentia_dir}}/vars/global.yml"
+    - ./app_vars.yml
+
+  tasks:
+    - include: "{{prudentia_dir}}/tasks/common-setup.yml"
+
+    - include: "{{root_dir}}/components/base.yml"
+
+    - include: "{{root_dir}}/components/database.yml"
+
+    - include: "{{root_dir}}/components/python-api.yml"
+
+    - include: "{{root_dir}}/components/client.yml"

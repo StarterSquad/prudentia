@@ -1,0 +1,15 @@
+---
+  # Parameters:
+  #  ssh_dir
+
+  - name: Git | Install git-core
+    apt: update-cache=yes pkg=git-core state=present
+    when: ansible_os_family == "Debian"
+    tags: git
+    sudo: yes
+
+  - name: Git | Configure bash custom prompt
+    lineinfile: dest={{ssh_dir}}/.bashrc regexp="^PS1.*git_ps1.*" line="PS1='\u@\h:\[\033[0;33m\]\w\[\033[0;31m\]$(__git_ps1 \" (%s)\")\[\e[0m\]\$ '"
+    when: ansible_os_family == "Debian" and not testing
+    ignore_errors: yes
+    tags: git

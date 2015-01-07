@@ -1,0 +1,38 @@
+---
+  - include: "{{prudentia_dir}}/tasks/java7.yml"
+    tags: api
+
+  - include: "{{prudentia_dir}}/tasks/sbt_0.13.yml"
+    tags: api
+
+  - name: API | Generate start script
+    command: chdir={{install_dir_api}} sbt start-script
+    tags:
+      - api
+      - update
+
+#  - name: API | Fetch fat jar (jar contains all classes + libs)
+#    get_url: url={{api_fat_jar_url}} dest={{install_dir}}_api mode=0555
+#    tags:
+#      - api
+#      - update
+#
+#  - name: API | Unpack api artifact
+#    command: chdir={{install_api_dir}} /usr/bin/jar xf {{api_fat_jar_name}}
+#    tags:
+#      - update
+#      - api
+
+  - name: API | Copy upstart script
+    template: src={{root_dir}}/components/templates/api/scala-upstart.conf.j2 dest=/etc/init/example-api.conf backup=yes
+    sudo: yes
+    tags:
+      - api
+      - update
+
+  - name: API | Restart
+    service: name=example-api state=restarted
+    sudo: yes
+    tags:
+      - api
+      - update

@@ -1,0 +1,31 @@
+---
+  # Parameters:
+  #  prudentia_dir (provided)
+
+  - include: "{{prudentia_dir}}/tasks/java7.yml"
+    tags: sbt
+
+  - name: SBT | Check if is present
+    command: test -x /usr/bin/sbt
+    when: ansible_system == "Linux"
+    ignore_errors: yes
+    register: sbt_present
+    tags: sbt
+
+  - name: SBT | Download 0.13.5
+    get_url: url=http://scalasbt.artifactoryonline.com/scalasbt/sbt-native-packages/org/scala-sbt/sbt/0.13.5/sbt.deb dest=/opt/sbt.0.13.5.deb
+    when: ansible_os_family == "Debian" and sbt_present|failed
+    tags: sbt
+    sudo: yes
+
+  - name: SBT | Install
+    command: dpkg -i /opt/sbt.0.13.5.deb
+    when: ansible_os_family == "Debian" and sbt_present|failed
+    tags: sbt
+    sudo: yes
+
+  - name: SBT | Remove installer
+    file: path=/opt/sbt.0.13.5.deb state=absent
+    when: ansible_os_family == "Debian" and sbt_present|failed
+    tags: sbt
+    sudo: yes
