@@ -51,27 +51,28 @@ To uninstall:
 
 Box operations
 --------------
-Simple providers (e.g. LocalProvider or SshProvider) have the following operations available:
+Simple providers (e.g. Local provider or SSH provider) have the following operations available:
 
-* register 
-* unregister
-* reconfigure
-* list
-* set
-* unset
-* provision
+* *register*: adds a new box definition to the registry
+* *unregister*: removes a box from the registry
+* *reconfigure*: changes the definition of an existing box
+* *list*: lists all boxes in the registry
+* *set*: defines or override a playbook variable
+* *unset*: removes variable
+* *provision*: runs tasks defined in the playbook associated with a box
 
-Factory providers (e.g. VagrantProvider or DigitalOceanProvider) extend simple providers and add these operations:
+Factory providers (e.g. Vagrant provider or DigitalOcean provider) extend simple providers and add allow you to change
+the box life cycle:
 
-* create
-* restart
-* stop
-* destroy
-* phoenix (shortcut for stop -> destroy -> create -> start -> provision)
+* *create*: instantiate a new instance based of the box definition
+* *restart*: reloads the instance
+* *stop*: shuts down the instance
+* *destroy*: kill the instance
+* *phoenix*: shortcut for stop -> destroy -> create -> start -> provision (citing `phoenix server`_ Martin Fowler's article)
 
 Usage
 -----
-We'll show a usage example of the SshProvider bundled with Prudentia.
+We'll show a usage example of the SSH provider bundled with Prudentia.
 
 **Make sure you have a server that you can ssh into**.
 
@@ -173,7 +174,10 @@ The same sequence of operations can be executed using the `Here-Document`_ input
     
     provision tasks-host
     EOF
-    
+
+This shows how to use the SSH provider. If you got curious enough I invite you to check out the other providers as well.
+
+
 More Info
 ---------
 Here you can find a guide on how to use Prudentia to `provision a Digital Ocean droplet`_ with the StarterSquad website on it.
@@ -198,7 +202,7 @@ You can e-mail me at:
 .. _Ansible: https://github.com/ansible/ansible
 .. _CLI: http://en.wikipedia.org/wiki/Command-line_interface
 .. _Here-Document: http://en.wikipedia.org/wiki/Here_document#Unix_shells
-
+.. _phoenix server: http://martinfowler.com/bliki/PhoenixServer.html
 .. _provision a Digital Ocean droplet: http://www.startersquad.com/blog/simple-deployments-with-prudentia/
 .. _Iwein's post: http://www.startersquad.com/blog/getting-ready-for-continuous-delivery/
 
