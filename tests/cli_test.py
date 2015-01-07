@@ -1,4 +1,5 @@
 import unittest
+
 from prudentia.cli import CLI
 
 

@@ -1,7 +1,6 @@
 import logging
 
 import ansible.constants as C
-
 from domain import Box
 from simple import SimpleProvider, SimpleCli
 from utils.io import input_value, input_path
@@ -48,7 +47,7 @@ class LocalProvider(SimpleProvider):
             logging.exception('Box not reconfigured.')
             print '\nThere was some problem while reconfiguring the box: %s\n' % e
 
-    def provision(self, box, tag=None):
+    def provision(self, box, *tags):
         remote_user = C.DEFAULT_REMOTE_USER
         if box.remote_user:
             remote_user = box.remote_user
@@ -61,8 +60,8 @@ class LocalProvider(SimpleProvider):
         box.use_prudentia_lib = True
 
         only_tags = None
-        if tag:
-            only_tags = [tag]
+        if tags is not ():
+            only_tags = tags
 
         self.provisioned = run_playbook(
             playbook_file=box.playbook,
