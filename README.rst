@@ -4,26 +4,26 @@ Prudentia is a Continuous Deployment toolkit written in Python.
 
 Mission
 -------
-Prudentia's mission is to help you to get production (or any other environment) ready in minutes instead of days, through 
+Prudentia's mission is to help you to get production (or any other environment) ready in minutes instead of days, by 
 streamlining all the actions needed to provision your architectural components.
 
 Features
 --------
-Prudentia uses Ansible_ as main automation system, so it easily understand playbooks. 
-A playbook is one of the information needed to define a Prudentia Box.
+Prudentia uses Ansible_ as its main automation system, so it easily understands Ansible playbooks. 
+A playbook is one of the components needed to define a Prudentia Box.
 
 Prudentia currently offers:
 
-* A CLI_ (supporting auto-completion) used to interactively define Boxes and run operation on them
+* a CLI_ (supporting auto-completion) used to interactively define Boxes and run operations on them
 * Here-Document_ format to script Prudentia environments
-* Provision existing server that can be accessed trough SSH
-* Manage the lifecycle of a Box that has been created through Prudentia
-* Create Boxes using one of the available providers
+* provisioning of an existing server that can be accessed trough SSH
+* management of the lifecycle of a Box that has been created through Prudentia
+* creating Boxes using one of these providers:
 
   * Vagrant 
   * DigitalOcean
-  * Local
-  * Ssh
+  * local
+  * ssh
 
 Currently, all features work with Python 2.6 and 2.7. Work is under way to support Python 3.3+ in the same codebase.
 
@@ -51,36 +51,35 @@ To uninstall:
 
 Box operations
 --------------
-Simple providers (e.g. Local provider or SSH provider) supports the following operations:
+Simple providers (e.g. LocalProvider or SshProvider) have the following operations available:
 
-* *register*: adds a new box definition to the registry
-* *unregister*: removes a box from the registry
-* *reconfigure*: changes the definition of an existing box
-* *list*: lists all box in the registry
-* *set*: defines or override a playbook variable
-* *unset*: removes variable
-* *provision*: runs tasks defined in the playbook associated with a box
+* register 
+* unregister
+* reconfigure
+* list
+* set
+* unset
+* provision
 
-Factory providers (e.g. Vagrant provider or DigitalOcean provider) extend simple providers and allow you to change the
-life cycle of a box:
+Factory providers (e.g. VagrantProvider or DigitalOceanProvider) extend simple providers and add these operations:
 
-* *create*: instantiate a new instance based of the box definition
-* *restart*: reloads the instance
-* *stop*: shuts down the instance
-* *destroy*: kill the instance
-* *phoenix*: shortcut for stop -> destroy -> create -> start -> provision (refers to the `phoenix server`_)
+* create
+* restart
+* stop
+* destroy
+* phoenix (shortcut for stop -> destroy -> create -> start -> provision)
 
 Usage
 -----
-We'll show a usage example of the SSH provider bundled with Prudentia.
+We'll show a usage example of the SshProvider bundled with Prudentia.
 
-**Make sure you have a server that you can ssh onto**.
+**Make sure you have a server that you can ssh into**.
 
 .. code-block:: bash
 
     $ prudentia ssh
 
-Check what the SSH provider can do using tab completion::
+Check what the Ssh provider can do using tab completion::
 
     (Prudentia > Ssh)
     EOF          help         list         provision    reconfigure  register     set          unregister   unset
@@ -93,8 +92,8 @@ Let's start registering a new box::
 Now Prudentia is asking for a playbook path, and this is actually an Ansible playbook.
 
 You can use one of the samples that you can find in the `examples/boxes` directory.
-For instance the `tasks.yml` that will run some Ansible tasks that we've defined (those tasks are not that meaningful but 
-they are used as sanity check in our tests).
+For instance, the `tasks.yml` that will run some Ansible tasks that we've defined (those tasks are not that meaningful, but 
+they are used as a sanity check in our tests).
         
 So let's continue using the `tasks.yml`::
 
@@ -107,15 +106,15 @@ So let's continue using the `tasks.yml`::
     
     Box example -> (/path/to/prudentia/examples/boxes/tasks.yml, tasks-host, ip.of.your.server, _your_user_) added.
 
-You will notice for some questions Prudentia gives us a suggested answer within `[ ]`. For instance the Box name is been 
-suggested as `tasks-host`, if you like the suggestion just press enter to choose it.
+You will notice that, for some questions, Prudentia gives us a suggested answer within `[ ]`. For instance, the suggested Box name is
+`tasks-host`. If you like the suggestion, just press enter to choose it.
 
-So far we've registered a Prudentia Box that can be used to play around. If you want to check again the definition of it::
+So far we've registered a Prudentia Box that can be used to play around. If you want to check the definition again::
 
     (Prudentia > Ssh) list
     example -> (/path/to/prudentia/examples/boxes/tasks.yml, tasks-host, ip.of.your.server, _your_user_)
     
-Now that we have double checked that our Box has been registered, we can provision it::
+Now that we have double-checked that our Box has been registered, we can provision it::
 
     (Prudentia > Ssh) provision example
     
@@ -174,16 +173,12 @@ The same sequence of operations can be executed using the `Here-Document`_ input
     
     provision tasks-host
     EOF
-
-This is the easiest example I could come up with to show you the use of the SSH provider bundled in Prudentia.
-
-I invite you to checkout the other providers.
     
 More Info
 ---------
 Here you can find a guide on how to use Prudentia to `provision a Digital Ocean droplet`_ with the StarterSquad website on it.
 
-Another important source of information is `Iwein's post`_ that gives you an idea of what Continuous Delivery is and where 
+Another important source of information is `Iwein's post`_ that gives you an idea of what Continuous Delivery is, and where 
 Prudentia fits into the flow. 
 
 
@@ -203,7 +198,7 @@ You can e-mail me at:
 .. _Ansible: https://github.com/ansible/ansible
 .. _CLI: http://en.wikipedia.org/wiki/Command-line_interface
 .. _Here-Document: http://en.wikipedia.org/wiki/Here_document#Unix_shells
-.. _phoenix server: http://martinfowler.com/bliki/PhoenixServer.html
+
 .. _provision a Digital Ocean droplet: http://www.startersquad.com/blog/simple-deployments-with-prudentia/
 .. _Iwein's post: http://www.startersquad.com/blog/getting-ready-for-continuous-delivery/
 
