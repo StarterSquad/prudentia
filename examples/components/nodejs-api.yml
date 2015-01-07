@@ -21,3 +21,9 @@
     tags:
       - api
       - update
+
+  - name: API | Health check
+    shell: /usr/bin/curl -sSf --max-time 300 {{api_url_health_check}} > /dev/null
+    tags:
+      - api
+      - update
