@@ -148,7 +148,7 @@ class SimpleProvider(object):
         self.extra_vars = {'prudentia_dir': prudentia_python_dir()}
         self.tags = {}
         self.load_tags()
-        self.provisioned = None
+        self.provisioned = False
 
     def boxes(self):
         return self.env.boxes.values()
