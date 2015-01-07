@@ -1,3 +1,6 @@
 ---
-  prudentia_git_repository: https://github.com/StarterSquad/prudentia.git
   testing: "{{ ansible_user_id == 'vagrant' }}"
+
+  nvm_version: v0.22.0
+  node_version: v0.10.35
+  node_path: '{{ansible_env.HOME}}/.nvm/{{node_version}}'
