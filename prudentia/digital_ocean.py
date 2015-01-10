@@ -72,7 +72,7 @@ class DigitalOceanProvider(FactoryProvider):
             print "\nBox %s added." % box
         except Exception as e:
             logging.exception('Box not added.')
-            print '\nThere was some problem while adding the box: %s\n' % e
+            print '\nError: %s\n' % e
 
     def _print_object_id_name(self, objs):
         return '\n'.join([str(o['id']) + ' -> ' + o['name'] for o in objs])
@@ -111,7 +111,7 @@ class DigitalOceanProvider(FactoryProvider):
             print "\nBox %s reconfigured." % box
         except Exception as e:
             logging.exception('Box not reconfigured.')
-            print '\nThere was some problem while reconfiguring the box: %s\n' % e
+            print '\nError: %s\n' % e
 
     def create(self, box):
         g = self.env.general

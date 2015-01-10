@@ -31,7 +31,7 @@ class LocalProvider(SimpleProvider):
             print "\nBox %s added." % box
         except Exception as e:
             logging.exception('Box not added.')
-            print '\nThere was some problem while adding the box: %s\n' % e
+            print '\nError: %s\n' % e
 
     def reconfigure(self, previous_box):
         try:
@@ -45,7 +45,7 @@ class LocalProvider(SimpleProvider):
             print "\nBox %s reconfigured." % box
         except Exception as e:
             logging.exception('Box not reconfigured.')
-            print '\nThere was some problem while reconfiguring the box: %s\n' % e
+            print '\nError: %s\n' % e
 
     def provision(self, box, *tags):
         remote_user = C.DEFAULT_REMOTE_USER

@@ -52,7 +52,7 @@ class VagrantProvider(FactoryProvider):
             print "\nBox %s added." % box
         except Exception as e:
             logging.exception('Box not added.')
-            print '\nThere was some problem while adding the box: %s\n' % e
+            print '\nError: %s\n' % e
 
     def add_box(self, box):
         SimpleProvider.add_box(self, box)
@@ -82,7 +82,7 @@ class VagrantProvider(FactoryProvider):
             print "\nBox %s reconfigured." % box
         except Exception as e:
             logging.exception('Box not reconfigured.')
-            print '\nThere was some problem while reconfiguring the box: %s\n' % e
+            print '\nError: %s\n' % e
 
     def _input_shares(self):
         shares = []
