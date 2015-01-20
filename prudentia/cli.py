@@ -1,7 +1,7 @@
 import os
 from os import path
 
-# Setting ansible config file environment variable as first thing
+# Setting Ansible config file environment variable as first thing
 os.environ['ANSIBLE_CONFIG'] = path.join(path.dirname(path.realpath(__file__)), 'ansible.cfg')
 
 from cmd import Cmd

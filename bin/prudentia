@@ -9,6 +9,7 @@ from prudentia.cli import CLI
 
 
 if __name__ == "__main__":
+    os.environ['PYTHONUNBUFFERED'] = '1'
     PRUDENTIA_USER_DIR = path.join(path.expanduser('~'), 'prudentia')
 
     if not os.path.exists(PRUDENTIA_USER_DIR):
