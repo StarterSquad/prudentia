@@ -1,5 +1,5 @@
-Prudentia |build-status| |pypi-downloads|
-=========================================
+Prudentia |build-status| |pypi-downloads| |pypi-version|
+========================================================
 Prudentia is a Continuous Deployment toolkit written in Python.
 
 Mission
@@ -173,6 +173,8 @@ The same sequence of operations can be executed using the `Here-Document`_ input
     _your_user_
     
     provision tasks-host
+
+    unregister tasks-host
     EOF
 
 This shows how to use the SSH provider. If you got curious enough I invite you to check out the other providers as well.
@@ -214,3 +216,6 @@ You can e-mail me at:
 .. |pypi-downloads| image:: https://pypip.in/d/prudentia/badge.png
    :target: https://pypi.python.org/pypi/prudentia
    :alt: PyPI: Package status
+.. |pypi-version| image:: https://badge.fury.io/py/prudentia.png
+   :target: http://badge.fury.io/py/prudentia
+   :alt: PyPI: Package version
