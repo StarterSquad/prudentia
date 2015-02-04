@@ -15,6 +15,8 @@ except ImportError:
 
 with open('README.rst', 'r', 'utf-8') as f:
     readme = f.read()
+with open('HISTORY.rst', 'r', 'utf-8') as f:
+    history = f.read()
 
 setup(
     name='prudentia',
@@ -22,7 +24,7 @@ setup(
     description='Continuous Deployment toolkit.',
     author=__author__,
     author_email='tiziano@startersquad.com',
-    long_description=readme,
+    long_description=readme + '\n\n' + history,
     url='https://github.com/StarterSquad/prudentia',
     license='MIT',
     install_requires=['ansible', 'dopy', 'boto'],

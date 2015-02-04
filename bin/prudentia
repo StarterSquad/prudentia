@@ -9,6 +9,7 @@ from prudentia.cli import CLI
 
 
 if __name__ == "__main__":
+    os.environ['PYTHONUNBUFFERED'] = '1'
     PRUDENTIA_USER_DIR = path.join(path.expanduser('~'), 'prudentia')
 
     if not os.path.exists(PRUDENTIA_USER_DIR):
@@ -25,12 +26,8 @@ if __name__ == "__main__":
 
     exit_error = 0
     if len(sys.argv) > 1:
-        env = sys.argv[1]
-        one_cmd_executed = cli.do_use(env)
-        if not one_cmd_executed:
-            cli.cmdloop()
-        else:
-            exit_error = 0 if cli.env_cli.provider.provisioned else 1
+        one_cmd_provisioned = cli.do_use(sys.argv[1], *sys.argv[2:])
+        exit_error = 0 if one_cmd_provisioned else 1
     else:
         cli.cmdloop()
 

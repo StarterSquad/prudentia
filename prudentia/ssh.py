@@ -25,7 +25,7 @@ class SshProvider(SimpleProvider):
             playbook = input_path('absolute playbook path')
             hostname = self.fetch_box_hostname(playbook)
             name = input_value('box name', self.suggest_name(hostname))
-            ip = input_value('address of the instance')
+            ip = input_value('ip or hostname of the instance')
             user = input_value('remote user', C.active_user)
             pwd = input_value('password for the remote user', default_description='ssh key', mandatory=False, hidden=True)
 
@@ -34,7 +34,7 @@ class SshProvider(SimpleProvider):
             print "\nBox %s added." % box
         except Exception as e:
             logging.exception('Box not added.')
-            print '\nThere was some problem while adding the box: %s\n' % e
+            print '\nError: %s\n' % e
 
     def reconfigure(self, previous_box):
         try:
@@ -42,7 +42,7 @@ class SshProvider(SimpleProvider):
 
             playbook = input_path('absolute playbook path', previous_box.playbook)
             hostname = self.fetch_box_hostname(playbook)
-            ip = input_value('address of the instance', previous_box.ip)
+            ip = input_value('ip or hostname of the instance', previous_box.ip)
             user = input_value('remote user', previous_box.remote_user)
             if previous_box.remote_pwd:
                 pwd = input_value('password for the remote user', default_value=previous_box.remote_pwd, default_description='*****', mandatory=False, hidden=True)
@@ -54,4 +54,4 @@ class SshProvider(SimpleProvider):
             print "\nBox %s reconfigured." % box
         except Exception as e:
             logging.exception('Box not reconfigured.')
-            print '\nThere was some problem while reconfiguring the box: %s\n' % e
+            print '\nError: %s\n' % e

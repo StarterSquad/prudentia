@@ -13,7 +13,16 @@ def xstr(s):
     return '' if s is None else str(s)
 
 
+def first_time_input():
+    if first_time_input.show:
+        print '\nPlease enter values for the following settings, ' \
+              'press \'Enter\' to accept the default value (if its given in brackets).\n'
+        first_time_input.show = False
+first_time_input.show = True
+
+
 def input_value(topic, default_value=None, default_description=None, mandatory=True, hidden=False):
+    first_time_input()
     default = default_description if default_description else default_value
     if default:
         input_msg = 'Specify the %s [default: %s]: ' % (topic, default)
@@ -53,6 +62,7 @@ def input_path(topic, default_value=None, default_description=None, mandatory=Tr
 
 
 def input_yes_no(topic, default='n'):
+    first_time_input()
     input_msg = 'Do you want to %s? [default: %s]: ' % (topic, default.upper())
     answer = raw_input(input_msg).strip()
     if not len(answer):

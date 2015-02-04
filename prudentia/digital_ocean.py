@@ -8,7 +8,7 @@ from dopy.manager import DoManager, DoError
 from domain import Box
 from factory import FactoryProvider, FactoryCli
 from utils.provisioning import run_module, local_inventory, create_user
-from utils.io import input_yes_no, input_value, input_path
+from utils.io import input_yes_no, input_value, input_path, xstr
 
 
 class DigitalOceanCli(FactoryCli):
@@ -43,36 +43,61 @@ class DigitalOceanProvider(FactoryProvider):
 
     def register(self):
         try:
+            name = None
+            ip = None
+            ext = DOExt()
+
+            if input_yes_no('register an existing droplet'):
+                droplet_id = input_value('droplet id')
+                droplet_info = self.manager.show_droplet(droplet_id)
+                ext.id = droplet_id
+                name = droplet_info['name']
+                created = droplet_info['created_at']
+                print '\nFound droplet \'{0}\' (created {1})'.format(name, created)
+                ip = xstr(droplet_info['ip_address'])
+                print 'IP: %s' % ip
+                ext.image = droplet_info['image_id']
+                print 'Image: %s' % ext.image
+                ext.size = droplet_info['size_id']
+                print 'Size: %s' % ext.size
+                ext.region = droplet_info['region_id']
+                print 'Region: %s\n' % ext.region
+
             playbook = input_path('absolute playbook path')
             hostname = self.fetch_box_hostname(playbook)
-            name = input_value('box name', self.suggest_name(hostname))
-            ip = 'TBD'
+
+            if not name:
+                name = input_value('box name', self.suggest_name(hostname))
+
             user = input_value('remote user', C.active_user)
 
-            ext = DOExt()
-            all_images = self.manager.all_images()
-            print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
-            ext.image = input_value('image', self.DEFAULT_IMAGE_ID)
+            if not ext.image:
+                all_images = self.manager.all_images()
+                print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
+                ext.image = input_value('image', self.DEFAULT_IMAGE_ID)
 
-            all_sizes = self.manager.sizes()
-            print '\nAvailable sizes: \n%s' % self._print_object_id_name(all_sizes)
-            ext.size = input_value('size', self.DEFAULT_SIZE_ID)
+            if not ext.size:
+                all_sizes = self.manager.sizes()
+                print '\nAvailable sizes: \n%s' % self._print_object_id_name(all_sizes)
+                ext.size = input_value('size', self.DEFAULT_SIZE_ID)
 
-            all_keys = self.manager.all_ssh_keys()
-            print '\nAvailable keys: \n%s' % self._print_object_id_name(all_keys)
-            default_keys = ','.join([str(k['id']) for k in all_keys])
-            ext.keys = input_value('keys', default_keys)
+            if not ext.region:
+                all_regions = self.manager.all_regions()
+                print '\nAvailable regions: \n%s' % self._print_object_id_name(all_regions)
+                ext.region = input_value('region', self.DEFAULT_REGION_ID)
 
-            all_regions = self.manager.all_regions()
-            print '\nAvailable regions: \n%s' % self._print_object_id_name(all_regions)
-            ext.region = input_value('region', self.DEFAULT_REGION_ID)
+            if not ext.keys:
+                all_keys = self.manager.all_ssh_keys()
+                print '\nAvailable keys: \n%s' % self._print_object_id_name(all_keys)
+                default_keys = ','.join([str(k['id']) for k in all_keys])
+                ext.keys = input_value('keys', default_keys)
 
             box = Box(name, playbook, hostname, ip, user, extra=ext)
             self.add_box(box)
             print "\nBox %s added." % box
         except Exception as e:
             logging.exception('Box not added.')
-            print '\nThere was some problem while adding the box: %s\n' % e
+            print '\nError: %s\n' % e
 
     def _print_object_id_name(self, objs):
         return '\n'.join([str(o['id']) + ' -> ' + o['name'] for o in objs])
@@ -86,32 +111,41 @@ class DigitalOceanProvider(FactoryProvider):
 
             playbook = input_path('absolute playbook path', previous_box.playbook)
             hostname = self.fetch_box_hostname(playbook)
-            ip = 'TBD'
+            ip = previous_box.ip
             user = input_value('remote user', previous_box.remote_user)
 
-            ext = DOExt()
-            all_images = self.manager.all_images()
-            print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
-            ext.image = input_value('image', previous_box.extra.image)
+            if not previous_box.extra.id:
+                ext = DOExt()
+                ext.id = previous_box.extra.id
+                all_images = self.manager.all_images()
+                print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
+                ext.image = input_value('image', previous_box.extra.image)
 
-            all_sizes = self.manager.sizes()
-            print '\nAvailable sizes: \n%s' % self._print_object_id_name(all_sizes)
-            ext.size = input_value('size', previous_box.extra.size)
+                all_sizes = self.manager.sizes()
+                print '\nAvailable sizes: \n%s' % self._print_object_id_name(all_sizes)
+                ext.size = input_value('size', previous_box.extra.size)
 
-            all_keys = self.manager.all_ssh_keys()
-            print '\nAvailable keys: \n%s' % self._print_object_id_name(all_keys)
-            ext.keys = input_value('keys', previous_box.extra.keys)
+                all_keys = self.manager.all_ssh_keys()
+                print '\nAvailable keys: \n%s' % self._print_object_id_name(all_keys)
+                ext.keys = input_value('keys', previous_box.extra.keys)
 
-            all_regions = self.manager.all_regions()
-            print '\nAvailable regions: \n%s' % self._print_object_id_name(all_regions)
-            ext.region = input_value('region', previous_box.extra.region)
+                all_regions = self.manager.all_regions()
+                print '\nAvailable regions: \n%s' % self._print_object_id_name(all_regions)
+                ext.region = input_value('region', previous_box.extra.region)
+            else:
+                ext = previous_box.extra
 
             box = Box(previous_box.name, playbook, hostname, ip, user, extra=ext)
             self.add_box(box)
             print "\nBox %s reconfigured." % box
         except Exception as e:
             logging.exception('Box not reconfigured.')
-            print '\nThere was some problem while reconfiguring the box: %s\n' % e
+            print '\nError: %s\n' % e
+
+    def add_box(self, box):
+        if not box.ip:
+            self.create(box)
+        super(FactoryProvider, self).add_box(box)
 
     def create(self, box):
         g = self.env.general
@@ -133,7 +167,8 @@ class DigitalOceanProvider(FactoryProvider):
             box.ip = droplet['ip_address']
             print 'Droplet created with id: {0} -> {1}\n'.format(box.extra.id, box.ip)
         else:
-            print 'Droplet {0} already exists.'.format(e.id)
+            info = self.manager.show_droplet(e.id)
+            print 'Droplet {0} already exists - status: {1}.'.format(e.id, info['status'])
         create_user(box)
 
     def start(self, box):
@@ -150,6 +185,8 @@ class DigitalOceanProvider(FactoryProvider):
     def destroy(self, box):
         if input_yes_no('destroy the droplet \'{0}\''.format(box.name)):
             box_id = box.extra.id
+            box.ip = None
+            box.extra.id = None
             print 'Destroying droplet %s ...' % box_id
             self.manager.destroy_droplet(box_id, scrub_data=True)
 

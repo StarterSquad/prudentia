@@ -1,10 +1,9 @@
 import os
 from os import path
 
-# Setting ansible config file environment variable as first thing
+# Setting Ansible config file environment variable as first thing
 os.environ['ANSIBLE_CONFIG'] = path.join(path.dirname(path.realpath(__file__)), 'ansible.cfg')
 
-import sys
 from cmd import Cmd
 
 from digital_ocean import DigitalOceanCli
@@ -40,18 +39,25 @@ class CLI(Cmd):
         else:
             return [e for e in Environments.keys() if e.startswith(text)]
 
-    def do_use(self, env):
+    def do_use(self, env, *args):
+        result = False
         if env in Environments.keys():
             self.env_cli = Environments[env]()
-            if len(sys.argv) > 2:
-                cmd = ' '.join(sys.argv[2:])
+            if args:
+                cmd = ' '.join(args)
                 print "Executing: '{0}'\n".format(cmd)
                 self.env_cli.onecmd(cmd)
             else:
                 self.env_cli.cmdloop()
+
+            result = self.env_cli.provider.provisioned
         else:
             print "Provider '{0}' NOT found.".format(env)
-        return not self.parent_loop
+
+        # If this function was called inside a cmd loop the return values indicates whether execution will be terminated
+        # returning False will cause interpretation to continue.
+        # Otherwise the return value is the result of the provisioning command.
+        return False if self.parent_loop else result
 
     def do_EOF(self, line):
         print "\n\nBye!"

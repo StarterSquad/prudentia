@@ -1,3 +1,4 @@
+import logging
 from os.path import dirname
 import re
 import os
@@ -23,6 +24,7 @@ class SimpleCli(Cmd):
         try:
             Cmd.cmdloop(self, intro)
         except Exception as e:
+            logging.exception('Got a nasty error.')
             print '\nGot a nasty error: %s\n' % e
 
     def _get_box(self, box_name):
@@ -34,6 +36,7 @@ class SimpleCli(Cmd):
             return b
 
     def complete_box_names(self, text, line, begidx, endidx):
+        completions = ['']
         tokens = line.split(' ')
         action = tokens[0]
         box_name = tokens[1]
@@ -50,8 +53,8 @@ class SimpleCli(Cmd):
                     completions = self.provider.tags[box_name][:]
                 else:
                     completions = [t for t in self.provider.tags[box_name] if t.startswith(text)]
-            else:
-                completions = ['']
+                current_tags = tokens[2:]
+                completions = [c for c in completions if c not in current_tags]
         return completions
 
 
@@ -84,8 +87,7 @@ class SimpleCli(Cmd):
         tokens = line.split(' ')
         box = self._get_box(tokens[0])
         if box:
-            tag = tokens[1] if len(tokens) > 1 else None
-            self.provider.provision(box, tag)
+            self.provider.provision(box, *tokens[1:])
 
 
     def help_unregister(self):
@@ -148,7 +150,7 @@ class SimpleProvider(object):
         self.extra_vars = {'prudentia_dir': prudentia_python_dir()}
         self.tags = {}
         self.load_tags()
-        self.provisioned = None
+        self.provisioned = False
 
     def boxes(self):
         return self.env.boxes.values()
@@ -217,7 +219,7 @@ class SimpleProvider(object):
         else:
             return hostname + '-' + str(random.randint(0, 100))
 
-    def provision(self, box, tag=None):
+    def provision(self, box, *tags):
         remote_user = C.DEFAULT_REMOTE_USER
         if box.remote_user:
             remote_user = box.remote_user
@@ -229,8 +231,8 @@ class SimpleProvider(object):
             transport = 'paramiko'
 
         only_tags = None
-        if tag:
-            only_tags = [tag]
+        if tags is not ():
+            only_tags = tags
 
         self.provisioned = run_playbook(
             playbook_file=box.playbook,
