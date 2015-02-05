@@ -92,7 +92,7 @@ class VagrantProvider(FactoryProvider):
                 src = input_path('directory on the HOST machine', is_file=False)
                 if not path.exists(src):
                     raise ValueError("Directory '%s' on the HOST machine doesn't exists." % src)
-                dst = input_path('directory on the GUEST machine', is_file=False)
+                dst = input_value('directory on the GUEST machine')
                 shares.append((src, dst))
             else:
                 loop = False

@@ -1,7 +1,15 @@
 Release History
 ---------------
 
-0.7 (2015-02-03)
+0.8 (2015-02-05)
+++++++++++++++++
+
+**Bugfixes**
+
+- Fixes shared folder definition for Vagrant box
+- Includes HISTORY in python setup manifest
+
+0.7 (2015-02-04)
 ++++++++++++++++
 
 **Bugfixes**
