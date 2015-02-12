@@ -6,10 +6,11 @@
     command: test -x /usr/sbin/tor
     when: ansible_system == "Linux"
     register: tor_present
+    ignore_errors: yes
     tags: tor
 
   - name: Tor | Add apt repository
-    copy: src={{prudentia_dir}}/components/worky/files/tor-apt-source dest=/etc/apt/sources.list.d/tor.list mode=644
+    copy: src={{prudentia_dir}}/files/tor/apt-source dest=/etc/apt/sources.list.d/tor.list mode=644
     when: ansible_os_family == "Debian" and tor_present|failed
     tags: tor
     sudo: yes
