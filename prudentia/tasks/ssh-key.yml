@@ -7,7 +7,7 @@
   #  key_name
 
   - name: SSH | Create .ssh directory
-    file: dest={{ssh_dir}}/.ssh state=directory mode=700 owner={{ssh_user}} group={{ssh_group}}
+    file: path={{ssh_dir}}/.ssh state=directory mode=700 owner={{ssh_user}} group={{ssh_group}}
     sudo: yes
     tags: ssh
 
@@ -21,12 +21,7 @@
     sudo: yes
     tags: ssh
 
-  - name: SSH | Touch known_hosts
-    command: touch {{ssh_dir}}/.ssh/known_hosts
-    sudo: yes
-    tags: ssh
-
-  - name: SSH | Set permission known_hosts
-    file: path={{ssh_dir}}/.ssh/known_hosts mode=644 state=file owner={{ssh_user}} group={{ssh_group}}
+  - name: SSH | Touch and set permission of known_hosts
+    file: path={{ssh_dir}}/.ssh/known_hosts state=touch mode=644 owner={{ssh_user}} group={{ssh_group}}
     sudo: yes
     tags: ssh
