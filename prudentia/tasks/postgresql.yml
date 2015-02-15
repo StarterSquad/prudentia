@@ -1,6 +1,10 @@
 ---
   # Parameters:
   #  prudentia_dir (provided)
+  #  postgresql_apt_key_id (provided)
+  #  postgresql_apt_key_url (provided)
+  #  postgresql_apt_repository (provided)
+  #  postgresql_version (provided)
 
   - name: PostgreSQL | Check if is installed
     command: test -x /usr/bin/psql
@@ -9,27 +13,29 @@
     ignore_errors: yes
     tags: psql
 
-  - name: PostgreSQL | Add GPG key to apt keyring
-    shell: wget -q -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+  - name: PostgreSQL | Add apt repository key
+    apt_key: id={{postgresql_apt_key_id}} url={{postgresql_apt_key_url}} state=present
     when: ansible_os_family == "Debian"
     when: psql_present|failed
-    tags: psql
     sudo: yes
+    tags: psql
 
   - name: PostgreSQL | Add apt repository
-    copy: src={{prudentia_dir}}/files/postgres/apt-source dest=/etc/apt/sources.list.d/postgresql.list mode=644
+    apt_repository: repo="{{postgresql_apt_repository}}" state=present
     when: ansible_os_family == "Debian"
-    tags: psql
     when: psql_present|failed
     sudo: yes
+    tags: psql
 
   - name: PostgreSQL | Install
     apt: update-cache=yes force=yes state=present pkg={{item}}
-    when: ansible_os_family == "Debian"
     with_items:
-      - postgresql-9.3
       - libpq-dev
       - python-psycopg2
-    sudo: yes
+      - postgresql-{{postgresql_version}}
+      - postgresql-client-{{postgresql_version}}
+      - postgresql-contrib-{{postgresql_version}}
+    when: ansible_os_family == "Debian"
     when: psql_present|failed
+    sudo: yes
     tags: psql
