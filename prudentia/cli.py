@@ -56,7 +56,7 @@ class CLI(Cmd):
 
         # If this function was called inside a cmd loop the return values indicates whether execution will be terminated
         # returning False will cause interpretation to continue.
-        # Otherwise the return value is the result of the provisioning command.
+        # Otherwise the return value is the result of the 'provision' action.
         return False if self.parent_loop else result
 
     def do_EOF(self, line):
