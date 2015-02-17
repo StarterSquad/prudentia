@@ -1,13 +1,25 @@
 Release History
 ---------------
 
+0.8.1 (2015-02-15)
+++++++++++++++++++
+
+**Bugfixes**
+
+- Fixes tor bundled task.
+
+**Improvements**
+
+- Makes postgresql and sbt parametrized tasks.
+- Improves ssh key bundled task using file module.
+
 0.8 (2015-02-05)
 ++++++++++++++++
 
 **Bugfixes**
 
-- Fixes shared folder definition for Vagrant box
-- Includes HISTORY in python setup manifest
+- Fixes shared folder definition for Vagrant box.
+- Includes HISTORY in python setup manifest.
 
 0.7 (2015-02-04)
 ++++++++++++++++
