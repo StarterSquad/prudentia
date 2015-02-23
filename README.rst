@@ -1,6 +1,6 @@
 Prudentia
 =========
-|status| |health| |coverage| |downloads| |version|
+|status| |health| |coverage| |downloads| |version| |license|
 
 Prudentia is a Continuous Deployment toolkit written in Python.
 
@@ -227,3 +227,6 @@ You can e-mail me at:
 .. |coverage| image:: https://coveralls.io/repos/StarterSquad/prudentia/badge.svg
    :target: https://coveralls.io/r/StarterSquad/prudentia
    :alt: Coveralls.io: Code coverage
+.. |license| image:: https://img.shields.io/badge/license-MIT-blue.svg
+   :target: https://pypi.python.org/pypi/prudentia
+   :alt: MIT License
