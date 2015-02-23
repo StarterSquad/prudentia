@@ -5,7 +5,7 @@ from threading import Thread
 import sys
 
 
-class BashCmd:
+class BashCmd(object):
     def __init__(self, *cmd_args):
         self.cmd_args = cmd_args
         self.env = os.environ.copy()
