@@ -1,6 +1,6 @@
 Prudentia
 =========
-build-status_ code-health_ code-coverage_ pypi-downloads_ pypi-version_
+|status| |health| |coverage| |downloads| |version|
 
 Prudentia is a Continuous Deployment toolkit written in Python.
 
@@ -212,18 +212,18 @@ You can e-mail me at:
 
 .. _Trello board: https://trello.com/b/CyRrVZom
 
-.. _build-status: image:: https://travis-ci.org/StarterSquad/prudentia.png?branch=master
+.. |status| image:: https://travis-ci.org/StarterSquad/prudentia.png?branch=master
    :target: https://travis-ci.org/StarterSquad/prudentia
    :alt: Travis CI: Build status
-.. _pypi-downloads: image:: https://pypip.in/d/prudentia/badge.png
+.. |downloads| image:: https://pypip.in/d/prudentia/badge.png
    :target: https://pypi.python.org/pypi/prudentia
    :alt: PyPI: Package status
-.. _pypi-version: image:: https://badge.fury.io/py/prudentia.png
+.. |version| image:: https://badge.fury.io/py/prudentia.png
    :target: http://badge.fury.io/py/prudentia
    :alt: PyPI: Package version
-.. _code-health: image:: https://landscape.io/github/StarterSquad/prudentia/master/landscape.svg?style=flat
+.. |health| image:: https://landscape.io/github/StarterSquad/prudentia/master/landscape.svg?style=flat
    :target: https://landscape.io/github/StarterSquad/prudentia/master
    :alt: Landscape.io: Code healthiness
-.. _code-coverage: image:: https://coveralls.io/repos/StarterSquad/prudentia/badge.svg
+.. |coverage| image:: https://coveralls.io/repos/StarterSquad/prudentia/badge.svg
    :target: https://coveralls.io/r/StarterSquad/prudentia
-   :alt:
+   :alt: Coveralls.io: Code coverage
