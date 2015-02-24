@@ -214,19 +214,19 @@ You can e-mail me at:
 
 .. |status| image:: https://travis-ci.org/StarterSquad/prudentia.png?branch=master
    :target: https://travis-ci.org/StarterSquad/prudentia
-   :alt: Travis CI: Build status
-.. |downloads| image:: https://pypip.in/d/prudentia/badge.png
-   :target: https://pypi.python.org/pypi/prudentia
-   :alt: PyPI: Package status
-.. |version| image:: https://badge.fury.io/py/prudentia.png
-   :target: http://badge.fury.io/py/prudentia
-   :alt: PyPI: Package version
+   :alt: Status
 .. |health| image:: https://landscape.io/github/StarterSquad/prudentia/master/landscape.svg?style=flat
    :target: https://landscape.io/github/StarterSquad/prudentia/master
-   :alt: Landscape.io: Code healthiness
-.. |coverage| image:: https://coveralls.io/repos/StarterSquad/prudentia/badge.svg
+   :alt: Health
+.. |coverage| image:: https://coveralls.io/repos/StarterSquad/prudentia/badge.svg?style=flat
    :target: https://coveralls.io/r/StarterSquad/prudentia
-   :alt: Coveralls.io: Code coverage
-.. |license| image:: https://img.shields.io/badge/license-MIT-blue.svg
+   :alt: Coverage
+.. |downloads| image:: https://pypip.in/download/prudentia/badge.svg?style=flat
    :target: https://pypi.python.org/pypi/prudentia
-   :alt: MIT License
+   :alt: Downloads
+.. |version| image:: https://pypip.in/version/prudentia/badge.svg?style=flat
+   :target: https://pypi.python.org/pypi/prudentia
+   :alt: Version
+.. |license| image:: https://pypip.in/license/prudentia/badge.svg?style=flat
+   :target: https://pypi.python.org/pypi/prudentia
+   :alt: License
