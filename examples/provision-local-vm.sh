@@ -9,7 +9,7 @@ This is an example Prudentia script that will create and boot a local virtual ma
 Those steps will be executed:
  - a new Prudentia box will be registered based on the '${PLAYBOOK}' playbook
  - the box will be provisioned
- - the box will be destroyed and unregistered
+ - and eventually the box will be destroyed and unregistered
 
 Press enter to continue.
 "
