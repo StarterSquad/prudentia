@@ -77,6 +77,17 @@ class FactoryCli(SimpleCli):
         if box:
             self.provider.destroy(box)
 
+    def help_status(self):
+        print "Check the status of the box.\n"
+
+    def complete_status(self, text, line, begidx, endidx):
+        return self.complete_box_names(text, line, begidx, endidx)
+
+    def do_status(self, line):
+        box = self._get_box(line)
+        if box:
+            self.provider.status(box)
+
 
 class FactoryProvider(SimpleProvider):
     __metaclass__ = ABCMeta
@@ -111,3 +122,7 @@ class FactoryProvider(SimpleProvider):
         self.destroy(box)
         self.create(box)
         self.start(box)
+
+    @abstractmethod
+    def status(self, box):
+        pass

@@ -198,6 +198,9 @@ class DigitalOceanProvider(FactoryProvider):
         self._wait_to_be_active(e.id)
         create_user(box)
 
+    def status(self, box):
+        print self.manager.show_droplet(box.extra.id)['status']
+
     def _wait_to_be_active(self, droplet_id, wait_timeout=300):
         end_time = time.time() + wait_timeout
         while time.time() < end_time:
