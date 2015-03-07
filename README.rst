@@ -71,6 +71,7 @@ the box life cycle:
 * *stop*: shuts down the instance
 * *destroy*: kill the instance
 * *phoenix*: shortcut for stop -> destroy -> create -> start -> provision (citing `phoenix server`_ Martin Fowler's article)
+* *status*: returns the status of the instance
 
 Usage
 -----
