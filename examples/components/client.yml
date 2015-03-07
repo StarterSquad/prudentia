@@ -20,7 +20,7 @@
     tags: client
 
   - name: Client | Removing Nginx default site configuration
-    command: rm -f /etc/nginx/sites-enabled/default
+    file: path=/etc/nginx/sites-enabled/default state=absent
     sudo: yes
     tags: client
 
@@ -31,8 +31,13 @@
       - client
       - update
 
+  - name: Client | Creating Nginx Log Dir
+    file: path=/usr/share/nginx/logs state=directory
+    sudo: yes
+    tags: client
+
   - name: Client | Enable website
-    command: ln -fs /etc/nginx/sites-available/example.com /etc/nginx/sites-enabled/example.com
+    file: src=/etc/nginx/sites-available/example.com dest=/etc/nginx/sites-enabled/example.com state=link
     sudo: yes
     tags:
       - client
