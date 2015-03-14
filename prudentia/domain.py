@@ -7,7 +7,7 @@ from utils.io import xstr
 
 
 class Environment(object):
-    DEFAULT_ENVS_PATH = path.join(path.expanduser('~'), 'prudentia', 'envs')
+    DEFAULT_ENVS_PATH = path.join(os.environ['PRUDENTIA_USER_DIR'], 'envs')
     DEFAULT_ENV_FILE_NAME = 'boxes.json'
 
     def __init__(self, id_env, general_type=None, box_extra_type=None, envs_path=DEFAULT_ENVS_PATH,

@@ -5,12 +5,9 @@ import logging
 import os
 from os import path
 
-from prudentia.cli import CLI
-
-
 if __name__ == "__main__":
     os.environ['PYTHONUNBUFFERED'] = '1'
-    PRUDENTIA_USER_DIR = path.join(path.expanduser('~'), 'prudentia')
+    os.environ['PRUDENTIA_USER_DIR'] = PRUDENTIA_USER_DIR = path.join(path.expanduser('~'), 'prudentia')
 
     if not os.path.exists(PRUDENTIA_USER_DIR):
         os.makedirs(PRUDENTIA_USER_DIR)
@@ -21,6 +18,8 @@ if __name__ == "__main__":
         datefmt='%d-%m-%Y %H:%M:%S',
         level=logging.WARNING
     )
+
+    from prudentia.cli import CLI
 
     cli = CLI()
 
