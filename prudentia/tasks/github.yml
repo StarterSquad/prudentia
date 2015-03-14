@@ -6,15 +6,5 @@
   - include: "{{prudentia_dir}}/tasks/git.yml"
     tags: github
 
-    # If known_hosts does not exists, make sure to use the ssh_key task
-  - name: GitHub | Read known_hosts content
-    shell: '[ -f "{{ssh_dir}}/.ssh/known_hosts" ] && [ -n "$(grep github {{ssh_dir}}/.ssh/known_hosts)" ] && echo "found!" || echo ""'
-    when: ansible_os_family == "Debian"
-    register: github_known
-    tags: github
-
-  - name: GitHub | Add github.com to known_hosts
-    shell: ssh-keyscan github.com >> {{ssh_dir}}/.ssh/known_hosts
-    when: ansible_os_family == "Debian" and github_known.stdout == ''
-    sudo: yes
+  - include: "{{prudentia_dir}}/tasks/add_known_hosts.yml ssh_dir={{ssh_dir}} known_hosts=github.com"
     tags: github

@@ -1,0 +1,27 @@
+---
+  # Parameters:
+  # prudentia_dir (provided)
+  # ssh_dir
+  # known_hosts
+
+  - name: Known Hosts | Set fact known_hosts_file
+    set_fact: known_hosts_file="{{ssh_dir}}/.ssh/known_hosts"
+
+  - name: Known Hosts | Make sure the known hosts file exists
+    file: "path={{known_hosts_file}} state=touch"
+    when: ansible_system == "Linux"
+    tags: known_hosts
+
+  - name: Known Hosts | Check host name availability
+    shell: "ssh-keygen -f {{known_hosts_file}} -F {{item}}"
+    with_items: known_hosts
+    register: known_host_results
+    ignore_errors: yes
+    when: ansible_system == "Linux"
+    tags: known_hosts
+
+  - name: Known Hosts | Scan the public key
+    shell: "ssh-keyscan -H -T 10 {{item.item}} >> {{known_hosts_file}}"
+    with_items: known_host_results.results
+    when: ansible_system == "Linux" and item.stdout == ""
+    tags: known_hosts
