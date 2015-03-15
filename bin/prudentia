@@ -7,13 +7,13 @@ from os import path
 
 if __name__ == "__main__":
     os.environ['PYTHONUNBUFFERED'] = '1'
-    os.environ['PRUDENTIA_USER_DIR'] = PRUDENTIA_USER_DIR = path.join(path.expanduser('~'), 'prudentia')
+    os.environ['PRUDENTIA_USER_DIR'] = user_dir = path.join(path.expanduser('~'), 'prudentia')
 
-    if not os.path.exists(PRUDENTIA_USER_DIR):
-        os.makedirs(PRUDENTIA_USER_DIR)
+    if not os.path.exists(user_dir):
+        os.makedirs(user_dir)
 
     logging.basicConfig(
-        filename=path.join(PRUDENTIA_USER_DIR, 'cli.log'),
+        filename=path.join(user_dir, 'cli.log'),
         format='%(asctime)s.%(msecs).03d [%(name)s] %(levelname)s: %(message)s',
         datefmt='%d-%m-%Y %H:%M:%S',
         level=logging.WARNING

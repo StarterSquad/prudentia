@@ -8,9 +8,13 @@ class TestEnvironment(unittest.TestCase):
     def setUp(self):
         self.env = Environment(id_env='test')
         self.test_box = Box('box-name', 'dev.yml', 'box-host', '0.0.0.0')
-
-    def test_add(self):
         self.env.add(self.test_box)
+
+    def tearDown(self):
+        self.env.remove(self.test_box)
+        self.assertEqual(json.load(open(Environment.DEFAULT_ENVS_PATH + '/test/' + Environment.DEFAULT_ENV_FILE_NAME, 'r')), [])
+
+    def test_env_file_is_valid(self):
         box = json.load(open(Environment.DEFAULT_ENVS_PATH + '/test/' + Environment.DEFAULT_ENV_FILE_NAME, 'r'))[0]
         self.assertEqual(box['name'], self.test_box.name)
         self.assertFalse('remote_user' in box)
@@ -28,7 +32,3 @@ class TestEnvironment(unittest.TestCase):
     def test_get_not_valid_box(self):
         b = self.env.get('whatever')
         self.assertEqual(b, None)
-
-    def test_remove(self):
-        self.env.remove('box-name')
-        self.assertEqual(json.load(open(Environment.DEFAULT_ENVS_PATH + '/test/' + Environment.DEFAULT_ENV_FILE_NAME, 'r')), [])

@@ -188,7 +188,7 @@ class SimpleProvider(object):
     def remove_box(self, box):
         if box.name in self.tags:
             self.tags.pop(box.name)
-        return self.env.remove(box.name)
+        return self.env.remove(box)
 
     @abstractmethod
     def register(self):

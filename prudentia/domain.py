@@ -42,8 +42,8 @@ class Environment(object):
     def get(self, box_name):
         return self.boxes.get(box_name)
 
-    def remove(self, box_name):
-        b = self.boxes.pop(box_name, None)
+    def remove(self, box):
+        b = self.boxes.pop(box.name, None)
         self._save()
         return b
 
