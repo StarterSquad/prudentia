@@ -1,6 +1,7 @@
 #!/bin/bash
 
 PLAYBOOK=${PWD}/boxes/tasks.yml
+BOX_NAME=mybox
 LOCAL_IP=10.0.0.17
 
 read -p "
@@ -17,12 +18,12 @@ Press enter to continue.
 prudentia vagrant <<-EOF
   register
   ${PLAYBOOK}
-  mybox
+  ${BOX_NAME}
   ${LOCAL_IP}
   1
 
-  provision mybox
+  provision ${BOX_NAME}
 
-  unregister mybox
+  unregister ${BOX_NAME}
   y
 EOF
