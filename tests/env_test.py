@@ -6,16 +6,19 @@ from prudentia.domain import Environment, Box
 
 class TestEnvironment(unittest.TestCase):
     def setUp(self):
-        self.env = Environment(id_env='test')
+        self.env = Environment(id_env='env-test')
         self.test_box = Box('box-name', 'dev.yml', 'box-host', '0.0.0.0')
         self.env.add(self.test_box)
 
     def tearDown(self):
         self.env.remove(self.test_box)
-        self.assertEqual(json.load(open(Environment.DEFAULT_ENVS_PATH + '/test/' + Environment.DEFAULT_ENV_FILE_NAME, 'r')), [])
+        self.assertEqual(json.load(open(self.env_file_path(), 'r')), [])
+
+    def env_file_path(self):
+        return Environment.DEFAULT_ENVS_PATH + '/' + self.env.id_env + '/' + Environment.DEFAULT_ENV_FILE_NAME
 
     def test_env_file_is_valid(self):
-        box = json.load(open(Environment.DEFAULT_ENVS_PATH + '/test/' + Environment.DEFAULT_ENV_FILE_NAME, 'r'))[0]
+        box = json.load(open(self.env_file_path(), 'r'))[0]
         self.assertEqual(box['name'], self.test_box.name)
         self.assertFalse('remote_user' in box)
         self.assertFalse('remote_pwd' in box)

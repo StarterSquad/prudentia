@@ -12,6 +12,7 @@ class Environment(object):
 
     def __init__(self, id_env, general_type=None, box_extra_type=None, envs_path=DEFAULT_ENVS_PATH,
                  file_name=DEFAULT_ENV_FILE_NAME):
+        self.id_env = id_env
         env_path = path.join(envs_path, id_env)
         if not os.path.exists(env_path):
             print 'Initializing environment {0} ({1}) ...'.format(id_env, env_path)
