@@ -5,19 +5,48 @@ import logging
 import os
 from os import path
 
-if __name__ == "__main__":
+
+def init_environ():
     os.environ['PYTHONUNBUFFERED'] = '1'
     os.environ['PRUDENTIA_USER_DIR'] = user_dir = path.join(path.expanduser('~'), 'prudentia')
-
-    if not os.path.exists(user_dir):
+    if not path.exists(user_dir):
         os.makedirs(user_dir)
+    return user_dir
 
+
+def init_logging(user_dir):
     logging.basicConfig(
         filename=path.join(user_dir, 'cli.log'),
         format='%(asctime)s.%(msecs).03d [%(name)s] %(levelname)s: %(message)s',
         datefmt='%d-%m-%Y %H:%M:%S',
         level=logging.WARNING
     )
+
+
+def init_readline(user_dir):
+    import readline
+    import atexit
+
+    if 'libedit' in readline.__doc__:
+        readline.parse_and_bind("bind ^I rl_complete")
+    else:
+        readline.parse_and_bind("tab: complete")
+
+    history_path = path.join(user_dir, '.history.txt')
+
+    def save_history(p=history_path):
+        import readline
+        readline.write_history_file(p)
+
+    readline.read_history_file(history_path)
+
+    atexit.register(save_history)
+
+
+if __name__ == "__main__":
+    ud = init_environ()
+    init_logging(ud)
+    init_readline(ud)
 
     from prudentia.cli import CLI
 
