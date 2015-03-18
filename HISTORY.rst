@@ -1,6 +1,13 @@
 Release History
 ---------------
 
+0.9.1 (2015-03-18)
+++++++++++++++++++
+
+**Bugfixes**
+
+- Fixes issue if cli history file doesn't exist.
+
 0.9 (2015-03-18)
 ++++++++++++++++
 

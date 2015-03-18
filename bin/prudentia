@@ -32,13 +32,16 @@ def init_readline(user_dir):
     else:
         readline.parse_and_bind("tab: complete")
 
-    history_path = path.join(user_dir, '.history.txt')
+    history_path = path.join(user_dir, 'history')
 
     def save_history(p=history_path):
         import readline
         readline.write_history_file(p)
 
-    readline.read_history_file(history_path)
+    try:
+        readline.read_history_file(history_path)
+    except:
+        pass
 
     atexit.register(save_history)
 
