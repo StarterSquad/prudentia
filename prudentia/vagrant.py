@@ -1,5 +1,6 @@
 import logging
 from os import path
+import re
 
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
@@ -120,13 +121,11 @@ class VagrantProvider(FactoryProvider):
         if input_yes_no('destroy the instance \'{0}\''.format(box.name)):
             self._action(action="destroy", action_args=("-f", box.name))
 
-    #    def status(self):
-    #        output = self.action(action="status", output=False)
-    #        for box in self.boxes:
-    #            pattern = '.*' + box.name + '\s*(.*?) \(virtualbox\).*'
-    #            match = re.match(pattern, output, re.DOTALL)
-    #            status = match.group(1)
-    #            print "%s -> %r\n" % (status, box)
+    def status(self, box):
+        output = self._action(action="status", action_args=(box.name,), output=False)
+        pattern = '.*' + box.name + '\s*(.*?) \(virtualbox\).*'
+        match = re.match(pattern, output, re.DOTALL)
+        print match.group(1)
 
     def _action(self, **kwargs):
         if 'action_args' not in kwargs.keys():

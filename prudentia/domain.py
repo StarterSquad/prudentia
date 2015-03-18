@@ -7,11 +7,12 @@ from utils.io import xstr
 
 
 class Environment(object):
-    DEFAULT_ENVS_PATH = path.join(path.expanduser('~'), 'prudentia', 'envs')
+    DEFAULT_ENVS_PATH = path.join(os.environ['PRUDENTIA_USER_DIR'], 'envs')
     DEFAULT_ENV_FILE_NAME = 'boxes.json'
 
     def __init__(self, id_env, general_type=None, box_extra_type=None, envs_path=DEFAULT_ENVS_PATH,
                  file_name=DEFAULT_ENV_FILE_NAME):
+        self.id_env = id_env
         env_path = path.join(envs_path, id_env)
         if not os.path.exists(env_path):
             print 'Initializing environment {0} ({1}) ...'.format(id_env, env_path)
@@ -42,8 +43,8 @@ class Environment(object):
     def get(self, box_name):
         return self.boxes.get(box_name)
 
-    def remove(self, box_name):
-        b = self.boxes.pop(box_name, None)
+    def remove(self, box):
+        b = self.boxes.pop(box.name, None)
         self._save()
         return b
 

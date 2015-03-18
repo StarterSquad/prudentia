@@ -1,5 +1,7 @@
-Prudentia |build-status| |pypi-downloads| |pypi-version|
-========================================================
+Prudentia
+=========
+|status| |health| |coverage| |downloads| |version| |license|
+
 Prudentia is a Continuous Deployment toolkit written in Python.
 
 Mission
@@ -69,6 +71,7 @@ the box life cycle:
 * *stop*: shuts down the instance
 * *destroy*: kill the instance
 * *phoenix*: shortcut for stop -> destroy -> create -> start -> provision (citing `phoenix server`_ Martin Fowler's article)
+* *status*: returns the status of the instance
 
 Usage
 -----
@@ -210,12 +213,21 @@ You can e-mail me at:
 
 .. _Trello board: https://trello.com/b/CyRrVZom
 
-.. |build-status| image:: https://travis-ci.org/StarterSquad/prudentia.png?branch=master
+.. |status| image:: https://travis-ci.org/StarterSquad/prudentia.png?branch=master
    :target: https://travis-ci.org/StarterSquad/prudentia
-   :alt: Travis CI: Build status
-.. |pypi-downloads| image:: https://pypip.in/d/prudentia/badge.png
+   :alt: Status
+.. |health| image:: https://landscape.io/github/StarterSquad/prudentia/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/StarterSquad/prudentia/master
+   :alt: Health
+.. |coverage| image:: https://coveralls.io/repos/StarterSquad/prudentia/badge.svg?style=flat
+   :target: https://coveralls.io/r/StarterSquad/prudentia
+   :alt: Coverage
+.. |downloads| image:: https://pypip.in/download/prudentia/badge.svg?style=flat
    :target: https://pypi.python.org/pypi/prudentia
-   :alt: PyPI: Package status
-.. |pypi-version| image:: https://badge.fury.io/py/prudentia.png
-   :target: http://badge.fury.io/py/prudentia
-   :alt: PyPI: Package version
+   :alt: Downloads
+.. |version| image:: https://pypip.in/version/prudentia/badge.svg?style=flat
+   :target: https://pypi.python.org/pypi/prudentia
+   :alt: Version
+.. |license| image:: https://pypip.in/license/prudentia/badge.svg?style=flat
+   :target: https://pypi.python.org/pypi/prudentia
+   :alt: License

@@ -22,4 +22,6 @@ else
   echo -e "Virtual Env active.\n"
 fi
 
+export PRUDENTIA_USER_DIR=.
+
 nosetests -c nose.cfg $@

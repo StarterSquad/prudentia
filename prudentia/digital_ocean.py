@@ -7,6 +7,7 @@ from ansible.runner import Runner
 from dopy.manager import DoManager, DoError
 from domain import Box
 from factory import FactoryProvider, FactoryCli
+from simple import SimpleProvider
 from utils.provisioning import run_module, local_inventory, create_user
 from utils.io import input_yes_no, input_value, input_path, xstr
 
@@ -145,7 +146,7 @@ class DigitalOceanProvider(FactoryProvider):
     def add_box(self, box):
         if not box.ip:
             self.create(box)
-        super(FactoryProvider, self).add_box(box)
+        SimpleProvider.add_box(self, box)
 
     def create(self, box):
         g = self.env.general
@@ -196,6 +197,9 @@ class DigitalOceanProvider(FactoryProvider):
         self.manager.rebuild_droplet(e.id, e.image)
         self._wait_to_be_active(e.id)
         create_user(box)
+
+    def status(self, box):
+        print self.manager.show_droplet(box.extra.id)['status']
 
     def _wait_to_be_active(self, droplet_id, wait_timeout=300):
         end_time = time.time() + wait_timeout
