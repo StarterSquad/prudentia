@@ -1,6 +1,18 @@
 Release History
 ---------------
 
+0.9 (2015-03-18)
+++++++++++++++++
+
+**Improvements**
+
+- Enables cli history cross sessions.
+- Adds bundled task for adding ssh known host.
+- Adds status action for factory providers.
+- Upgrade to Ansible 1.8.4.
+- Improves examples.
+- Increases code quality.
+
 0.8.1 (2015-02-15)
 ++++++++++++++++++
 
