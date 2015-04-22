@@ -7,7 +7,6 @@
     when: ansible_system == "Linux"
     ignore_errors: yes
     register: mongo_present
-    tags: ruby
     tags: mongodb
 
   - name: MongoDB | Add GPG key to apt keyring
