@@ -10,4 +10,4 @@ setuid {{ansible_user_id}}
 setgid {{ansible_user_id}}
 chdir {{install_dir_server}}
 
-exec /usr/local/bin/gunicorn --workers 2 --bind 0.0.0.0:8000 --log-file {{log_file_path}}/{{log_file_name}} --log-level debug api:app (or api.wsgi:application)
+exec /usr/local/bin/gunicorn --workers 2 --timeout 120 --graceful-timeout 120 --bind 0.0.0.0:8000 --log-file {{log_file_path}}/{{log_file_name}}  --error-logfile {{log_file_path}}/{{log_file_name}} --log-level debug api:app (or api.wsgi:application)
