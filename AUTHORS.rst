@@ -15,3 +15,4 @@ Patches, Suggestions and Contributions
 - Anna Nachesa `@ashalynd <https://github.com/ashalynd>`_
 - Sebastian Sastre `@sebastianconcept <https://github.com/sebastianconcept>`_
 - Craig Latta `@ccrraaiigg <https://github.com/ccrraaiigg>`_
+- Vyacheslav Voronenko `@voronenko <https://github.com/voronenko>`_
