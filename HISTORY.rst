@@ -1,6 +1,18 @@
 Release History
 ---------------
 
+0.10 (2015-05-12)
++++++++++++++++++
+
+**Improvements**
+
+- Updates examples.
+- Upgrade to Ansible 1.9.1.
+
+**Bugfixes**
+
+- Fixes buffering issue.
+
 0.9.1 (2015-03-18)
 ++++++++++++++++++
 
