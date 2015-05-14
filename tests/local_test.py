@@ -30,7 +30,7 @@ class TestLocalProvider(unittest.TestCase):
         e_box = Box('simple-box', self.tests_path + '/dev.yml', 'hostname', '0.0.0.0')
         self.provider.load_tags(e_box)
         self.assertEqual(self.provider.tags.has_key(e_box.name), True)
-        self.assertEqual(self.provider.tags[e_box.name], ['all', 'one'])
+        self.assertEqual(self.provider.tags[e_box.name], ['one'])
 
     def test_should_not_list_tags_if_box_not_exists(self):
         ne_box = Box('simple-box-2', 'xxx.yml', 'ssh-hostname', '0.0.0.0')
