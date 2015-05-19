@@ -108,13 +108,17 @@ class SimpleCli(Cmd):
 
     def do_set(self, line):
         tokens = line.split(' ')
-        variable = tokens[0]
-        value = tokens[1]
-        self.provider.set_var(variable, value)
+        if len(tokens) != 2:
+            print 'Please provide the name of the variable followed by its value.\n'
+        else:
+            variable = tokens[0].strip()
+            value = tokens[1].strip()
+            self.provider.set_var(variable, value)
 
 
     def help_unset(self):
-        print "Unsets an existing environment variable.\n"
+        print "Unsets an existing environment variable. If this action is invoked without parameter it will show the " \
+              "current set variables.\n"
 
     def do_unset(self, line):
         self.provider.unset_var(line)
@@ -155,13 +159,26 @@ class SimpleProvider(object):
     def boxes(self):
         return self.env.boxes.values()
 
+    def _show_current_vars(self):
+        print 'Current set variables:\n%s\n' % '\n'.join([n + ' -> ' + v for n, v in self.extra_vars.iteritems()])
+
     def set_var(self, var, value):
+        if var in self.extra_vars:
+            print 'NOTICE: Variable \'{0}\' is already set to this value: \'{1}\' and it will be overwritten.'\
+                .format(var, self.extra_vars[var])
         self.extra_vars[var] = value
         print "\nSet \'{0}\' -> {1}\n".format(var, value)
 
     def unset_var(self, var):
-        self.extra_vars.pop(var, None)
-        print "\nUnset \'{0}\'\n".format(var)
+        if not var:
+            print 'Please provide a valid variable name to unset.\n'
+            self._show_current_vars()
+        elif var not in self.extra_vars:
+            print 'WARNING: Variable \'{0}\' is NOT present so cannot be unset.\n'.format(var)
+            self._show_current_vars()
+        else:
+            self.extra_vars.pop(var, None)
+            print "\nUnset \'{0}\'\n".format(var)
 
     def add_box(self, box):
         self.env.add(box)
