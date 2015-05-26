@@ -11,4 +11,4 @@ setgid {{ansible_user_id}}
 
 env HOME={{install_dir_server}}
 
-exec start-stop-daemon --chdir ${HOME} --start --make-pid --pid={{install_dir}}/example-api.pid --exec /usr/bin/node -- server
+exec start-stop-daemon --chdir ${HOME} --start --make-pidfile --pidfile {{install_dir}}/example-api.pid --exec /usr/bin/node -- server
