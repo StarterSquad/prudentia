@@ -11,11 +11,23 @@
       - client
       - update
 
+#  - name: Client | Fetch fat gzip
+#    shell: "chdir={{install_client_dir}} curl -u {{jenkins_user}}:{{jenkins_password}} {{client_artifact_url}} > {{client_artifact_name}}"
+#    tags:
+#      - client
+#      - update
+#
+#  - name: Client | Unzip client artifact
+#    command: chdir={{install_client_dir}} /bin/tar -xf {{client_artifact_name}}
+#    tags:
+#      - client
+#      - update
+
   - include: "{{prudentia_dir}}/tasks/nginx.yml"
     tags: client
 
   - name: Client | Creating Nginx Log Dir
-    command: mkdir -p /etc/nginx/logs
+    file: path=/usr/nginx/logs state=directory
     sudo: yes
     tags: client
 

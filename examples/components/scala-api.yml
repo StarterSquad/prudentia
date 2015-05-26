@@ -11,8 +11,8 @@
       - api
       - update
 
-#  - name: API | Fetch fat jar (jar contains all classes + libs)
-#    get_url: url={{api_fat_jar_url}} dest={{install_dir}}_api mode=0555
+#  - name: API | Fetch fat jar
+#    shell: "chdir={{install_api_dir}} curl -u {{jenkins_user}}:{{jenkins_password}} {{api_fat_jar_url}} > {{api_fat_jar_name}}"
 #    tags:
 #      - api
 #      - update
