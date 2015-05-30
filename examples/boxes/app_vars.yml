@@ -7,6 +7,7 @@
   install_dir_client: "{{install_dir}}/client"
   install_dir_api: "{{install_dir}}/api"
 
+  api_name: example-api
   api_url_health_check: http://localhost/api
 
   log_file_path: /opt/example/log

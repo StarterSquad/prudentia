@@ -24,14 +24,14 @@
 #      - api
 
   - name: API | Copy upstart script
-    template: src={{root_dir}}/components/templates/api/scala-upstart.conf.j2 dest=/etc/init/example-api.conf backup=yes
+    template: src={{root_dir}}/components/templates/api/scala-upstart.conf.j2 dest=/etc/init/{{api_name}}.conf backup=yes
     sudo: yes
     tags:
       - api
       - update
 
   - name: API | Restart
-    service: name=example-api state=restarted
+    service: name={{api_name}} state=restarted
     sudo: yes
     tags:
       - api
