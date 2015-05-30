@@ -16,7 +16,7 @@
       - update
 
   - name: Database | Copy SQL files
-    action: copy src={{root_dir}}/components/files/db/{{item}} dest={{install_dir_db}}/{{item}}
+    copy: src={{root_dir}}/components/files/db/{{item}} dest={{install_dir_db}}/{{item}}
     with_items:
       - 0.create_schema.sql
       - 1.alter_price.sql
@@ -25,7 +25,7 @@
       - update
 
   - name: Database | Run SQL files
-    action: command ./upgrade.sh root {{mysql_root_password}} {{database_host}} chdir={{install_dir_db}}
+    command: ./upgrade.sh root {{mysql_root_password}} {{database_host}} chdir={{install_dir_db}}
     tags:
       - db
       - update
