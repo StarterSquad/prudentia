@@ -5,7 +5,7 @@
   #  sbt_version (provided)
   #  sbt_artifact (provided)
 
-  - include: "{{prudentia_dir}}/tasks/java7.yml"
+  - include: "{{prudentia_dir}}/tasks/java.yml"
     tags: sbt
 
   - name: SBT | Check if is present
