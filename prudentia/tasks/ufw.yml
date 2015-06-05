@@ -1,0 +1,27 @@
+---
+  # Parameters:
+  #  prudentia_dir (provided)
+  #  ufw_rules_default (provided)
+  #  ufw_rules_allow (provided)
+
+  - name: UFW | Disable it
+    ufw: state=disabled
+    sudo: yes
+    tags: ufw
+
+  - name: UFW | Configure incoming/outgoing defaults
+    ufw: policy={{item.policy}} direction={{item.direction}}
+    with_items: ufw_rules_default
+    sudo: yes
+    tags: ufw
+
+  - name: UFW | Configure rules to allow incoming traffic
+    ufw: rule=allow port={{item.port}} proto={{item.proto}}
+    with_items: ufw_rules_allow
+    sudo: yes
+    tags: ufw
+
+  - name: UFW | Enable it
+    ufw: state=enabled loggin=on
+    sudo: yes
+    tags: ufw
