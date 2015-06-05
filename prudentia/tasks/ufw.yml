@@ -1,6 +1,5 @@
 ---
   # Parameters:
-  #  prudentia_dir (provided)
   #  ufw_rules_default (provided)
   #  ufw_rules_allow (provided)
 

@@ -1,6 +1,5 @@
 ---
   # Parameters:
-  #  prudentia_dir (provided)
   #  osquery_apt_key_id (provided)
   #  osquery_apt_repository (provided)
 
