@@ -7,11 +7,11 @@
 
   nvm_version: v0.22.0
   node_version: v0.10.35
-  node_path: '{{ansible_env.HOME}}/.nvm/{{node_version}}'
+  node_path: "{{ansible_env.HOME}}/.nvm/{{node_version}}"
 
   postgresql_apt_key_id: ACCC4CF8
   postgresql_apt_key_url: "https://www.postgresql.org/media/keys/{{postgresql_apt_key_id}}.asc"
-  postgresql_apt_repository: 'deb http://apt.postgresql.org/pub/repos/apt/ {{ansible_distribution_release}}-pgdg main'
+  postgresql_apt_repository: "deb http://apt.postgresql.org/pub/repos/apt/ {{ansible_distribution_release}}-pgdg main"
   postgresql_version: 9.4
 
   osquery_apt_key_id: C9D8B80B
@@ -25,3 +25,6 @@
     - {port: 80, proto: tcp}
     - {port: 443, proto: tcp}
     - {port: 22, proto: tcp}
+
+  java_apt_repository: "ppa:webupd8team/java"
+  java_version: 7
