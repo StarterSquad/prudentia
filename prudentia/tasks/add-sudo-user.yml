@@ -8,6 +8,7 @@
   #  - include: "{{prudentia_dir}}/tasks/sudo-user.yml user=prudentia group=prudentia home=/home/prudentia"
 
   - debug: msg="Creating user {{user}}:{{group}} with home directory {{home}}"
+    tags: sudoer
 
   - name: SudoUser | Wait for SSH port to become open
     local_action:
