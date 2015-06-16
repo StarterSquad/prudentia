@@ -1,0 +1,42 @@
+---
+  # Parameters:
+  #  prudentia_dir (provided)
+  #  user
+  #  group
+  #  home
+
+  - debug: msg="Creating user {{user}}:{{group}} with home directory {{home}}"
+
+  - name: SudoUser | Wait for SSH port to become open
+    local_action:
+      module: wait_for
+      host: "{{ansible_default_ipv4.address}}"
+      port: 22
+      delay: 10
+      timeout: 60
+    tags: sudoer
+
+  - name: SudoUser | Creating group {{group}}
+    group: name={{group}} state=present
+    sudo: yes
+    tags: sudoer
+
+  - name: SudoUser | Creating user {{user}}
+    user: name={{user}} home={{home}} state=present shell=/bin/bash generate_ssh_key=yes group={{group}} groups=sudo
+    sudo: yes
+    tags: sudoer
+
+  - name: SudoUser | Copy authorized_keys from root
+    command: cp /root/.ssh/authorized_keys {{home}}/.ssh/authorized_keys
+    sudo: yes
+    tags: sudoer
+
+  - name: SudoUser | Set permission on authorized_keys
+    file: path={{home}}/.ssh/authorized_keys mode=600 owner={{user}} group={{group}}
+    sudo: yes
+    tags: sudoer
+
+  - name: SudoUser | Ensuring sudoers no pwd prompting
+    lineinfile: dest=/etc/sudoers state=present regexp=%sudo line='%sudo ALL=(ALL:ALL) NOPASSWD:ALL' validate='visudo -cf %s'
+    sudo: yes
+    tags: sudoer
