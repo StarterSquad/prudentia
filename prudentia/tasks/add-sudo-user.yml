@@ -10,7 +10,7 @@
   - debug: msg="Creating user {{user}}:{{group}} with home directory {{home}}"
     tags: sudoer
 
-  - name: SudoUser | Wait for SSH port to become open
+  - name: Sudo User | Wait for SSH port to become open
     local_action:
       module: wait_for
       host: "{{ansible_default_ipv4.address}}"
@@ -19,22 +19,22 @@
       timeout: 60
     tags: sudoer
 
-  - name: SudoUser | Creating group {{group}}
+  - name: Sudo User | Creating group
     group: name={{group}} state=present
     tags: sudoer
 
-  - name: SudoUser | Creating user {{user}}
+  - name: Sudo User | Creating user
     user: name={{user}} home={{home}} state=present shell=/bin/bash generate_ssh_key=yes group={{group}} groups=sudo
     tags: sudoer
 
-  - name: SudoUser | Copy authorized_keys from root
+  - name: Sudo User | Copy authorized_keys from root
     command: cp /root/.ssh/authorized_keys {{home}}/.ssh/authorized_keys
     tags: sudoer
 
-  - name: SudoUser | Set permission on authorized_keys
+  - name: Sudo User | Set permission on authorized_keys
     file: path={{home}}/.ssh/authorized_keys mode=600 owner={{user}} group={{group}}
     tags: sudoer
 
-  - name: SudoUser | Ensuring sudoers no pwd prompting
+  - name: Sudo User | Ensuring sudoers no pwd prompting
     lineinfile: dest=/etc/sudoers state=present regexp=%sudo line='%sudo ALL=(ALL:ALL) NOPASSWD:ALL' validate='visudo -cf %s'
     tags: sudoer
