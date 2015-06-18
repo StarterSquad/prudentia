@@ -1,0 +1,12 @@
+---
+  - name: Collectd | Add apt repository
+    apt_repository: repo=ppa:vbulax/collectd5
+    when: ansible_distribution == "Ubuntu"
+    tags: collectd
+    sudo: yes
+
+  - name: Collectd | Install
+    apt: update-cache=yes force=yes state=present pkg=collectd={{collectd_version}}
+    when: ansible_distribution == "Ubuntu"
+    tags: collectd
+    sudo: yes
