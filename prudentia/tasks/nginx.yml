@@ -1,7 +1,24 @@
 ---
-  # nginx-extras comes bundled with more modules, for instance headers-more-module
+  - name: Nginx | Add GPG key to apt keyring
+    shell: wget -q -O - http://nginx.org/keys/nginx_signing.key | sudo apt-key add -
+    when: ansible_os_family == "Debian"
+    tags: nginx
+    sudo: yes
+
+  - name: Nginx | Add Debian apt repository
+    apt_repository: repo="deb http://nginx.org/packages/debian/ {{ansible_distribution_release}} nginx"
+    when: ansible_os_family == "Debian" and ansible_distribution != "Ubuntu"
+    tags: nginx
+    sudo: yes
+
+  - name: Nginx | Add Ubuntu apt repository
+    apt_repository: repo="deb http://nginx.org/packages/ubuntu/ {{ansible_distribution_release}} nginx"
+    when: ansible_distribution == "Ubuntu"
+    tags: nginx
+    sudo: yes
+
   - name: Nginx | Install
-    apt: update-cache=yes force=yes state=present pkg=nginx-extras
+    apt: update-cache=yes force=yes state=present pkg=nginx
     when: ansible_os_family == "Debian"
     tags: nginx
     sudo: yes
