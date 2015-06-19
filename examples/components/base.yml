@@ -23,7 +23,7 @@
     tags: base
 
   - name: Base | Checkout git repository
-    action: git repo={{git_repository}} dest={{install_dir}} version={{version}}
+    git: repo={{git_repository}} dest={{install_dir}} version={{version}}
     when: "install_dir not in machine_mounts.stdout"
     tags:
       - base

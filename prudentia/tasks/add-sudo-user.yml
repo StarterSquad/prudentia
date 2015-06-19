@@ -1,0 +1,40 @@
+---
+  # Parameters:
+  #  user
+  #  group
+  #  home
+  #
+  # Example usage:
+  #  - include: "{{prudentia_dir}}/tasks/sudo-user.yml user=prudentia group=prudentia home=/home/prudentia"
+
+  - debug: msg="Creating user {{user}}:{{group}} with home directory {{home}}"
+    tags: sudoer
+
+  - name: Sudo User | Wait for SSH port to become open
+    local_action:
+      module: wait_for
+      host: "{{ansible_default_ipv4.address}}"
+      port: 22
+      delay: 10
+      timeout: 60
+    tags: sudoer
+
+  - name: Sudo User | Creating group
+    group: name={{group}} state=present
+    tags: sudoer
+
+  - name: Sudo User | Creating user
+    user: name={{user}} home={{home}} state=present shell=/bin/bash generate_ssh_key=yes group={{group}} groups=sudo
+    tags: sudoer
+
+  - name: Sudo User | Copy authorized_keys from root
+    command: cp /root/.ssh/authorized_keys {{home}}/.ssh/authorized_keys
+    tags: sudoer
+
+  - name: Sudo User | Set permission on authorized_keys
+    file: path={{home}}/.ssh/authorized_keys mode=600 owner={{user}} group={{group}}
+    tags: sudoer
+
+  - name: Sudo User | Ensuring sudoers no pwd prompting
+    lineinfile: dest=/etc/sudoers state=present regexp=%sudo line='%sudo ALL=(ALL:ALL) NOPASSWD:ALL' validate='visudo -cf %s'
+    tags: sudoer

@@ -1,0 +1,29 @@
+---
+  # Parameters:
+  #  java_apt_repository (provided)
+  #  java_version (provided)
+
+  - name: Java | Check if is present
+    command: test -x /usr/bin/java
+    when: ansible_system == "Linux"
+    ignore_errors: yes
+    register: java_present
+    tags: java
+
+  - name: Java | Add apt repository
+    apt_repository: repo={{java_apt_repository}}
+    when: ansible_distribution == "Ubuntu" and java_present|failed
+    tags: java
+    sudo: yes
+
+  - name: Java | Accept the Oracle license before the installation
+    shell: echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+    when: ansible_distribution == "Ubuntu" and java_present|failed
+    tags: java
+    sudo: yes
+
+  - name: Java | Install
+    apt: update-cache=yes force=yes state=present pkg=oracle-java{{java_version}}-installer
+    when: ansible_distribution == "Ubuntu" and java_present|failed
+    tags: java
+    sudo: yes

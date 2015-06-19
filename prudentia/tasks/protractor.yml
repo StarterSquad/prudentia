@@ -6,7 +6,7 @@
     tags: protractor
 
   # selenium needs java
-  - include: "{{prudentia_dir}}/tasks/java7.yml"
+  - include: "{{prudentia_dir}}/tasks/java.yml"
     tags: protractor
 
   - name: Xvfb | Install

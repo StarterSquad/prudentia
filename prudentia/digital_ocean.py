@@ -22,7 +22,7 @@ class DigitalOceanCli(FactoryCli):
 class DigitalOceanProvider(FactoryProvider):
     NAME = 'digital-ocean'
 
-    DEFAULT_IMAGE_ID = 9801954  # Ubuntu 14.04 x64
+    DEFAULT_IMAGE_NAME = "14.04 x64"  # Ubuntu latest LTS 64bit
     DEFAULT_SIZE_ID = 63  # 1GB
     DEFAULT_REGION_ID = 5  # Amsterdam 2
 
@@ -75,7 +75,8 @@ class DigitalOceanProvider(FactoryProvider):
             if not ext.image:
                 all_images = self.manager.all_images()
                 print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
-                ext.image = input_value('image', self.DEFAULT_IMAGE_ID)
+                default_image_id = next((img['id'] for img in all_images if self.DEFAULT_IMAGE_NAME in img['name']), None)
+                ext.image = input_value('image', default_image_id)
 
             if not ext.size:
                 all_sizes = self.manager.sizes()

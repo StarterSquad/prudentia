@@ -1,10 +1,6 @@
 import unittest
 import os
 
-# this import workaround an issue related with circular dependencies
-# https://groups.google.com/forum/#!msg/ansible-devel/wE7fNbGyWbo/IvuUpbJI4aoJ
-import ansible.playbook
-
 from prudentia.domain import Box
 from prudentia.local import LocalProvider
 
