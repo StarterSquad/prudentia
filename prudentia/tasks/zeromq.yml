@@ -1,0 +1,64 @@
+---
+  # Parameters:
+  #  zeromq_version (provided)
+
+  - name: ZeroMQ | Check if is present
+    command: test -x /usr/local/lib/libzmq.so
+    when: ansible_os_family == "Debian"
+    ignore_errors: yes
+    register: zmq_present
+    tags: zeromq
+
+  - name: ZeroMQ | Base packages
+    apt: pkg=libtool,autoconf,automake,uuid-dev state=installed
+    when: ansible_os_family == "Debian" and zmq_present|failed
+    sudo: yes
+    tags: zeromq
+
+  - name: ZeroMQ | C++ compiler
+    apt: pkg=build-essential state=installed
+    when: ansible_os_family == "Debian" and zmq_present|failed
+    sudo: yes
+    tags: zeromq
+
+  - name: ZeroMQ | Create build directory
+    file: path=/zeromq/ state=directory mode=0744
+    when: ansible_os_family == "Debian" and zmq_present|failed
+    sudo: yes
+    tags: zeromq
+
+  - name: ZeroMQ | Download tarball
+    get_url: url=http://download.zeromq.org/zeromq-{{zeromq_version}}.tar.gz dest=/zeromq/ mode=0744
+    when: ansible_os_family == "Debian" and zmq_present|failed
+    sudo: yes
+    tags: zeromq
+
+  - name: ZeroMQ | Untar and uncompress
+    command: tar -xvf zeromq-{{zeromq_version}}.tar.gz chdir=/zeromq/
+    when: ansible_os_family == "Debian" and zmq_present|failed
+    sudo: yes
+    tags: zeromq
+
+  - name: ZeroMQ | Configure
+    command: ./configure chdir=/zeromq/zeromq-{{zeromq_version}}/
+    when: ansible_os_family == "Debian" and zmq_present|failed
+    sudo: yes
+    tags: zeromq
+
+  - name: ZeroMQ | Make
+    command: make chdir=/zeromq/zeromq-{{zeromq_version}}/
+    when: ansible_os_family == "Debian" and zmq_present|failed
+    sudo: yes
+    tags: zeromq
+
+  - name: ZeroMQ | Install
+    command: make install chdir=/zeromq/zeromq-{{zeromq_version}}/
+    when: ansible_os_family == "Debian" and zmq_present|failed
+    sudo: yes
+    tags: zeromq
+
+  - name: ZeroMQ | Update shared libraries
+    command: ldconfig chdir=/zeromq/zeromq-{{zeromq_version}}/
+    when: ansible_os_family == "Debian" and zmq_present|failed
+    sudo: yes
+    tags: zeromq
