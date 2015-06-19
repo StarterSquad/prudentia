@@ -7,22 +7,22 @@
     when: ansible_system == "Linux"
     ignore_errors: yes
     register: mongo_present
-    tags: mongodb
+    tags: mongodb26
 
   - name: MongoDB | Add GPG key to apt keyring
     shell: apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
     when: ansible_os_family == "Debian" and mongo_present|failed
     sudo: yes
-    tags: mongodb
+    tags: mongodb26
 
   - name: MongoDB | Add apt repository
     copy: src={{prudentia_dir}}/files/mongodb/apt-source-26 dest=/etc/apt/sources.list.d/mongodb.list mode=644
     when: ansible_os_family == "Debian" and mongo_present|failed
     sudo: yes
-    tags: mongodb
+    tags: mongodb26
 
   - name: MongoDB | Install
     apt: update-cache=yes force=yes state=present pkg=mongodb-org
     when: ansible_os_family == "Debian" and mongo_present|failed
     sudo: yes
-    tags: mongodb
+    tags: mongodb26
