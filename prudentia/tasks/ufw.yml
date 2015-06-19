@@ -20,7 +20,14 @@
     sudo: yes
     tags: ufw
 
+  - name: UFW | Configure rules to allow incoming traffic from specific hosts
+    ufw: rule=allow port={{item.port}} proto={{item.proto}} src={{ item.address }}
+    with_items: ufw_rules_allow_from_hosts
+    when: ufw_rules_allow_from_hosts is defined
+    sudo: yes
+    tags: ufw
+
   - name: UFW | Enable it
-    ufw: state=enabled loggin=on
+    ufw: state=enabled logging=on
     sudo: yes
     tags: ufw
