@@ -1,6 +1,23 @@
 Release History
 ---------------
 
+0.11 (2015-06-19)
++++++++++++++++++
+
+**Improvements**
+
+- Suggests automatically latest Ubuntu 14.04 LTS 64bit image when creating DigitalOcean droplet.
+- Validates setting extra variables and show existing ones when running `unset` without arguments.
+- Updates examples.
+- Adds bundled tasks: osquery, ufw, add sudo user, zeromq, elastic search, collectd, mongodb 2.6.
+- Generalize bundled java task.
+- Upgrades to a newer version of nginx using proper apt repository.
+- Upgrades to SBT 0.13.8.
+
+**Bugfixes**
+
+- Sets correctly the user that will run the webdriver manager.
+
 0.10 (2015-05-12)
 +++++++++++++++++
 
