@@ -2,7 +2,7 @@
   testing: "{{ ansible_user_id == 'vagrant' }}"
 
   sbt_base_url: https://dl.bintray.com/sbt/debian
-  sbt_version: 0.13.7
+  sbt_version: 0.13.8
   sbt_artifact: sbt-{{sbt_version}}.deb
 
   nvm_version: v0.22.0
