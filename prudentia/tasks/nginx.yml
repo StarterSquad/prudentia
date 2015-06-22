@@ -37,3 +37,15 @@
     when: ansible_os_family == "Debian"
     tags: nginx
     sudo: yes
+
+  - name: Nginx | Disable default site
+    command: chdir=/etc/nginx/ mv default.conf default.conf_
+    when: ansible_os_family == "Debian"
+    tags: nginx
+    sudo: yes
+
+  - name: Nginx | Reload
+    service: name=nginx state=reloaded
+    when: ansible_os_family == "Debian"
+    tags: nginx
+    sudo: yes
