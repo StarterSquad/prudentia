@@ -31,13 +31,8 @@
     sudo: yes
     tags: client
 
-  - name: Client | Removing Nginx default site configuration
-    file: path=/etc/nginx/sites-enabled/default state=absent
-    sudo: yes
-    tags: client
-
   - name: Client | Copy Nginx configuration
-    template: src={{root_dir}}/components/templates/client/nginx.conf.j2 dest=/etc/nginx/sites-available/zorgdomein.com backup=yes
+    template: src={{root_dir}}/components/templates/client/nginx.conf.j2 dest=/etc/nginx/sites-available/example.com backup=yes
     sudo: yes
     tags:
       - client
@@ -55,10 +50,9 @@
       - client
       - update
 
-  - name: Client | Restart Nginx
-    command: /etc/init.d/nginx restart
+  - name: Client | Reload Nginx
+    service: name=nginx state=reload
     sudo: yes
     tags:
       - client
       - update
-      - maintenance
