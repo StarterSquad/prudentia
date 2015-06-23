@@ -1,0 +1,44 @@
+---
+  # Parameters:
+  #  prudentia_dir (provided)
+  #  vault_version (provided)
+
+  - set_fact: vault_path=/opt/vault_{{vault_version}}
+    tags: vault
+
+  - name: Vault | Check if is present
+    command: test -x {{vault_path}}/vault
+    when: ansible_system == "Linux"
+    ignore_errors: yes
+    register: vault_present
+    tags: vault
+
+  - name: Vault | Download
+    get_url: url=https://dl.bintray.com/mitchellh/vault/vault_{{vault_version}}_linux_amd64.zip dest=/opt/
+    when: ansible_system == "Linux" and vault_present|failed
+    sudo: yes
+    tags: vault
+
+  - name: Vault | Install unzip
+    apt: pkg=unzip update-cache=yes state=present
+    when: ansible_os_family == "Debian" and vault_present|failed
+    sudo: yes
+    tags: vault
+
+  - name: Vault | Create directory
+    file: state=directory path={{vault_path}}
+    when: ansible_system == "Linux" and vault_present|failed
+    sudo: yes
+    tags: vault
+
+  - name: Vault | Unpack
+    unarchive: src=/opt/vault_{{vault_version}}_linux_amd64.zip dest={{vault_path}} copy=no
+    when: ansible_system == "Linux" and vault_present|failed
+    sudo: yes
+    tags: vault
+
+  - name: Vault | add to path
+    lineinfile: dest=/etc/environment regexp='PATH=(["]*)((?!.*?{{vault_path}}).*?)(["]*)$' line="PATH=\1\2:{{vault_path}}\3" state=present backrefs=yes
+    when: ansible_system == "Linux" and vault_present|failed
+    sudo: yes
+    tags: vault

@@ -37,3 +37,5 @@
   elasticsearch_plugins:
     - {plugin: mobz/elasticsearch-head, name: head}
     - {plugin: karmi/elasticsearch-paramedic, name: paramedic}
+
+  vault_version: 0.1.2
