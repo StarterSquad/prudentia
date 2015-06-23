@@ -27,5 +27,5 @@
     tags: sudoer
 
   - name: Sudo User | Ensuring sudoers no pwd prompting
-    lineinfile: dest=/etc/sudoers state=present regexp=%sudo line='%sudo ALL=(ALL:ALL) NOPASSWD:ALL' validate='visudo -cf %s'
+    lineinfile: dest=/etc/sudoers state=present regexp="%{{user}}" line="%{{user}} ALL=(ALL) NOPASSWD:ALL" validate="visudo -cf %s"
     tags: sudoer
