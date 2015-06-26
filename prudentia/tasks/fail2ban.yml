@@ -1,0 +1,24 @@
+---
+  # Parameters:
+  #  prudentia_dir (provided)
+  #  whitelistedips (optional) list of ips for /etc/hosts.allow
+
+  - name: Fail2Ban | Install fail2ban
+    apt: pkg=fail2ban state=installed update-cache=yes
+    sudo: yes
+    tags:
+      - fail2ban 
+
+  - name: Fail2Ban | local fail2ban jail config
+    template: src={{prudentia_dir}}/files/file2ban/jail.local.j2 dest=/etc/fail2ban/jail.local
+    sudo: yes 
+    tags:
+      - fail2ban 
+
+  - name: Fail2Ban |  reload fail2ban
+    service: name=fail2ban state=reloaded      
+    sudo: yes
+    tags:
+      - fail2ban 
+
+
