@@ -37,6 +37,11 @@
     sudo: yes
     tags: es
 
+  - name: ElasticSearch | Fix init.d script
+    lineinfile: dest=/etc/init.d/elasticsearch regexp="^PID_DIR=.*" line="PID_DIR=\"/var/run\""
+    sudo: yes
+    tags: es
+
   - name: ElasticSearch | Restart
     action: service name=elasticsearch state=restarted
     sudo: yes
@@ -45,5 +50,6 @@
   - name: ElasticSearch | Install plugins
     command: /usr/share/elasticsearch/bin/plugin --install {{item.plugin}} creates=/usr/share/elasticsearch/plugins/{{item.name}}/_site/.gitignore
     with_items: elasticsearch_plugins
+    when: elasticsearch_plugins is defined
     sudo: yes
     tags: es
