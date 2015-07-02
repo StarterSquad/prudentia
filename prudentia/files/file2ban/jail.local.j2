@@ -12,7 +12,7 @@ action   = hostsdeny[file=/etc/hosts.deny]
 
 maxretry = 3
 
-ignoreip = 127.0.0.1/8 {% if whitelistedips is defined %} {% for host in whitelistedips %} {{host}} {% endfor %} {% endif %}
+ignoreip = 127.0.0.1/8 {% if whitelisted_ips is defined %} {% for host in whitelisted_ips %} {{host}} {% endfor %} {% endif %}
 
 findtime = 300
 
