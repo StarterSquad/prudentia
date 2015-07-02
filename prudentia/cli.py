@@ -2,7 +2,9 @@ import os
 from os import path
 
 # Setting Ansible config file environment variable as first thing
-os.environ['ANSIBLE_CONFIG'] = path.join(path.dirname(path.realpath(__file__)), 'ansible.cfg')
+cwd = path.dirname(path.realpath(__file__))
+os.environ['ANSIBLE_CONFIG'] = path.join(cwd, 'ansible.cfg')
+os.environ['ANSIBLE_ROLES_PATH'] = path.join(cwd, 'roles') + os.pathsep + '/etc/ansible/roles'
 
 from cmd import Cmd
 
