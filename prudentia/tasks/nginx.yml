@@ -40,7 +40,7 @@
 
   - name: Nginx | Disable default site
     command: chdir=/etc/nginx/ mv default.conf default.conf_
-    ignore_error: yes
+    ignore_errors: yes
     when: ansible_os_family == "Debian"
     tags: nginx
     sudo: yes
