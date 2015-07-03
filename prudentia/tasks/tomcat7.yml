@@ -1,4 +1,10 @@
 ---
+  # Parameters:
+  #  prudentia_dir (provided)
+
+  - include: "{{prudentia_dir}}/tasks/java.yml"
+    tags: tomcat
+
   - name: Tomcat | Install
     apt: update-cache=yes force=yes state=present pkg=tomcat7
     sudo: yes
