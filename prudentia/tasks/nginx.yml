@@ -39,8 +39,7 @@
     sudo: yes
 
   - name: Nginx | Disable default site
-    command: chdir=/etc/nginx/ mv default.conf default.conf_
-    ignore_errors: yes
+    file: path=/etc/nginx/default.conf state=absent
     when: ansible_os_family == "Debian"
     tags: nginx
     sudo: yes
