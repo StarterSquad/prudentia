@@ -107,13 +107,13 @@ class SimpleCli(Cmd):
               "During provisioning it will forcibly override the one defined in any playbook.\n"
 
     def do_set(self, line):
-        tokens = line.split(' ')
-        if len(tokens) != 2:
-            print 'Please provide the name of the variable followed by its value.\n'
-        else:
-            variable = tokens[0].strip()
-            value = tokens[1].strip()
-            self.provider.set_var(variable, value)
+        try:
+            first_space_idx = line.index(' ')
+            name = line[:first_space_idx].strip()
+            value = line[first_space_idx:].strip()
+            self.provider.set_var(name, value)
+        except ValueError as e:
+            print 'Please provide the name of the variable followed by its value: %s\n' % e
 
 
     def help_unset(self):
