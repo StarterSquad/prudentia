@@ -22,7 +22,7 @@ Environments = {
 
 
 class CLI(Cmd):
-    parent_loop = False
+    loop_initiated = False
     env_cli = None
 
     def __init__(self, *args, **kwargs):
@@ -30,7 +30,7 @@ class CLI(Cmd):
         self.prompt = '(Prudentia) '
 
     def cmdloop(self, *args, **kwargs):
-        self.parent_loop = True
+        self.loop_initiated = True
         print '\nTo start: `use` one of the available providers: %s\n' % ', '.join(
             str(p) for p in Environments.keys())
         return Cmd.cmdloop(self, *args, **kwargs)
@@ -59,7 +59,7 @@ class CLI(Cmd):
         # If this function was called inside a cmd loop the return values indicates whether execution will be terminated
         # returning False will cause interpretation to continue.
         # Otherwise the return value is the result of the 'provision' action.
-        return False if self.parent_loop else result
+        return False if self.loop_initiated else result
 
     def do_EOF(self, line):
         print "\n\nBye!"
