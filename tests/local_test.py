@@ -32,3 +32,12 @@ class TestLocalProvider(unittest.TestCase):
         ne_box = Box('simple-box-2', 'xxx.yml', 'ssh-hostname', '0.0.0.0')
         self.provider.load_tags(ne_box)
         self.assertEqual(self.provider.tags.has_key(ne_box.name), False)
+
+    def test_set_var(self):
+        var_name = 'var_name'
+        var_value = 'var_value'
+        self.provider.set_var(var_name, var_value)
+        self.assertEqual(self.provider.extra_vars[var_name], var_value)
+        var_overwritten = "var_overwritten"
+        self.provider.set_var(var_name, var_overwritten)
+        self.assertEqual(self.provider.extra_vars[var_name], var_overwritten)
