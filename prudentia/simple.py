@@ -113,7 +113,8 @@ class SimpleCli(Cmd):
             value = line[first_space_idx:].strip()
             self.provider.set_var(name, value)
         except ValueError as e:
-            print 'Please provide the name of the variable followed by its value: %s\n' % e
+            logging.exception('Error in setting variable for the current provider.')
+            print 'Please provide the name of the variable followed by its value.\n'
 
 
     def help_unset(self):
