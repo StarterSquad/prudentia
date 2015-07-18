@@ -62,6 +62,7 @@ Simple providers (e.g. Local provider or SSH provider) have the following operat
 * *set*: defines or override a playbook variable
 * *unset*: removes variable
 * *provision*: runs tasks defined in the playbook associated with a box
+* *decrypt*: sets the password used to decrypt Ansible vault files
 
 Factory providers (e.g. Vagrant provider or DigitalOcean provider) extend simple providers and add allow you to change
 the box life cycle:
@@ -86,7 +87,7 @@ We'll show a usage example of the SSH provider bundled with Prudentia.
 Check what the Ssh provider can do using tab completion::
 
     (Prudentia > Ssh)
-    EOF          help         list         provision    reconfigure  register     set          unregister   unset
+    decrypt      EOF          help         list         provision    reconfigure  register     set          unregister   unset
 
 Let's start registering a new box::
 
