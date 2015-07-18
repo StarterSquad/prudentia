@@ -70,5 +70,6 @@ class LocalProvider(SimpleProvider):
             remote_pass=remote_pwd,
             transport=transport,
             extra_vars=self.extra_vars,
-            only_tags=only_tags
+            only_tags=only_tags,
+            vault_password=self.vault_password
         )

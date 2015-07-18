@@ -137,6 +137,13 @@ class SimpleCli(Cmd):
                 print b
 
 
+    def help_decrypt(self):
+        print "Provide the password that will be used to decrypt Ansible vault files. " \
+              "For more information visit http://docs.ansible.com/playbooks_vault.html."
+
+    def do_decrypt(self, line):
+        self.provider.set_vault_password(line)
+
     def do_EOF(self, line):
         print "\n"
         return True
@@ -154,6 +161,7 @@ class SimpleProvider(object):
         self.env = Environment(name, general_type, box_extra_type)
         self.extra_vars = {'prudentia_dir': prudentia_python_dir()}
         self.tags = {}
+        self.vault_password = False
         self.load_tags()
         self.provisioned = False
 
@@ -180,6 +188,9 @@ class SimpleProvider(object):
         else:
             self.extra_vars.pop(var, None)
             print "\nUnset \'{0}\'\n".format(var)
+
+    def set_vault_password(self, pwd):
+        self.vault_password = pwd
 
     def add_box(self, box):
         self.env.add(box)
@@ -259,5 +270,6 @@ class SimpleProvider(object):
             remote_pass=remote_pwd,
             transport=transport,
             extra_vars=self.extra_vars,
-            only_tags=only_tags
+            only_tags=only_tags,
+            vault_password=self.vault_password
         )

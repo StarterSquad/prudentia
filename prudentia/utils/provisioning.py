@@ -12,7 +12,7 @@ from ansible.color import stringc
 from prudentia.domain import Box
 
 
-def run_playbook(playbook_file, inventory, remote_user=C.DEFAULT_REMOTE_USER,
+def run_playbook(playbook_file, inventory, vault_password, remote_user=C.DEFAULT_REMOTE_USER,
                  remote_pass=C.DEFAULT_REMOTE_PASS, transport=C.DEFAULT_TRANSPORT, extra_vars=None, only_tags=None):
     stats = callbacks.AggregateStats()
     playbook_cb = callbacks.PlaybookCallbacks(verbose=True)
@@ -27,7 +27,8 @@ def run_playbook(playbook_file, inventory, remote_user=C.DEFAULT_REMOTE_USER,
         only_tags=only_tags,
         callbacks=playbook_cb,
         runner_callbacks=runner_cb,
-        stats=stats
+        stats=stats,
+        vault_password=vault_password
     )
 
     provision_success = False
