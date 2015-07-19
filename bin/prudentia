@@ -6,6 +6,12 @@ import os
 from os import path
 
 
+def set_terminal_size():
+    if sys.stdin.isatty():
+        rows, columns = os.popen('stty size', 'r').read().split()
+        os.environ['COLUMNS'] = columns
+
+
 def init_user_dir():
     os.environ['PRUDENTIA_USER_DIR'] = user_dir = path.join(path.expanduser('~'), 'prudentia')
     if not path.exists(user_dir):
@@ -46,6 +52,7 @@ def init_readline(user_dir):
 
 
 if __name__ == "__main__":
+    set_terminal_size()
     ud = init_user_dir()
     init_logging(ud)
     init_readline(ud)
