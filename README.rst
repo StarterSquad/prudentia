@@ -1,6 +1,6 @@
 Prudentia
 =========
-|status| |health| |coverage| |downloads| |version| |license|
+|status| |health| |coverage| |version| |license|
 
 Prudentia is a Continuous Deployment toolkit written in Python.
 
@@ -27,11 +27,11 @@ Prudentia currently offers:
   * local
   * ssh
 
-Currently, all features work with Python 2.6 and 2.7. Work is under way to support Python 3.3+ in the same codebase.
+Currently, all features work with Python 2.6+ and 3.2+.
 
 Installation
 ------------
-To install prudentia:
+To install Prudentia:
 
 .. code-block:: bash
     
