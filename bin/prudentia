@@ -54,11 +54,12 @@ if __name__ == "__main__":
 
     cli = CLI()
 
-    exit_error = 0
-    if len(sys.argv) > 1:
-        one_cmd_provisioned = cli.do_use(sys.argv[1], *sys.argv[2:])
-        exit_error = 0 if one_cmd_provisioned else 1
-    else:
-        cli.cmdloop()
+    exit_error = 1
+    args = cli.parse()
+    try:
+        exit_error = 0 if cli.run(args) else 1
+    except Exception, e:
+        logging.exception('Error during run.')
+        print '\nError during run: %s\n' % e
 
     sys.exit(exit_error)
