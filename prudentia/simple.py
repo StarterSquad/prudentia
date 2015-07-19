@@ -6,6 +6,7 @@ from abc import ABCMeta, abstractmethod
 from cmd import Cmd
 import random
 
+from ansible import utils
 from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
 from ansible.inventory import Inventory
 from ansible.playbook import PlayBook
@@ -14,7 +15,7 @@ import ansible.constants as C
 
 from domain import Environment
 from utils.provisioning import run_playbook, generate_inventory
-from utils.io import prudentia_python_dir
+from utils.io import prudentia_python_dir, input_path
 
 
 class SimpleCli(Cmd):
@@ -144,6 +145,19 @@ class SimpleCli(Cmd):
     def do_decrypt(self, line):
         self.provider.set_vault_password(line)
 
+
+    def help_vars(self):
+        print "Load extra vars from a .yml or .json file (they will override existing ones)."
+
+    def do_vars(self, line):
+        vars_file = line
+        if not vars_file:
+            vars_file = input_path('absolute vars file path')
+        vars_dict = utils.parse_yaml_from_file(vars_file)
+        for key, value in vars_dict.iteritems():
+            self.provider.set_var(key, value)
+
+
     def do_EOF(self, line):
         print "\n"
         return True
@@ -176,7 +190,7 @@ class SimpleProvider(object):
             print 'NOTICE: Variable \'{0}\' is already set to this value: \'{1}\' and it will be overwritten.'\
                 .format(var, self.extra_vars[var])
         self.extra_vars[var] = value
-        print "\nSet \'{0}\' -> {1}\n".format(var, value)
+        print "Set \'{0}\' -> {1}\n".format(var, value)
 
     def unset_var(self, var):
         if not var:
@@ -187,7 +201,7 @@ class SimpleProvider(object):
             self._show_current_vars()
         else:
             self.extra_vars.pop(var, None)
-            print "\nUnset \'{0}\'\n".format(var)
+            print "Unset \'{0}\'\n".format(var)
 
     def set_vault_password(self, pwd):
         self.vault_password = pwd
