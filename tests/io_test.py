@@ -17,10 +17,8 @@ class TestIO(unittest.TestCase):
         self.assertFalse(io.input_yes_no('test topic', prompt_fn=lambda (m): ''))
 
     def test_mandatory_input(self):
-        with self.assertRaises(ValueError):
-            io.input_value('mandatory topic', prompt_fn=lambda (m): '')
+        self.assertRaises(ValueError, io.input_value, 'mandatory topic', prompt_fn=lambda (m): '')
 
     def test_int_input(self):
         self.assertEqual(io.input_value('int topic', default_value=1, prompt_fn=lambda (m): '123'), 123)
-        with self.assertRaises(ValueError):
-            io.input_value('int topic', default_value=1, prompt_fn=lambda (m): 'aaa')
+        self.assertRaises(ValueError, io.input_value, 'int topic', default_value=1, prompt_fn=lambda (m): 'aaa')
