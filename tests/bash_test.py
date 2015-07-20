@@ -9,7 +9,7 @@ class TestBash(unittest.TestCase):
         cmd = BashCmd("echo", echoed_string)
         cmd.execute()
         self.assertTrue(cmd.is_ok())
-        self.assertEqual(cmd.output(), echoed_string+'\n')
+        self.assertIn(echoed_string, cmd.output())
 
     def test_nonexistent_cmd(self):
         cmd = BashCmd("ciwawa")
