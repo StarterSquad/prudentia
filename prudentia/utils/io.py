@@ -21,7 +21,11 @@ def first_time_input():
 first_time_input.show = True
 
 
-def input_value(topic, default_value=None, default_description=None, mandatory=True, hidden=False):
+def _input(msg):
+    return raw_input(msg)
+
+
+def input_value(topic, default_value=None, default_description=None, mandatory=True, hidden=False, prompt_fn=_input):
     first_time_input()
     default = default_description if default_description else default_value
     if default:
@@ -29,7 +33,7 @@ def input_value(topic, default_value=None, default_description=None, mandatory=T
     else:
         input_msg = 'Specify the %s: ' % topic
     if not hidden:
-        answer = raw_input(input_msg)
+        answer = prompt_fn(input_msg)
     else:
         answer = getpass(input_msg)
     answer = answer.strip()
@@ -61,10 +65,10 @@ def input_path(topic, default_value=None, default_description=None, mandatory=Tr
         return path
 
 
-def input_yes_no(topic, default='n'):
+def input_yes_no(topic, default='n', prompt_fn=_input):
     first_time_input()
     input_msg = 'Do you want to %s? [default: %s]: ' % (topic, default.upper())
-    answer = raw_input(input_msg).strip()
+    answer = prompt_fn(input_msg).strip()
     if not len(answer):
         answer = default
     if answer.lower() in ('y', 'yes'):
