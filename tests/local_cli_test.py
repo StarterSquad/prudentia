@@ -37,4 +37,8 @@ class TestLocalCli(unittest.TestCase):
     def test_load_vars(self):
         vars_file = self.tests_path + '/vars.yml'
         self.cli.do_vars(vars_file)
-        self.assertDictContainsSubset({'third': 'are', 'second': 'those', 'forth': 'variables', 'first': 'well'}, self.cli.provider.extra_vars)
+        xv = self.cli.provider.extra_vars
+        self.assertEqual(xv['first'], 'well')
+        self.assertEqual(xv['second'], 'those')
+        self.assertEqual(xv['third'], 'are')
+        self.assertEqual(xv['forth'], 'variables')
