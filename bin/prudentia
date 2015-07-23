@@ -5,6 +5,9 @@ import logging
 import os
 from os import path
 
+import requests
+from prudentia import __version__ as v
+
 
 def set_terminal_size():
     if sys.stdin.isatty():
@@ -51,11 +54,24 @@ def init_readline(user_dir):
     atexit.register(save_history)
 
 
+def check_latest():
+    url = "https://pypi.python.org/pypi/prudentia/json"
+    try:
+        pkg_info = requests.get(url, timeout=0.5).json()
+        last = pkg_info['info']['version']
+        if v != last:
+            print '\n\nVersions mismatch: the latest release is {0}, currently running {1}.\n' \
+                  'Consider upgrading Prudentia (e.g. $ pip install -U prudentia).\n'.format(last, v)
+    except:
+        pass
+
+
 if __name__ == "__main__":
     set_terminal_size()
     ud = init_user_dir()
     init_logging(ud)
     init_readline(ud)
+    check_latest()
 
     from prudentia.cli import CLI
 
