@@ -1,16 +1,19 @@
+=========
 Prudentia
 =========
 |status| |health| |coverage| |version| |license|
 
 Prudentia is a Continuous Deployment toolkit written in Python.
 
+*******
 Mission
--------
+*******
 Prudentia's mission is to help you to get production (or any other environment) ready in minutes instead of days, by 
 streamlining all the actions needed to provision your architectural components.
 
+********
 Features
---------
+********
 Prudentia uses Ansible_ as its main automation system, so it easily understands Ansible playbooks. 
 A playbook is one of the components needed to define a Prudentia Box.
 
@@ -29,8 +32,9 @@ Prudentia currently offers:
 
 Currently, all features work with Python 2.6+ and 3.2+.
 
+************
 Installation
-------------
+************
 To install Prudentia:
 
 .. code-block:: bash
@@ -51,8 +55,9 @@ To uninstall:
     
     $ pip uninstall prudentia
 
+**************
 Box operations
---------------
+**************
 Simple providers (e.g. Local provider or SSH provider) have the following operations available:
 
 * *register*: adds a new box definition to the registry
@@ -75,8 +80,12 @@ the box life cycle:
 * *phoenix*: shortcut for stop -> destroy -> create -> start -> provision (citing `phoenix server`_ Martin Fowler's article)
 * *status*: returns the status of the instance
 
+*****
 Usage
------
+*****
+
+CLI
+===
 We'll show a usage example of the SSH provider bundled with Prudentia.
 
 **Make sure you have a server that you can ssh into**.
@@ -88,7 +97,7 @@ We'll show a usage example of the SSH provider bundled with Prudentia.
 Check what the Ssh provider can do using tab completion::
 
     (Prudentia > Ssh)
-    decrypt      EOF          help         list         provision    reconfigure  register     set          unregister   unset
+    decrypt      EOF          help         list         provision    reconfigure  register     set          unregister   unset        vars
 
 Let's start registering a new box::
 
@@ -166,6 +175,8 @@ Now that we have double-checked that our Box has been registered, we can provisi
 
 Now Prudentia has done the reasonable uninteresting uname, shuffling a list of ints and noop tasks for me on the remote machine.
 
+Here-Document
+=============
 The same sequence of operations can be executed using the `Here-Document`_ input:
 
 .. code-block:: bash
@@ -182,19 +193,35 @@ The same sequence of operations can be executed using the `Here-Document`_ input
     unregister tasks-host
     EOF
 
-This shows how to use the SSH provider. If you got curious enough I invite you to check out the other providers as well.
+Command arguments
+=================
+If you want to run few commands that don't require specific inputs then there is an option that is quicker than using
+the CLI or the Here-Document.
+
+Let's for example have a look at an example right away:
+
+.. code-block:: bash
+
+    $ prudentia ssh 'decrypt' 'vars ./encrypted-vars.yml' 'provision box-name'
 
 
-More Info
----------
+After running this command we will be asked to input the Ansible vault password, after that an encrypted file containing
+variables will be loaded (we assume that the provided password can correctly decrypt the file) and eventually provision
+an existing registered ssh box.
+
+****
+More
+****
+
+Posts
+=====
 Here you can find a guide on how to use Prudentia to `provision a Digital Ocean droplet`_ with the StarterSquad website on it.
 
-Another important source of information is `Iwein's post`_ that gives you an idea of what Continuous Delivery is, and where 
-Prudentia fits into the flow. 
-
+Another important source of information is `Iwein's post`_ that gives you an idea of what Continuous Delivery is, and
+where Prudentia fits into the flow.
 
 Questions & Contributions
--------------------------
+=========================
 Questions, Contributions and Feedback are more than welcome.
 
 You can checkout planned new features on the `Trello Board`_. Feel free to create feature requests on github issues.
