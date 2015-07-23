@@ -25,7 +25,12 @@ def _input(msg):
     return raw_input(msg)
 
 
-def input_value(topic, default_value=None, default_description=None, mandatory=True, hidden=False, prompt_fn=_input):
+def _hidden_input(msg):
+    return getpass(msg)
+
+
+def input_value(topic, default_value=None, default_description=None, mandatory=True, hidden=False, prompt_fn=_input,
+                hidden_prompt_fn=_hidden_input):
     first_time_input()
     default = default_description if default_description else default_value
     if default:
@@ -35,7 +40,7 @@ def input_value(topic, default_value=None, default_description=None, mandatory=T
     if not hidden:
         answer = prompt_fn(input_msg)
     else:
-        answer = getpass(input_msg)
+        answer = hidden_prompt_fn(input_msg)
     answer = answer.strip()
     if not len(answer):
         if default_value:

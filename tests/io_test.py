@@ -22,3 +22,7 @@ class TestIO(unittest.TestCase):
     def test_int_input(self):
         self.assertEqual(io.input_value('int topic', default_value=1, prompt_fn=lambda (m): '123'), 123)
         self.assertRaises(ValueError, io.input_value, 'int topic', default_value=1, prompt_fn=lambda (m): 'aaa')
+
+    def test_value_hidden(self):
+        pwd = 'this is a strong pwd'
+        self.assertEqual(io.input_value('pwd', hidden=True, hidden_prompt_fn=lambda (m): pwd), pwd)
