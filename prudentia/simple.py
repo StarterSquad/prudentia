@@ -150,13 +150,7 @@ class SimpleCli(Cmd):
         print "Load extra vars from a .yml or .json file (they will override existing ones)."
 
     def do_vars(self, line):
-        vars_file = line
-        if not vars_file:
-            vars_file = input_path('absolute vars file path')
-        vars_dict = utils.parse_yaml_from_file(vars_file)
-        for key, value in vars_dict.iteritems():
-            self.provider.set_var(key, value)
-
+        self.provider.load_vars(line.strip())
 
     def do_EOF(self, line):
         print "\n"
@@ -205,6 +199,13 @@ class SimpleProvider(object):
 
     def set_vault_password(self, pwd):
         self.vault_password = pwd
+
+    def load_vars(self, vars_file):
+        if not vars_file:
+            vars_file = input_path('absolute path of the variables file')
+        vars_dict = utils.parse_yaml_from_file(vars_file, self.vault_password)
+        for key, value in vars_dict.iteritems():
+            self.set_var(key, value)
 
     def add_box(self, box):
         self.env.add(box)
