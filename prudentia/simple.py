@@ -15,7 +15,7 @@ import ansible.constants as C
 
 from domain import Environment
 from utils.provisioning import run_playbook, generate_inventory
-from utils.io import prudentia_python_dir, input_path
+from utils.io import prudentia_python_dir, input_path, input_value
 
 
 class SimpleCli(Cmd):
@@ -143,7 +143,7 @@ class SimpleCli(Cmd):
               "For more information visit http://docs.ansible.com/playbooks_vault.html."
 
     def do_decrypt(self, line):
-        self.provider.set_vault_password(line)
+        self.provider.set_vault_password()
 
 
     def help_vars(self):
@@ -197,7 +197,8 @@ class SimpleProvider(object):
             self.extra_vars.pop(var, None)
             print "Unset \'{0}\'\n".format(var)
 
-    def set_vault_password(self, pwd):
+    def set_vault_password(self):
+        pwd = input_value('Ansible vault password', hidden=True)
         self.vault_password = pwd
 
     def load_vars(self, vars_file):
