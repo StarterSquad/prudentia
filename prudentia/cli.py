@@ -1,6 +1,7 @@
 import argparse
 import os
 from os import path
+import sys
 
 from . import __version__
 
@@ -30,6 +31,9 @@ class CLI(object):
         parser.add_argument('provider', choices=Providers.keys(), help='use one of the available providers')
         parser.add_argument('commands', nargs='*', default='',
                             help='optional quoted list of commands to run with the chosen provider')
+        if len(sys.argv) == 1:
+            parser.print_help()
+            sys.exit(1)
         return parser.parse_args(args)
 
     def run(self, args):
