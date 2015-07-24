@@ -6,7 +6,7 @@ boto==2.38.0
 cffi==1.1.2
 coverage==3.7.1
 cryptography==0.9.3
-dopy==0.2.3
+dopy==0.3.6
 ecdsa==0.13
 enum34==1.0.4
 idna==2.0

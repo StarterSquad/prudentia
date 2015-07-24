@@ -28,17 +28,16 @@ class DigitalOceanProvider(FactoryProvider):
 
     def __init__(self):
         super(DigitalOceanProvider, self).__init__(self.NAME, DOGeneral, DOExt)
-        if not self.env.initialized:
+        if (not self.env.initialized) or (not self.env.general) or (not self.env.general.api_token):
             g = self._input_general_env_conf()
         else:
             g = self.env.general
-        self.manager = DoManager(g.client_id, g.api_key)
+        self.manager = DoManager(None, g.api_token, api_version=2)
 
     def _input_general_env_conf(self):
-        print '\nThis is the first time you use the Digital Ocean provider, please supply your credentials:'
-        client_id = input_value('client id')
-        api_key = input_value('api key')
-        do_general = DOGeneral(client_id, api_key)
+        print '\nThe DigitalOcean API (v2) token is not configured, if you don\'t have one please visit https://cloud.digitalocean.com/settings/applications and generate it.'
+        api_token = input_value('api token')
+        do_general = DOGeneral(api_token)
         self.env.set_general(do_general)
         return do_general
 
@@ -226,19 +225,18 @@ class DigitalOceanProvider(FactoryProvider):
 
 
 class DOGeneral(object):
-    def __init__(self, client_id, api_key):
-        self.client_id = client_id
-        self.api_key = api_key
+    def __init__(self, api_token):
+        self.api_token = api_token
 
     def __repr__(self):
-        return 'DOGeneral[client_id: %s, api_key: %s]' % (self.client_id, self.api_key)
+        return 'DOGeneral[api_token: %s]' % self.api_token
 
     def to_json(self):
-        return {'client_id': self.client_id, 'api_key': self.api_key}
+        return {'api_token': self.api_token}
 
     @staticmethod
     def from_json(json):
-        return DOGeneral(json['client_id'], json['api_key'])
+        return DOGeneral(json.get('api_token'))
 
 
 class DOExt(object):
