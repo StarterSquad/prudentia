@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PLAYBOOK=${PWD}/boxes/tasks.yml
+PLAYBOOK=./examples/boxes/tasks.yml
 BOX_NAME=mybox
 
 function valid_ip()

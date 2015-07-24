@@ -26,3 +26,7 @@ class TestIO(unittest.TestCase):
     def test_value_hidden(self):
         pwd = 'this is a strong pwd'
         self.assertEqual(io.input_value('pwd', hidden=True, hidden_prompt_fn=lambda (m): pwd), pwd)
+
+    def test_path_file(self):
+        f = "./dev.yml"
+        self.assertIsNotNone(io.input_path('cwd file', prompt_fn=lambda (m): f))

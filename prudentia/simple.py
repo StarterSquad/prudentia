@@ -203,7 +203,7 @@ class SimpleProvider(object):
 
     def load_vars(self, vars_file):
         if not vars_file:
-            vars_file = input_path('absolute path of the variables file')
+            vars_file = input_path('path of the variables file')
         vars_dict = utils.parse_yaml_from_file(vars_file, self.vault_password)
         for key, value in vars_dict.iteritems():
             self.set_var(key, value)

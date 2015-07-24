@@ -23,7 +23,7 @@ class TestLocalProvider(unittest.TestCase):
         self.provider.remove_box(r_box)
 
     def test_should_list_tag(self):
-        e_box = Box('simple-box', self.tests_path + '/dev.yml', 'hostname', '0.0.0.0')
+        e_box = Box('simple-box', './dev.yml', 'hostname', '0.0.0.0')
         self.provider.load_tags(e_box)
         self.assertEqual(self.provider.tags.has_key(e_box.name), True)
         self.assertEqual(self.provider.tags[e_box.name], ['one'])

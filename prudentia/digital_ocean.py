@@ -64,7 +64,7 @@ class DigitalOceanProvider(FactoryProvider):
                 ext.region = droplet_info['region_id']
                 print 'Region: %s\n' % ext.region
 
-            playbook = input_path('absolute playbook path')
+            playbook = input_path('playbook path')
             hostname = self.fetch_box_hostname(playbook)
 
             if not name:
@@ -112,7 +112,7 @@ class DigitalOceanProvider(FactoryProvider):
         try:
             self.remove_box(previous_box)
 
-            playbook = input_path('absolute playbook path', previous_box.playbook)
+            playbook = input_path('playbook path', previous_box.playbook)
             hostname = self.fetch_box_hostname(playbook)
             ip = previous_box.ip
             user = input_value('remote user', previous_box.remote_user)

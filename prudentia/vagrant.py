@@ -37,7 +37,7 @@ class VagrantProvider(FactoryProvider):
 
     def register(self):
         try:
-            playbook = input_path('absolute playbook path')
+            playbook = input_path('playbook path')
             hostname = self.fetch_box_hostname(playbook)
             name = input_value('box name', self.suggest_name(hostname))
             ip = input_value('internal IP')
@@ -68,7 +68,7 @@ class VagrantProvider(FactoryProvider):
         try:
             self.remove_box(previous_box)
 
-            playbook = input_path('absolute playbook path', previous_box.playbook)
+            playbook = input_path('playbook path', previous_box.playbook)
             hostname = self.fetch_box_hostname(playbook)
             ip = input_value('internal IP', previous_box.ip)
 

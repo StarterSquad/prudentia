@@ -1,4 +1,3 @@
-import os
 import unittest
 
 from prudentia.local import LocalCli
@@ -6,7 +5,6 @@ from prudentia.local import LocalCli
 
 class TestLocalCli(unittest.TestCase):
     def setUp(self):
-        self.tests_path = os.path.dirname(os.path.realpath(__file__))
         self.cli = LocalCli()
 
     def test_set_var(self):
@@ -30,7 +28,7 @@ class TestLocalCli(unittest.TestCase):
         self.assertEqual(self.cli.provider.extra_vars[var_name], var_value_overridden)
 
     def test_load_vars(self):
-        vars_file = self.tests_path + '/vars.yml'
+        vars_file = './vars.yml'
         self.cli.do_vars(vars_file)
         xv = self.cli.provider.extra_vars
         self.assertEqual(xv['first'], 'well')
