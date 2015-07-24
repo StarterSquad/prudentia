@@ -4,6 +4,7 @@
 *.pyc
 p-env
 tests/envs
+tests/cover
 dist
 prudentia.egg-info
 build

@@ -1,6 +1,46 @@
 Release History
 ---------------
 
+0.12 (2015-07-24)
++++++++++++++++++
+
+**Improvements**
+
+- Makes Nginx bundled task disable the default site.
+- Shows more information about the DigitalOcean image when registering/reconfiguring a droplet.
+- Allows only the newly added sudo user to not be prompted for password.
+- Upgrades to Ansible 1.9.2.
+- Adds bundled tasks: vault (https://vaultproject.io), fail2ban, tomcat7.
+- Adds an action for the simple provider to set the password used to decrypt Ansible vault files.
+- Refactors main cli to properly parse input arguments.
+- Accepts list of commands as arguments.
+- Introduces -v (--version) argument to print current Prudentia version.
+- Adds an action for the simple provider to loads extra vars from an external .yml or .json file.
+- Checks if current version is the latest released one.
+- Accepts input paths relative to the directory where Prudentia was started or relative to the user home directory.
+- Upgrades dopy to 0.3.6 and switches to DigitalOcean API version 2 based on API token.
+
+**Bugfixes**
+
+- Makes Nginx bundled task properly idempotent and reload the service at the end of the task.
+- Fixes ElasticSearch init script.
+- Makes sure variables value are set even if they contain spaces.
+- Waits for async bash thread to finish.
+- Fixes InsecurePlatformWarning when https connections are initiated.
+
+**Misc**
+
+- Updates Client component example.
+- Moves build to new Travis container based infrastructure.
+- Enables properly coverage verification and improved the coverage itself.
+- Verifies support for Python 3.2+.
+
+**Documentation**
+
+- Adds `decrypt` action doc.
+- Adds `vars` action doc.
+- Extends Usage section describing the new Commands list argument.
+
 0.11 (2015-06-19)
 +++++++++++++++++
 

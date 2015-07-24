@@ -22,7 +22,7 @@ class LocalProvider(SimpleProvider):
 
     def register(self):
         try:
-            playbook = input_path('absolute playbook path')
+            playbook = input_path('playbook path')
             hostname = self.fetch_box_hostname(playbook)
             name = input_value('box name', self.suggest_name(hostname))
 
@@ -37,7 +37,7 @@ class LocalProvider(SimpleProvider):
         try:
             self.remove_box(previous_box)
 
-            playbook = input_path('absolute playbook path', previous_box.playbook)
+            playbook = input_path('playbook path', previous_box.playbook)
             hostname = self.fetch_box_hostname(playbook)
 
             box = Box(previous_box.name, playbook, hostname, '127.0.0.1')
@@ -70,5 +70,6 @@ class LocalProvider(SimpleProvider):
             remote_pass=remote_pwd,
             transport=transport,
             extra_vars=self.extra_vars,
-            only_tags=only_tags
+            only_tags=only_tags,
+            vault_password=self.vault_password
         )

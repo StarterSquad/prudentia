@@ -6,6 +6,7 @@ from abc import ABCMeta, abstractmethod
 from cmd import Cmd
 import random
 
+from ansible import utils
 from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
 from ansible.inventory import Inventory
 from ansible.playbook import PlayBook
@@ -14,7 +15,7 @@ import ansible.constants as C
 
 from domain import Environment
 from utils.provisioning import run_playbook, generate_inventory
-from utils.io import prudentia_python_dir
+from utils.io import prudentia_python_dir, input_path, input_value
 
 
 class SimpleCli(Cmd):
@@ -107,13 +108,14 @@ class SimpleCli(Cmd):
               "During provisioning it will forcibly override the one defined in any playbook.\n"
 
     def do_set(self, line):
-        tokens = line.split(' ')
-        if len(tokens) != 2:
+        try:
+            first_space_idx = line.index(' ')
+            name = line[:first_space_idx].strip()
+            value = line[first_space_idx:].strip()
+            self.provider.set_var(name, value)
+        except ValueError as e:
+            logging.exception('Error in setting variable for the current provider.')
             print 'Please provide the name of the variable followed by its value.\n'
-        else:
-            variable = tokens[0].strip()
-            value = tokens[1].strip()
-            self.provider.set_var(variable, value)
 
 
     def help_unset(self):
@@ -136,6 +138,20 @@ class SimpleCli(Cmd):
                 print b
 
 
+    def help_decrypt(self):
+        print "Provide the password that will be used to decrypt Ansible vault files. " \
+              "For more information visit http://docs.ansible.com/playbooks_vault.html."
+
+    def do_decrypt(self, line):
+        self.provider.set_vault_password()
+
+
+    def help_vars(self):
+        print "Load extra vars from a .yml or .json file (they will override existing ones)."
+
+    def do_vars(self, line):
+        self.provider.load_vars(line.strip())
+
     def do_EOF(self, line):
         print "\n"
         return True
@@ -153,6 +169,7 @@ class SimpleProvider(object):
         self.env = Environment(name, general_type, box_extra_type)
         self.extra_vars = {'prudentia_dir': prudentia_python_dir()}
         self.tags = {}
+        self.vault_password = False
         self.load_tags()
         self.provisioned = False
 
@@ -167,7 +184,7 @@ class SimpleProvider(object):
             print 'NOTICE: Variable \'{0}\' is already set to this value: \'{1}\' and it will be overwritten.'\
                 .format(var, self.extra_vars[var])
         self.extra_vars[var] = value
-        print "\nSet \'{0}\' -> {1}\n".format(var, value)
+        print "Set \'{0}\' -> {1}\n".format(var, value)
 
     def unset_var(self, var):
         if not var:
@@ -178,7 +195,18 @@ class SimpleProvider(object):
             self._show_current_vars()
         else:
             self.extra_vars.pop(var, None)
-            print "\nUnset \'{0}\'\n".format(var)
+            print "Unset \'{0}\'\n".format(var)
+
+    def set_vault_password(self):
+        pwd = input_value('Ansible vault password', hidden=True)
+        self.vault_password = pwd
+
+    def load_vars(self, vars_file):
+        if not vars_file:
+            vars_file = input_path('path of the variables file')
+        vars_dict = utils.parse_yaml_from_file(vars_file, self.vault_password)
+        for key, value in vars_dict.iteritems():
+            self.set_var(key, value)
 
     def add_box(self, box):
         self.env.add(box)
@@ -258,5 +286,6 @@ class SimpleProvider(object):
             remote_pass=remote_pwd,
             transport=transport,
             extra_vars=self.extra_vars,
-            only_tags=only_tags
+            only_tags=only_tags,
+            vault_password=self.vault_password
         )

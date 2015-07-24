@@ -1,17 +1,22 @@
+import argparse
 import os
 from os import path
+import sys
+
+from . import __version__
+
 
 # Setting Ansible config file environment variable as first thing
-os.environ['ANSIBLE_CONFIG'] = path.join(path.dirname(path.realpath(__file__)), 'ansible.cfg')
-
-from cmd import Cmd
+cwd = path.dirname(path.realpath(__file__))
+os.environ['ANSIBLE_CONFIG'] = path.join(cwd, 'ansible.cfg')
+os.environ['ANSIBLE_ROLES_PATH'] = path.join(cwd, 'roles') + os.pathsep + '/etc/ansible/roles'
 
 from digital_ocean import DigitalOceanCli
 from local import LocalCli
 from ssh import SshCli
 from vagrant import VagrantCli
 
-Environments = {
+Providers = {
     'local': LocalCli,
     'ssh': SshCli,
     'vagrant': VagrantCli,
@@ -19,49 +24,24 @@ Environments = {
 }
 
 
-class CLI(Cmd):
-    parent_loop = False
-    env_cli = None
+class CLI(object):
+    def parse(self, args=None):
+        parser = argparse.ArgumentParser(prog='prudentia', description='A useful Continuous Deployment toolkit.')
+        parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
+        parser.add_argument('provider', choices=Providers.keys(), help='use one of the available providers')
+        parser.add_argument('commands', nargs='*', default='',
+                            help='optional quoted list of commands to run with the chosen provider')
+        if len(sys.argv) == 1:
+            parser.print_help()
+            sys.exit(1)
+        return parser.parse_args(args)
 
-    def __init__(self, *args, **kwargs):
-        Cmd.__init__(self, *args, **kwargs)
-        self.prompt = '(Prudentia) '
-
-    def cmdloop(self, *args, **kwargs):
-        self.parent_loop = True
-        print '\nTo start: `use` one of the available providers: %s\n' % ', '.join(
-            str(p) for p in Environments.keys())
-        return Cmd.cmdloop(self, *args, **kwargs)
-
-    def complete_use(self, text, line, begidx, endidx):
-        if not text:
-            return Environments.keys()
+    def run(self, args):
+        chosen_cli = Providers[args.provider]()
+        if args.commands:
+            for c in args.commands:
+                print "Executing: '{0}'\n".format(c)
+                chosen_cli.onecmd(c)
         else:
-            return [e for e in Environments.keys() if e.startswith(text)]
-
-    def do_use(self, env, *args):
-        result = False
-        if env in Environments.keys():
-            self.env_cli = Environments[env]()
-            if args:
-                cmd = ' '.join(args)
-                print "Executing: '{0}'\n".format(cmd)
-                self.env_cli.onecmd(cmd)
-            else:
-                self.env_cli.cmdloop()
-
-            result = self.env_cli.provider.provisioned
-        else:
-            print "Provider '{0}' NOT found.".format(env)
-
-        # If this function was called inside a cmd loop the return values indicates whether execution will be terminated
-        # returning False will cause interpretation to continue.
-        # Otherwise the return value is the result of the 'provision' action.
-        return False if self.parent_loop else result
-
-    def do_EOF(self, line):
-        print "\n\nBye!"
-        return True
-
-    def emptyline(self, *args, **kwargs):
-        return ""
+            chosen_cli.cmdloop()
+        return chosen_cli.provider.provisioned

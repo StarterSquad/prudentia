@@ -24,4 +24,6 @@ fi
 
 export PRUDENTIA_USER_DIR=.
 
+rm -rf tests/envs tests/cover
+
 nosetests -c nose.cfg $@

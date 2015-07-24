@@ -13,6 +13,7 @@ class BashCmd(object):
         self.show_output = True
         self.output_stdout = []
         self.output_stderr = []
+        self.returncode = 1
         self.ON_POSIX = 'posix' in sys.builtin_module_names
 
     def set_env_var(self, var, value):
@@ -43,12 +44,12 @@ class BashCmd(object):
             p = Popen(args=self.cmd_args, bufsize=1, stdout=PIPE, stderr=PIPE, close_fds=self.ON_POSIX, env=self.env,
                       cwd=self.cwd)
             t = Thread(target=self.print_output, args=(p.stdout, p.stderr))
-            t.daemon = True # thread dies with the program
+            t.daemon = True  # thread dies with the program
             t.start()
-            p.wait()
+            self.returncode = p.wait()
+            t.join()
             self.stdout = "".join(self.output_stdout)
             self.stderr = "".join(self.output_stderr)
-            self.returncode = p.returncode
         except Exception as e:
             logging.exception('Command not executed.')
             print("ERROR - Problem running {0}: {1}".format(self.cmd_args, e))

@@ -15,13 +15,22 @@ def xstr(s):
 
 def first_time_input():
     if first_time_input.show:
-        print '\nPlease enter values for the following settings, ' \
-              'press \'Enter\' to accept the default value if given in brackets \'[ ]\'.\n'
+        print '\nPlease enter values for the following settings ' \
+              '(a default value could be suggested in brackets \'[ ]\', press \'Enter\' to use it).'
         first_time_input.show = False
 first_time_input.show = True
 
 
-def input_value(topic, default_value=None, default_description=None, mandatory=True, hidden=False):
+def _input(msg):
+    return raw_input(msg)
+
+
+def _hidden_input(msg):
+    return getpass(msg)
+
+
+def input_value(topic, default_value=None, default_description=None, mandatory=True, hidden=False, prompt_fn=_input,
+                hidden_prompt_fn=_hidden_input):
     first_time_input()
     default = default_description if default_description else default_value
     if default:
@@ -29,9 +38,9 @@ def input_value(topic, default_value=None, default_description=None, mandatory=T
     else:
         input_msg = 'Specify the %s: ' % topic
     if not hidden:
-        answer = raw_input(input_msg)
+        answer = prompt_fn(input_msg)
     else:
-        answer = getpass(input_msg)
+        answer = hidden_prompt_fn(input_msg)
     answer = answer.strip()
     if not len(answer):
         if default_value:
@@ -47,12 +56,10 @@ def input_value(topic, default_value=None, default_description=None, mandatory=T
     return answer
 
 
-def input_path(topic, default_value=None, default_description=None, mandatory=True, hidden=False, is_file=True):
-    path = input_value(topic, default_value, default_description, mandatory, hidden)
+def input_path(topic, default_value=None, default_description=None, mandatory=True, hidden=False, is_file=True, prompt_fn=_input):
+    path = os.path.realpath(os.path.expanduser(input_value(topic, default_value, default_description, mandatory, hidden, prompt_fn)))
     if not os.path.exists(path):
         raise ValueError('The %s you entered does NOT exist.' % topic)
-    elif not os.path.isabs(path):
-        raise ValueError('The %s you entered is NOT absolute.' % topic)
     elif is_file and not os.path.isfile(path):
         raise ValueError('The %s you entered is NOT a file.' % topic)
     elif not is_file and not os.path.isdir(path):
@@ -61,10 +68,10 @@ def input_path(topic, default_value=None, default_description=None, mandatory=Tr
         return path
 
 
-def input_yes_no(topic, default='n'):
+def input_yes_no(topic, default='n', prompt_fn=_input):
     first_time_input()
     input_msg = 'Do you want to %s? [default: %s]: ' % (topic, default.upper())
-    answer = raw_input(input_msg).strip()
+    answer = prompt_fn(input_msg).strip()
     if not len(answer):
         answer = default
     if answer.lower() in ('y', 'yes'):

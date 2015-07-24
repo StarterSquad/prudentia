@@ -22,7 +22,7 @@ class SshProvider(SimpleProvider):
 
     def register(self):
         try:
-            playbook = input_path('absolute playbook path')
+            playbook = input_path('playbook path')
             hostname = self.fetch_box_hostname(playbook)
             name = input_value('box name', self.suggest_name(hostname))
             ip = input_value('ip or hostname of the instance')
@@ -40,7 +40,7 @@ class SshProvider(SimpleProvider):
         try:
             self.remove_box(previous_box)
 
-            playbook = input_path('absolute playbook path', previous_box.playbook)
+            playbook = input_path('playbook path', previous_box.playbook)
             hostname = self.fetch_box_hostname(playbook)
             ip = input_value('ip or hostname of the instance', previous_box.ip)
             user = input_value('remote user', previous_box.remote_user)
