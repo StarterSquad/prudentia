@@ -15,8 +15,8 @@ def xstr(s):
 
 def first_time_input():
     if first_time_input.show:
-        print '\nPlease enter values for the following settings, ' \
-              'press \'Enter\' to accept the default value if given in brackets \'[ ]\'.\n'
+        print '\nPlease enter values for the following settings ' \
+              '(a default value could be suggested in brackets \'[ ]\', press \'Enter\' to use it).'
         first_time_input.show = False
 first_time_input.show = True
 
