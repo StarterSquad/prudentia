@@ -29,4 +29,4 @@ class TestIO(unittest.TestCase):
 
     def test_path_file(self):
         f = "./dev.yml"
-        self.assertIsNotNone(io.input_path('cwd file', prompt_fn=lambda (m): f))
+        self.assertNotEqual(io.input_path('cwd file', prompt_fn=lambda (m): f), None)
