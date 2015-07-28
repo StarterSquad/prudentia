@@ -39,3 +39,7 @@
     - {plugin: karmi/elasticsearch-paramedic, name: paramedic}
 
   vault_version: 0.1.2
+
+  #vsftpd_files:
+  #  - vsftpd.conf
+  #  - ftpusers
