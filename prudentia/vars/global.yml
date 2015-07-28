@@ -38,4 +38,4 @@
     - {plugin: mobz/elasticsearch-head, name: head}
     - {plugin: karmi/elasticsearch-paramedic, name: paramedic}
 
-  vault_version: 0.1.2
+  vault_version: 0.2.0
