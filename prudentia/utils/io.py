@@ -80,3 +80,30 @@ def input_yes_no(topic, default='n', prompt_fn=_input):
         return True
     else:
         return False
+
+
+def input_choice(topic, default=None, choices=None, retries=3, prompt_fn=_input):
+    if not isinstance(choices, list):
+        raise ValueError('Choices must be a list: \'{0}\'.'.format(choices))
+    elif not len(choices):
+        raise ValueError('Choices are empty.')
+    elif default and default not in choices:
+        raise ValueError('Default value \'{0}\' is not part of provided choices: \'{1}\'.'.format(default, choices))
+    else:
+        first_time_input()
+        times = 0
+        while times < retries:
+            if default:
+                input_msg = 'Specify the %s [default: %s]: ' % (topic, default)
+            else:
+                input_msg = 'Specify the %s: ' % topic
+            answer = prompt_fn(input_msg).strip()
+            if not len(answer):
+                if default:
+                    answer = default
+            if answer not in choices:
+                print '\nPlease enter one of the following choices: {0}'.format(choices)
+                times += 1
+            else:
+                return answer
+        raise ValueError('Reached max retries: {0}.'.format(retries))
