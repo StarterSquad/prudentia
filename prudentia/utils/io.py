@@ -56,8 +56,10 @@ def input_value(topic, default_value=None, default_description=None, mandatory=T
     return answer
 
 
-def input_path(topic, default_value=None, default_description=None, mandatory=True, hidden=False, is_file=True, prompt_fn=_input):
-    path = os.path.realpath(os.path.expanduser(input_value(topic, default_value, default_description, mandatory, hidden, prompt_fn)))
+def input_path(topic, default_value=None, default_description=None, mandatory=True, is_file=True, prompt_fn=_input):
+    path = os.path.realpath(os.path.expanduser(
+        input_value(topic, default_value, default_description, mandatory, False, prompt_fn)
+    ))
     if not os.path.exists(path):
         raise ValueError('The %s you entered does NOT exist.' % topic)
     elif is_file and not os.path.isfile(path):
