@@ -1,0 +1,35 @@
+---
+  # Parameters:
+  #  prudentia_dir (provided)
+
+  - name: vsftpd | Check if is installed
+    command: test -x /usr/sbin/vsftpd
+    when: ansible_system == "Linux"
+    register: vsftpd_present
+    ignore_errors: yes
+    tags: vsftpd
+
+  - name: vsftpd | Install
+    apt: update-cache=yes force=yes state=present pkg=vsftpd
+    when: ansible_os_family == "Debian" and vsftpd_present|failed
+    sudo: yes
+    tags: vsftpd
+
+  - name: vsftpd | Copy configuration file
+    ### TODO:
+    ###   - Check if we need to chown/chmod
+    ###   - Check what other files do we need to copy (ftpusers? what else?)
+    ###   - Check vsftpd_conf var when using multiple files copy
+    copy: src={{prudentia_dir}}/files/vsftpd/vsftpd.conf dest=/etc/vsftpd.conf
+    #copy: src={{prudentia_dir}}/files/vsftpd/{{item}} dest=/etc/{{item}}
+    #with_items: vsftpd_files
+    when: ansible_os_family == "Debian"
+    register: vsftpd_conf
+    sudo: yes
+    tags: vsftpd
+
+  - name: vsftpd | Restart
+    service: name=vsftpd state=restarted
+    when: vsftpd_conf.changed
+    sudo: yes
+    tags: vsftpd
