@@ -2,9 +2,9 @@ import logging
 from os import path
 import re
 
+import jinja2
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
-
 from domain import Box
 from domain import Environment as PrudentiaEnv
 from factory import FactoryProvider, FactoryCli
@@ -33,7 +33,11 @@ class VagrantProvider(FactoryProvider):
     def __init__(self):
         super(VagrantProvider, self).__init__(self.NAME, box_extra_type=VagrantExt)
         this_path = path.dirname(path.realpath(__file__))
-        self.template_env = Environment(loader=FileSystemLoader(this_path), auto_reload=True)
+        self.template_env = Environment(
+            loader=FileSystemLoader(this_path),
+            auto_reload=True,
+            undefined=jinja2.StrictUndefined
+        )
         # BashCmd(path.join(this_path, 'install_vagrant.sh')).execute()
 
     def register(self):

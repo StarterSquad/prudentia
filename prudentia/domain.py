@@ -23,9 +23,8 @@ class Environment(object):
         self.general = None
         self.boxes = {}
         try:
-            with open(self.file):
-                self._load()
-                self.initialized = True
+            self._load()
+            self.initialized = True
         except IOError:
             self.initialized = False
 
