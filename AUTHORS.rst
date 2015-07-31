@@ -16,3 +16,4 @@ Patches, Suggestions and Contributions
 - Sebastian Sastre `@sebastianconcept <https://github.com/sebastianconcept>`_
 - Craig Latta `@ccrraaiigg <https://github.com/ccrraaiigg>`_
 - Vyacheslav Voronenko `@voronenko <https://github.com/voronenko>`_
+- Vladimir Scherbinin `@vovinacci <https://github.com/vovinacci>`_
