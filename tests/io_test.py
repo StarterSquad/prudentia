@@ -15,6 +15,8 @@ class TestIO(unittest.TestCase):
     def test_no(self):
         self.assertFalse(io.input_yes_no('test topic', prompt_fn=lambda (m): 'whatever'))
         self.assertFalse(io.input_yes_no('test topic', prompt_fn=lambda (m): 'no'))
+
+    def test_yes_no_default(self):
         self.assertFalse(io.input_yes_no('test topic', prompt_fn=lambda (m): ''))
 
     def test_mandatory_input(self):
