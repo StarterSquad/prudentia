@@ -39,3 +39,7 @@
     - {plugin: karmi/elasticsearch-paramedic, name: paramedic}
 
   vault_version: 0.2.0
+
+  mailhog_version: 0.1.6
+  mailhog_url: http://github.com/mailhog/MailHog/releases/download/v
+  mailhog_bin_path: /usr/local/bin/MailHog
