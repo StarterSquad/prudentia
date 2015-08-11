@@ -9,7 +9,7 @@ from domain import Box
 from factory import FactoryProvider, FactoryCli
 from simple import SimpleProvider
 from utils.provisioning import run_module, local_inventory, create_user
-from utils.io import input_yes_no, input_value, input_path, xstr
+from utils.io import input_yes_no, input_value, input_path, xstr, input_choice
 
 
 class DigitalOceanCli(FactoryCli):
@@ -23,8 +23,8 @@ class DigitalOceanProvider(FactoryProvider):
     NAME = 'digital-ocean'
 
     DEFAULT_IMAGE_NAME = "14.04 x64"  # Ubuntu latest LTS 64bit
-    DEFAULT_SIZE_ID = 63  # 1GB
-    DEFAULT_REGION_ID = 5  # Amsterdam 2
+    DEFAULT_SIZE_SLUG = "1gb"
+    DEFAULT_REGION_SLUG = "ams3"
 
     def __init__(self):
         super(DigitalOceanProvider, self).__init__(self.NAME, DOGeneral, DOExt)
@@ -56,11 +56,11 @@ class DigitalOceanProvider(FactoryProvider):
                 print '\nFound droplet \'{0}\' (created {1})'.format(name, created)
                 ip = xstr(droplet_info['ip_address'])
                 print 'IP: %s' % ip
-                ext.image = droplet_info['image_id']
+                ext.image = droplet_info['image']['id']
                 print 'Image: %s' % ext.image
-                ext.size = droplet_info['size_id']
+                ext.size = droplet_info['size']['slug']
                 print 'Size: %s' % ext.size
-                ext.region = droplet_info['region_id']
+                ext.region = droplet_info['region']['slug']
                 print 'Region: %s\n' % ext.region
 
             playbook = input_path('playbook path')
@@ -80,13 +80,15 @@ class DigitalOceanProvider(FactoryProvider):
 
             if not ext.size:
                 all_sizes = self.manager.sizes()
-                print '\nAvailable sizes: \n%s' % self._print_object_id_name(all_sizes)
-                ext.size = input_value('size', self.DEFAULT_SIZE_ID)
+                sizes_slug = [o['slug'] for o in all_sizes]
+                print '\nAvailable sizes: \n%s' % '\n'.join(sizes_slug)
+                ext.size = input_choice('size', self.DEFAULT_SIZE_SLUG, choices=sizes_slug)
 
             if not ext.region:
                 all_regions = self.manager.all_regions()
-                print '\nAvailable regions: \n%s' % self._print_object_id_name(all_regions)
-                ext.region = input_value('region', self.DEFAULT_REGION_ID)
+                regions_slug = [o['slug'] for o in all_regions]
+                print '\nAvailable regions: \n%s' % '\n'.join(regions_slug)
+                ext.region = input_choice('region', self.DEFAULT_REGION_SLUG, choices=regions_slug)
 
             if not ext.keys:
                 all_keys = self.manager.all_ssh_keys()
@@ -103,9 +105,6 @@ class DigitalOceanProvider(FactoryProvider):
 
     def _print_object_id_name(self, objs):
         return '\n'.join([str(o['id']) + ' -> ' + o['name'] for o in objs])
-
-    def _find_object_name(self, objs, id):
-        return next(o for o in objs if o['id'] == id)['name']
 
     def reconfigure(self, previous_box):
         try:
@@ -129,16 +128,18 @@ class DigitalOceanProvider(FactoryProvider):
                     ext.image = input_value('image')
 
                 all_sizes = self.manager.sizes()
-                print '\nAvailable sizes: \n%s' % self._print_object_id_name(all_sizes)
+                sizes_slug = [o['slug'] for o in all_sizes]
+                print '\nAvailable sizes: \n%s' % '\n'.join(sizes_slug)
                 ext.size = input_value('size', previous_box.extra.size)
+
+                all_regions = self.manager.all_regions()
+                regions_slug = [o['slug'] for o in all_regions]
+                print '\nAvailable regions: \n%s' % '\n'.join(regions_slug)
+                ext.region = input_value('region', previous_box.extra.region)
 
                 all_keys = self.manager.all_ssh_keys()
                 print '\nAvailable keys: \n%s' % self._print_object_id_name(all_keys)
                 ext.keys = input_value('keys', previous_box.extra.keys)
-
-                all_regions = self.manager.all_regions()
-                print '\nAvailable regions: \n%s' % self._print_object_id_name(all_regions)
-                ext.region = input_value('region', previous_box.extra.region)
             else:
                 ext = previous_box.extra
 
