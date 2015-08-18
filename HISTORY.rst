@@ -1,6 +1,21 @@
 Release History
 ---------------
 
+0.13 (2015-08-18)
++++++++++++++++++
+
+**Improvements**
+
+- Enable support for multiple base images on the Vagrant provider.
+- List available base images when registering Vagrant box.
+- Adds bundled tasks: vsftpd, mailhog, monit.
+- Upgrades vault bundled task to 0.2
+- Introduces retries mechanism when asking the user to provide a valid path.
+
+**Bugfixes**
+
+- Makes sure that Jinja2 templates do not ignore undefined variables and raise an error instead.
+
 0.12 (2015-07-24)
 +++++++++++++++++
 
