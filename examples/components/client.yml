@@ -51,7 +51,7 @@
       - update
 
   - name: Client | Reload Nginx
-    service: name=nginx state=reload
+    service: name=nginx state=reloaded
     sudo: yes
     tags:
       - client

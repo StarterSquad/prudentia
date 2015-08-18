@@ -32,6 +32,18 @@ Prudentia currently offers:
 
 Currently, all features work with Python 2.6+ and 3.2+.
 
+*************
+Prerequisites
+*************
+You need at minimum:
+
+* Python 2.6
+
+To install on a Linux distribution you need:
+
+* libffi-dev
+* libssl-dev
+
 ************
 Installation
 ************

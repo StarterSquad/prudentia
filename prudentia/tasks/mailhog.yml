@@ -1,0 +1,24 @@
+---
+  # Parameters:
+  #  prudentia_dir (provided)
+  #  mailhog_url
+  #  mailhog_version
+  #  mailhog_bin_path
+
+  - name: Mailhog | Download distribution
+    get_url: url={{mailhog_url}}{{mailhog_version}}/MailHog_linux_amd64 dest={{mailhog_bin_path}} mode=0755
+    when: ansible_system == "Linux"
+    sudo: yes
+    tags: mailhog
+
+  - name: Mailhog | Create upstart
+    template: src={{root_dir}}/components/templates/mailhog/mailhog.conf.j2 dest=/etc/init/mailhog.conf mode=0644
+    when: ansible_distribution == "Ubuntu"
+    sudo: yes
+    tags: mailhog
+
+  - name: Mailhog | Restart
+    service: name=mailhog state=restarted
+    when: ansible_system == "Linux"
+    sudo: yes
+    tags: mailhog
