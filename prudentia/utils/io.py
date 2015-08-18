@@ -22,16 +22,17 @@ first_time_input.show = True
 
 
 def _input(msg):
+    first_time_input()
     return raw_input(msg)
 
 
 def _hidden_input(msg):
+    first_time_input()
     return getpass(msg)
 
 
 def input_value(topic, default_value=None, default_description=None, mandatory=True, hidden=False, prompt_fn=_input,
                 hidden_prompt_fn=_hidden_input):
-    first_time_input()
     default = default_description if default_description else default_value
     if default:
         input_msg = 'Specify the %s [default: %s]: ' % (topic, default)
@@ -56,22 +57,26 @@ def input_value(topic, default_value=None, default_description=None, mandatory=T
     return answer
 
 
-def input_path(topic, default_value=None, default_description=None, mandatory=True, is_file=True, prompt_fn=_input):
-    path = os.path.realpath(os.path.expanduser(
-        input_value(topic, default_value, default_description, mandatory, False, prompt_fn)
-    ))
-    if not os.path.exists(path):
-        raise ValueError('The %s you entered does NOT exist.' % topic)
-    elif is_file and not os.path.isfile(path):
-        raise ValueError('The %s you entered is NOT a file.' % topic)
-    elif not is_file and not os.path.isdir(path):
-        raise ValueError('The %s you entered is NOT a directory.' % topic)
-    else:
-        return path
+def input_path(topic, default_value=None, default_description=None, mandatory=True, is_file=True, prompt_fn=_input,
+               retries=3):
+    times = 0
+    while times < retries:
+        path = os.path.realpath(os.path.expanduser(
+            input_value(topic, default_value, default_description, mandatory, False, prompt_fn)
+        ))
+        if not os.path.exists(path):
+            print 'The %s you entered does NOT exist.' % topic
+        elif is_file and not os.path.isfile(path):
+            print 'The %s you entered is NOT a file.' % topic
+        elif not is_file and not os.path.isdir(path):
+            print 'The %s you entered is NOT a directory.' % topic
+        else:
+            return path
+        times += 1
+    raise ValueError('Reached max retries: {0}.'.format(retries))
 
 
 def input_yes_no(topic, default='n', prompt_fn=_input):
-    first_time_input()
     input_msg = 'Do you want to %s? [default: %s]: ' % (topic, default.upper())
     answer = prompt_fn(input_msg).strip()
     if not len(answer):
@@ -82,7 +87,7 @@ def input_yes_no(topic, default='n', prompt_fn=_input):
         return False
 
 
-def input_choice(topic, default=None, choices=None, retries=3, prompt_fn=_input):
+def input_choice(topic, default=None, choices=None, prompt_fn=_input, retries=3):
     if not isinstance(choices, list):
         raise ValueError('Choices must be a list: \'{0}\'.'.format(choices))
     elif not len(choices):
@@ -90,7 +95,6 @@ def input_choice(topic, default=None, choices=None, retries=3, prompt_fn=_input)
     elif default and default not in choices:
         raise ValueError('Default value \'{0}\' is not part of provided choices: \'{1}\'.'.format(default, choices))
     else:
-        first_time_input()
         times = 0
         while times < retries:
             if default:
@@ -102,7 +106,7 @@ def input_choice(topic, default=None, choices=None, retries=3, prompt_fn=_input)
                 if default:
                     answer = default
             if answer not in choices:
-                print '\nPlease enter one of the following choices: {0}'.format(choices)
+                print '\nPlease enter one of the following choices: {0}'.format(', '.join(choices))
                 times += 1
             else:
                 return answer
