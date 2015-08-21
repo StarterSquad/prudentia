@@ -1,6 +1,6 @@
 ---
   - name: Sysdig | Check if is present
-    command: test -x /usr/sbin/sysdig
+    command: test -x /usr/bin/sysdig
     when: ansible_os_family == "Debian"
     ignore_errors: yes
     register: sysdig_present
@@ -20,7 +20,9 @@
 
   - name: Sysdig | Install linux-headers (dependency)
     action: shell apt-get install -y linux-headers-$(uname -r)
+    when: ansible_os_family == "Debian" and sysdig_present|failed
     ignore_errors: yes
+    sudo: yes
     tags: sysdig
 
   - name: Sysdig | Install
