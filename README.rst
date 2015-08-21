@@ -37,12 +37,13 @@ Prerequisites
 *************
 You need at minimum:
 
-* Python 2.6
+* Python 2.6 and pip
 
 To install on a Linux distribution you need:
 
 * libffi-dev
 * libssl-dev
+* python-dev
 
 ************
 Installation
