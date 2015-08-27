@@ -2,13 +2,12 @@ import logging
 import time
 
 import ansible.constants as C
-from ansible.runner import Runner
 
 from dopy.manager import DoManager, DoError
 from domain import Box
 from factory import FactoryProvider, FactoryCli
 from simple import SimpleProvider
-from utils.provisioning import run_module, local_inventory, create_user
+from utils.provisioning import create_user
 from utils.io import input_yes_no, input_value, input_path, xstr, input_choice
 
 
@@ -156,24 +155,13 @@ class DigitalOceanProvider(FactoryProvider):
         SimpleProvider.add_box(self, box)
 
     def create(self, box):
-        g = self.env.general
         e = box.extra
         if not e.id:
             print '\nCreating instance \'{0}\' ...'.format(box.name)
-            success, result = run_module(Runner(
-                transport='local',
-                inventory=local_inventory(),
-                remote_user='root',
-                module_name='digital_ocean',
-                module_args='state=present command=droplet client_id={0} api_key={1} '
-                            'name={2} size_id={3} image_id={4} region_id={5} ssh_key_ids={6} wait_timeout=300'
-                .format(g.client_id, g.api_key, box.name, e.size, e.image, e.region, e.keys))
-            )
-
-            droplet = result['droplet']
+            droplet = self.manager.new_droplet(name=box.name, size_id=e.size, image_id=e.image, region_id=e.region,
+                                               ssh_key_ids=e.keys.split(','))
             box.extra.id = droplet['id']
-            box.ip = droplet['ip_address']
-            print 'Droplet created with id: {0} -> {1}\n'.format(box.extra.id, box.ip)
+            box.ip = self._wait_to_be_active(box.extra.id)
         else:
             info = self.manager.show_droplet(e.id)
             print 'Droplet {0} already exists - status: {1}.'.format(e.id, info['status'])
