@@ -17,9 +17,7 @@
 
 import sys
 import os
-import string
 from boto import boto
-from boto import ec2
 from optparse import OptionParser
 try:
     import json
