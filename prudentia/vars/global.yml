@@ -47,3 +47,6 @@
   monit_version: 5.14-2
   monit_repo: http://nl.archive.ubuntu.com/ubuntu/pool/universe/m/monit
   monit_package: monit_{{monit_version}}_amd64.deb
+
+  haproxy_version: 1.5
+  haproxy_apt_repository: ppa:vbernat/haproxy-{{haproxy_version}}
