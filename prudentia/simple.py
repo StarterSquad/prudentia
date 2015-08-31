@@ -17,6 +17,9 @@ from domain import Environment
 from utils.provisioning import run_playbook, generate_inventory
 from utils.io import prudentia_python_dir, input_path, input_value
 
+import traceback
+import sys
+
 
 class SimpleCli(Cmd):
     provider = None  # Set by his children
@@ -27,6 +30,8 @@ class SimpleCli(Cmd):
         except Exception as e:
             logging.exception('Got a nasty error.')
             print '\nGot a nasty error: %s\n' % e
+            print(sys.exc_info()[0])
+            print(traceback.format_exc())
 
     def _get_box(self, box_name):
         b = self.provider.env.get(box_name)
@@ -104,7 +109,7 @@ class SimpleCli(Cmd):
 
 
     def help_set(self):
-        print "Sets the value of an environment variable. " \
+        print "Sets the value of an Ansible variable. " \
               "During provisioning it will forcibly override the one defined in any playbook.\n"
 
     def do_set(self, line):
@@ -116,6 +121,20 @@ class SimpleCli(Cmd):
         except ValueError as e:
             logging.exception('Error in setting variable for the current provider.')
             print 'Please provide the name of the variable followed by its value.\n'
+
+    def help_envset(self):
+        print "Sets the value of an environment variable.\n"
+
+    def do_envset(self, line):
+        try:
+            first_space_idx = line.index(' ')
+            name = line[:first_space_idx].strip()
+            value = line[first_space_idx:].strip()
+            os.environ[name] = value
+        except ValueError as e:
+            logging.exception('Error in setting variable for the current provider.')
+            print 'Please provide the name of the variable followed by its value.\n'
+
 
 
     def help_unset(self):
