@@ -276,8 +276,8 @@ You can e-mail me at:
 .. |health| image:: https://landscape.io/github/StarterSquad/prudentia/master/landscape.svg?style=flat
    :target: https://landscape.io/github/StarterSquad/prudentia/master
    :alt: Health
-.. |coverage| image:: https://coveralls.io/repos/StarterSquad/prudentia/badge.svg?branch=master&service=github
-   :target: https://coveralls.io/github/StarterSquad/prudentia?branch=master
+.. |coverage| image:: http://codecov.io/github/StarterSquad/prudentia/coverage.svg?branch=master
+   :target: http://codecov.io/github/StarterSquad/prudentia?branch=master
    :alt: Coverage
 .. |version| image:: https://badge.fury.io/py/prudentia.svg
    :target: http://badge.fury.io/py/prudentia
