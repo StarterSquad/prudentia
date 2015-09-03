@@ -167,24 +167,27 @@ class SimpleProvider(object):
 
     def __init__(self, name, general_type=None, box_extra_type=None):
         self.env = Environment(name, general_type, box_extra_type)
-        self.extra_vars = {'prudentia_dir': prudentia_python_dir()}
-        self.tags = {}
         self.vault_password = False
-        self.load_tags()
         self.provisioned = False
+        self.tags = {}
+        pd = prudentia_python_dir()
+        self.extra_vars = {'prudentia_dir': pd}
+        self.load_vars(os.path.join(pd, 'vars', 'global.yml'), False)
+        self.load_tags()
 
     def boxes(self):
         return self.env.boxes.values()
 
     def _show_current_vars(self):
-        print 'Current set variables:\n%s\n' % '\n'.join([n + ' -> ' + v for n, v in self.extra_vars.iteritems()])
+        print 'Current set variables:\n%s\n' % '\n'.join([n + ' -> ' + str(v) for n, v in self.extra_vars.iteritems()])
 
-    def set_var(self, var, value):
+    def set_var(self, var, value, verbose=True):
         if var in self.extra_vars:
             print 'NOTICE: Variable \'{0}\' is already set to this value: \'{1}\' and it will be overwritten.'\
                 .format(var, self.extra_vars[var])
         self.extra_vars[var] = value
-        print "Set \'{0}\' -> {1}\n".format(var, value)
+        if verbose:
+            print "Set \'{0}\' -> {1}\n".format(var, value)
 
     def unset_var(self, var):
         if not var:
@@ -201,12 +204,12 @@ class SimpleProvider(object):
         pwd = input_value('Ansible vault password', hidden=True)
         self.vault_password = pwd
 
-    def load_vars(self, vars_file):
+    def load_vars(self, vars_file, verbose=True):
         if not vars_file:
             vars_file = input_path('path of the variables file')
         vars_dict = utils.parse_yaml_from_file(vars_file, self.vault_password)
         for key, value in vars_dict.iteritems():
-            self.set_var(key, value)
+            self.set_var(key, value, verbose)
 
     def add_box(self, box):
         self.env.add(box)
