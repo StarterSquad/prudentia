@@ -35,3 +35,12 @@ class TestLocalCli(unittest.TestCase):
         self.assertEqual(xv['second'], 'those')
         self.assertEqual(xv['third'], 'are')
         self.assertEqual(xv['forth'], 'variables')
+
+    def test_verbose(self):
+        from ansible import utils
+        self.cli.do_verbose('-1')
+        self.assertEquals(utils.VERBOSITY, 0)
+        self.cli.do_verbose('5')
+        self.assertEquals(utils.VERBOSITY, 0)
+        self.cli.do_verbose(' 2 ')
+        self.assertEquals(utils.VERBOSITY, 2)

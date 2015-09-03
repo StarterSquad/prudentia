@@ -152,6 +152,14 @@ class SimpleCli(Cmd):
     def do_vars(self, line):
         self.provider.load_vars(line.strip())
 
+
+    def help_verbose(self):
+        print "Sets Ansible verbosity. Allowed values are between 0 (only task status) and 4 (full connection info).\n"
+
+    def do_verbose(self, line):
+        self.provider.verbose(line.strip())
+
+
     def do_EOF(self, line):
         print "\n"
         return True
@@ -292,3 +300,10 @@ class SimpleProvider(object):
             only_tags=only_tags,
             vault_password=self.vault_password
         )
+
+    def verbose(self, value):
+        iv = int(value)
+        if 0 <= iv <= 4:
+            utils.VERBOSITY = iv
+        else:
+            print 'Verbosity value {0} not allowed.'.format(value)
