@@ -8,4 +8,3 @@ tests/cover
 dist
 prudentia.egg-info
 build
-.coverage
