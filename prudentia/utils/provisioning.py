@@ -103,7 +103,6 @@ def run_module(runner):
 
 
 def generate_inventory(box):
-    tmp_inventory = ''
     if box.ip.startswith("./") or box.ip.startswith("/"):
         tmp_inventory = box.ip
     else:

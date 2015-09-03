@@ -79,9 +79,10 @@ Simple providers (e.g. Local provider or SSH provider) have the following operat
 * *list*: lists all boxes in the registry
 * *set*: defines or override an Ansible extra variable
 * *unset*: removes an Ansible extra variable
+* *vars*: loads Ansible extra variables from an external .yml or .json file (overriding existing ones)
+* *envset*: sets the value of an environment variable
 * *provision*: runs tasks defined in the playbook associated with a box
 * *decrypt*: sets the password used to decrypt Ansible vault files
-* *vars*: loads Ansible extra variables from an external .yml or .json file (overriding existing ones)
 * *verbose*: sets Ansible verbosity, using a value between 0 and 4
 
 Factory providers (e.g. Vagrant provider or DigitalOcean provider) extend simple providers and add allow you to change

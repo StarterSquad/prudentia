@@ -17,9 +17,6 @@ from domain import Environment
 from utils.provisioning import run_playbook, generate_inventory
 from utils.io import prudentia_python_dir, input_path, input_value
 
-import traceback
-import sys
-
 
 class SimpleCli(Cmd):
     provider = None  # Set by his children
@@ -30,13 +27,12 @@ class SimpleCli(Cmd):
         except Exception as e:
             logging.exception('Got a nasty error.')
             print '\nGot a nasty error: %s\n' % e
-            print(sys.exc_info()[0])
-            print(traceback.format_exc())
 
     def _get_box(self, box_name):
         b = self.provider.env.get(box_name)
         if not b:
-            print 'The box \'%s\' you entered does not exists.\n\nAfter typing the command press Tab for box suggestions.\n' % box_name
+            print 'The box \'%s\' you entered does not exists.\n\n' \
+                  'After typing the command press Tab for box suggestions.\n' % box_name
             return None
         else:
             return b
@@ -109,7 +105,7 @@ class SimpleCli(Cmd):
 
 
     def help_set(self):
-        print "Sets the value of an Ansible variable. " \
+        print "Sets the value of an Ansible extra variable. " \
               "During provisioning it will forcibly override the one defined in any playbook.\n"
 
     def do_set(self, line):
@@ -121,6 +117,7 @@ class SimpleCli(Cmd):
         except ValueError as e:
             logging.exception('Error in setting variable for the current provider.')
             print 'Please provide the name of the variable followed by its value.\n'
+
 
     def help_envset(self):
         print "Sets the value of an environment variable.\n"
@@ -136,10 +133,9 @@ class SimpleCli(Cmd):
             print 'Please provide the name of the variable followed by its value.\n'
 
 
-
     def help_unset(self):
-        print "Unsets an existing environment variable. If this action is invoked without parameter it will show the " \
-              "current set variables.\n"
+        print "Unsets an existing Ansible extra variable. If this action is invoked without parameter it will show " \
+              "the current set variables.\n"
 
     def do_unset(self, line):
         self.provider.unset_var(line)
@@ -158,15 +154,15 @@ class SimpleCli(Cmd):
 
 
     def help_decrypt(self):
-        print "Provide the password that will be used to decrypt Ansible vault files. " \
-              "For more information visit http://docs.ansible.com/playbooks_vault.html."
+        print "Provides the password that will be used to decrypt Ansible vault files. " \
+              "For more information visit http://docs.ansible.com/playbooks_vault.html.\n"
 
     def do_decrypt(self, line):
         self.provider.set_vault_password()
 
 
     def help_vars(self):
-        print "Load extra vars from a .yml or .json file (they will override existing ones)."
+        print "Loads Ansible extra vars from a .yml or .json file (they will override existing ones).\n"
 
     def do_vars(self, line):
         self.provider.load_vars(line.strip())
