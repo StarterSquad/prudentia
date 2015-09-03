@@ -33,8 +33,8 @@ pip freeze -l > ${TMP_DEPS}
 if ! cmp ./requirements.txt ${TMP_DEPS} > /dev/null 2>&1
 then
   echo "Installing Python dependencies ..."
-  cat ${TMP_DEPS}
-  pip install -r ./requirements.txt
+  diff ./requirements.txt ${TMP_DEPS}
+  pip install -q -r ./requirements.txt
 fi
 
 PYTHONPATH=. bin/prudentia "$@" 2>&1
