@@ -222,6 +222,21 @@ After running this command we will be asked to input the Ansible vault password,
 variables will be loaded (we assume that the provided password can correctly decrypt the file) and eventually provision
 an existing registered ssh box.
 
+***********
+Development
+***********
+
+You can debug and extend Prudentia (or run the latest develop) simply by sym-linking a bash script that we provided:
+
+.. code-block:: bash
+
+    $ sudo ln -s prudentia.sh /usr/bin/prudentia-dev
+    $ prudentia-dev
+
+In this way you can have both versions, stable and development, running on your system. The development version will
+run in a python virtual environment without interfering with the dependencies of the stable version. The only
+information that will be shared are the boxes definition.
+
 ****
 More
 ****
