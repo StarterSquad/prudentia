@@ -25,7 +25,7 @@ class SshProvider(SimpleProvider):
             playbook = input_path('playbook path')
             hostname = self.fetch_box_hostname(playbook)
             name = input_value('box name', self.suggest_name(hostname))
-            ip = input_value('ip or hostname of the instance')
+            ip = input_value('instance address or inventory')
             user = input_value('remote user', C.active_user)
             pwd = input_value('password for the remote user', default_description='ssh key', mandatory=False, hidden=True)
 
@@ -42,7 +42,7 @@ class SshProvider(SimpleProvider):
 
             playbook = input_path('playbook path', previous_box.playbook)
             hostname = self.fetch_box_hostname(playbook)
-            ip = input_value('ip or hostname of the instance', previous_box.ip)
+            ip = input_value('instance address or inventory', previous_box.ip)
             user = input_value('remote user', previous_box.remote_user)
             if previous_box.remote_pwd:
                 pwd = input_value('password for the remote user', default_value=previous_box.remote_pwd, default_description='*****', mandatory=False, hidden=True)
