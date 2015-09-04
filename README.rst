@@ -130,7 +130,7 @@ So let's continue using the `tasks.yml`::
     (Prudentia > Ssh) register
     Specify the playbook path: /path/to/prudentia/examples/boxes/tasks.yml
     Specify the box name [default: tasks-host]:
-    Specify the address of the instance: ip.of.your.server
+    Specify the instance address or inventory: ip.of.your.server
     Specify the remote user [default: _your_user_]: 
     Specify the password for the remote user [default: ssh key]:
     
