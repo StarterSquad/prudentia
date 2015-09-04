@@ -37,12 +37,13 @@ Prerequisites
 *************
 You need at minimum:
 
-* Python 2.6
+* Python 2.6 and pip
 
 To install on a Linux distribution you need:
 
 * libffi-dev
 * libssl-dev
+* python-dev
 
 ************
 Installation
@@ -76,11 +77,13 @@ Simple providers (e.g. Local provider or SSH provider) have the following operat
 * *unregister*: removes a box from the registry
 * *reconfigure*: changes the definition of an existing box
 * *list*: lists all boxes in the registry
-* *set*: defines or override a playbook variable
-* *unset*: removes variable
+* *set*: defines or override an Ansible extra variable
+* *unset*: removes an Ansible extra variable
+* *vars*: loads Ansible extra variables from an external .yml or .json file (overriding existing ones)
+* *envset*: sets the value of an environment variable
 * *provision*: runs tasks defined in the playbook associated with a box
 * *decrypt*: sets the password used to decrypt Ansible vault files
-* *vars*: loads extra variables from an external .yml or .json file (overriding existing ones)
+* *verbose*: sets Ansible verbosity, using a value between 0 and 4
 
 Factory providers (e.g. Vagrant provider or DigitalOcean provider) extend simple providers and add allow you to change
 the box life cycle:
@@ -127,7 +130,7 @@ So let's continue using the `tasks.yml`::
     (Prudentia > Ssh) register
     Specify the playbook path: /path/to/prudentia/examples/boxes/tasks.yml
     Specify the box name [default: tasks-host]:
-    Specify the address of the instance: ip.of.your.server
+    Specify the instance address or inventory: ip.of.your.server
     Specify the remote user [default: _your_user_]: 
     Specify the password for the remote user [default: ssh key]:
     
@@ -221,6 +224,21 @@ After running this command we will be asked to input the Ansible vault password,
 variables will be loaded (we assume that the provided password can correctly decrypt the file) and eventually provision
 an existing registered ssh box.
 
+***********
+Development
+***********
+
+You can debug and extend Prudentia (or run the latest develop) simply by sym-linking a bash script that we provided:
+
+.. code-block:: bash
+
+    $ sudo ln -s prudentia.sh /usr/bin/prudentia-dev
+    $ prudentia-dev
+
+In this way you can have both versions, stable and development, running on your system. The development version will
+run in a python virtual environment without interfering with the dependencies of the stable version. The only
+information that will be shared are the boxes definition.
+
 ****
 More
 ****
@@ -260,8 +278,8 @@ You can e-mail me at:
 .. |health| image:: https://landscape.io/github/StarterSquad/prudentia/master/landscape.svg?style=flat
    :target: https://landscape.io/github/StarterSquad/prudentia/master
    :alt: Health
-.. |coverage| image:: https://coveralls.io/repos/StarterSquad/prudentia/badge.svg?branch=master&service=github
-   :target: https://coveralls.io/github/StarterSquad/prudentia?branch=master
+.. |coverage| image:: http://codecov.io/github/StarterSquad/prudentia/coverage.svg?branch=master
+   :target: http://codecov.io/github/StarterSquad/prudentia?branch=master
    :alt: Coverage
 .. |version| image:: https://badge.fury.io/py/prudentia.svg
    :target: http://badge.fury.io/py/prudentia

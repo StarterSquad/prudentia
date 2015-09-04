@@ -15,8 +15,8 @@ from prudentia.domain import Box
 def run_playbook(playbook_file, inventory, vault_password, remote_user=C.DEFAULT_REMOTE_USER,
                  remote_pass=C.DEFAULT_REMOTE_PASS, transport=C.DEFAULT_TRANSPORT, extra_vars=None, only_tags=None):
     stats = callbacks.AggregateStats()
-    playbook_cb = callbacks.PlaybookCallbacks(verbose=True)
-    runner_cb = callbacks.PlaybookRunnerCallbacks(stats, verbose=True)
+    playbook_cb = callbacks.PlaybookCallbacks()
+    runner_cb = callbacks.PlaybookRunnerCallbacks(stats)
     playbook = PlayBook(
         playbook=playbook_file,
         inventory=inventory,
@@ -103,15 +103,18 @@ def run_module(runner):
 
 
 def generate_inventory(box):
-    tmp_inventory = '/tmp/prudentia-inventory-' + str(randint(1, 999999))
-    f = None
-    try:
-        f = open(tmp_inventory, 'w')
-        f.write(box.inventory())
-    except IOError, e:
-        print e
-    finally:
-        f.close()
+    if box.ip.startswith("./") or box.ip.startswith("/"):
+        tmp_inventory = box.ip
+    else:
+        tmp_inventory = '/tmp/prudentia-inventory-' + str(randint(1, 999999))
+        f = None
+        try:
+            f = open(tmp_inventory, 'w')
+            f.write(box.inventory())
+        except IOError, e:
+            print e
+        finally:
+            f.close()
     return Inventory(tmp_inventory)
 
 

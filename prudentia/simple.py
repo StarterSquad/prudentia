@@ -31,7 +31,8 @@ class SimpleCli(Cmd):
     def _get_box(self, box_name):
         b = self.provider.env.get(box_name)
         if not b:
-            print 'The box \'%s\' you entered does not exists.\n\nAfter typing the command press Tab for box suggestions.\n' % box_name
+            print 'The box \'%s\' you entered does not exists.\n\n' \
+                  'After typing the command press Tab for box suggestions.\n' % box_name
             return None
         else:
             return b
@@ -104,7 +105,7 @@ class SimpleCli(Cmd):
 
 
     def help_set(self):
-        print "Sets the value of an environment variable. " \
+        print "Sets the value of an Ansible extra variable. " \
               "During provisioning it will forcibly override the one defined in any playbook.\n"
 
     def do_set(self, line):
@@ -118,9 +119,23 @@ class SimpleCli(Cmd):
             print 'Please provide the name of the variable followed by its value.\n'
 
 
+    def help_envset(self):
+        print "Sets the value of an environment variable.\n"
+
+    def do_envset(self, line):
+        try:
+            first_space_idx = line.index(' ')
+            name = line[:first_space_idx].strip()
+            value = line[first_space_idx:].strip()
+            os.environ[name] = value
+        except ValueError as e:
+            logging.exception('Error in setting variable for the current provider.')
+            print 'Please provide the name of the variable followed by its value.\n'
+
+
     def help_unset(self):
-        print "Unsets an existing environment variable. If this action is invoked without parameter it will show the " \
-              "current set variables.\n"
+        print "Unsets an existing Ansible extra variable. If this action is invoked without parameter it will show " \
+              "the current set variables.\n"
 
     def do_unset(self, line):
         self.provider.unset_var(line)
@@ -139,18 +154,26 @@ class SimpleCli(Cmd):
 
 
     def help_decrypt(self):
-        print "Provide the password that will be used to decrypt Ansible vault files. " \
-              "For more information visit http://docs.ansible.com/playbooks_vault.html."
+        print "Provides the password that will be used to decrypt Ansible vault files. " \
+              "For more information visit http://docs.ansible.com/playbooks_vault.html.\n"
 
     def do_decrypt(self, line):
         self.provider.set_vault_password()
 
 
     def help_vars(self):
-        print "Load extra vars from a .yml or .json file (they will override existing ones)."
+        print "Loads Ansible extra vars from a .yml or .json file (they will override existing ones).\n"
 
     def do_vars(self, line):
         self.provider.load_vars(line.strip())
+
+
+    def help_verbose(self):
+        print "Sets Ansible verbosity. Allowed values are between 0 (only task status) and 4 (full connection info).\n"
+
+    def do_verbose(self, line):
+        self.provider.verbose(line.strip())
+
 
     def do_EOF(self, line):
         print "\n"
@@ -167,24 +190,27 @@ class SimpleProvider(object):
 
     def __init__(self, name, general_type=None, box_extra_type=None):
         self.env = Environment(name, general_type, box_extra_type)
-        self.extra_vars = {'prudentia_dir': prudentia_python_dir()}
-        self.tags = {}
         self.vault_password = False
-        self.load_tags()
         self.provisioned = False
+        self.tags = {}
+        pd = prudentia_python_dir()
+        self.extra_vars = {'prudentia_dir': pd}
+        self.load_vars(os.path.join(pd, 'vars', 'global.yml'), False)
+        self.load_tags()
 
     def boxes(self):
         return self.env.boxes.values()
 
     def _show_current_vars(self):
-        print 'Current set variables:\n%s\n' % '\n'.join([n + ' -> ' + v for n, v in self.extra_vars.iteritems()])
+        print 'Current set variables:\n%s\n' % '\n'.join([n + ' -> ' + str(v) for n, v in self.extra_vars.iteritems()])
 
-    def set_var(self, var, value):
+    def set_var(self, var, value, verbose=True):
         if var in self.extra_vars:
             print 'NOTICE: Variable \'{0}\' is already set to this value: \'{1}\' and it will be overwritten.'\
                 .format(var, self.extra_vars[var])
         self.extra_vars[var] = value
-        print "Set \'{0}\' -> {1}\n".format(var, value)
+        if verbose:
+            print "Set \'{0}\' -> {1}\n".format(var, value)
 
     def unset_var(self, var):
         if not var:
@@ -201,12 +227,12 @@ class SimpleProvider(object):
         pwd = input_value('Ansible vault password', hidden=True)
         self.vault_password = pwd
 
-    def load_vars(self, vars_file):
+    def load_vars(self, vars_file, verbose=True):
         if not vars_file:
             vars_file = input_path('path of the variables file')
         vars_dict = utils.parse_yaml_from_file(vars_file, self.vault_password)
         for key, value in vars_dict.iteritems():
-            self.set_var(key, value)
+            self.set_var(key, value, verbose)
 
     def add_box(self, box):
         self.env.add(box)
@@ -289,3 +315,10 @@ class SimpleProvider(object):
             only_tags=only_tags,
             vault_password=self.vault_password
         )
+
+    def verbose(self, value):
+        iv = int(value)
+        if 0 <= iv <= 4:
+            utils.VERBOSITY = iv
+        else:
+            print 'Verbosity value {0} not allowed.'.format(value)

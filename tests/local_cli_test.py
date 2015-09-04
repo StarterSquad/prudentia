@@ -1,4 +1,5 @@
 import unittest
+import os
 
 from prudentia.local import LocalCli
 
@@ -35,3 +36,18 @@ class TestLocalCli(unittest.TestCase):
         self.assertEqual(xv['second'], 'those')
         self.assertEqual(xv['third'], 'are')
         self.assertEqual(xv['forth'], 'variables')
+
+    def test_envset(self):
+        var_name = 'ev_n1'
+        var_value = 'ev_v1'
+        self.cli.do_envset(var_name + ' ' + var_value)
+        self.assertEqual(os.environ[var_name], var_value)
+
+    def test_verbose(self):
+        from ansible import utils
+        self.cli.do_verbose('-1')
+        self.assertEquals(utils.VERBOSITY, 0)
+        self.cli.do_verbose('5')
+        self.assertEquals(utils.VERBOSITY, 0)
+        self.cli.do_verbose(' 2 ')
+        self.assertEquals(utils.VERBOSITY, 2)

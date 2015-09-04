@@ -2,6 +2,9 @@
   - include: "{{prudentia_dir}}/tasks/timezone.yml tz=Europe/Amsterdam"
     tags: base
 
+  - include: "{{prudentia_dir}}/tasks/ufw.yml"
+    tags: base
+
   - name: Base | Dump mounts
     command: /bin/mount
     register: machine_mounts

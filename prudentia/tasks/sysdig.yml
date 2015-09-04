@@ -1,0 +1,32 @@
+---
+  - name: Sysdig | Check if is present
+    command: test -x /usr/bin/sysdig
+    when: ansible_os_family == "Debian"
+    ignore_errors: yes
+    register: sysdig_present
+    tags: sysdig
+
+  - name: Sysdig | Add GPG key to apt keyring
+    shell: wget -q -O - https://s3.amazonaws.com/download.draios.com/DRAIOS-GPG-KEY.public | sudo apt-key add -
+    when: ansible_os_family == "Debian" and sysdig_present|failed
+    sudo: yes
+    tags: sysdig
+
+  - name: Sysdig | Add Debian/Ubuntu apt repository
+    get_url: url="http://download.draios.com/stable/deb/draios.list" dest="/etc/apt/sources.list.d/draios.list" mode=0644
+    when: ansible_os_family == "Debian" and sysdig_present|failed
+    sudo: yes
+    tags: sysdig
+
+  - name: Sysdig | Install linux-headers (dependency)
+    action: shell apt-get install -y linux-headers-$(uname -r)
+    when: ansible_os_family == "Debian" and sysdig_present|failed
+    ignore_errors: yes
+    sudo: yes
+    tags: sysdig
+
+  - name: Sysdig | Install
+    apt: update-cache=yes force=yes state=present pkg=sysdig
+    when: ansible_os_family == "Debian" and sysdig_present|failed
+    sudo: yes
+    tags: sysdig

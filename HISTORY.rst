@@ -1,6 +1,21 @@
 Release History
 ---------------
 
+0.14 (2015-09-04)
++++++++++++++++++
+
+**Improvements**
+
+- Accepts now external inventory file, directory and script as alternative for the box address.
+- Adds `envset` CLI action that can be used to define system environment variables.
+- Disables Ansible verbose output and introduces `verbose` CLI action to explicit increase verbosity.
+- Loads automatically vars/global.yml avoiding the need from now on to specify it in every playbook.
+- Adds bundled tasks: sysdig, haproxy.
+
+**Bugfixes**
+
+- Fixes Digital Ocean droplet creation.
+
 0.13 (2015-08-18)
 +++++++++++++++++
 
