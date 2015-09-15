@@ -32,8 +32,7 @@ __metaclass__ = type
 import os
 
 from ansible.errors import *
-from ansible.plugins.lookup import LookupBase
-
+from ansible.utils import safe_eval
 
 ANSIBLE_HASHI_VAULT_ADDR = 'http://127.0.0.1:8200'
 
@@ -68,12 +67,15 @@ class HashiVault:
             return data['data']['value']
 
 
+class LookupModule(object):
 
-class LookupModule(LookupBase):
+    def __init__(self, basedir=None, **kwargs):
+        pass
 
-    def run(self, terms, variables, **kwargs):
+    def run(self, terms, inject=None, **kwargs):
 
-        vault_args = terms[0].split(' ')
+        terms = safe_eval(terms)
+        vault_args = terms.split(' ')
         vault_dict = {}
         ret = []
 
