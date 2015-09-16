@@ -11,6 +11,7 @@ cwd = path.dirname(path.realpath(__file__))
 os.environ['ANSIBLE_CONFIG'] = path.join(cwd, 'ansible.cfg')
 os.environ['ANSIBLE_ROLES_PATH'] = path.join(cwd, 'roles') + os.pathsep + '/etc/ansible/roles'
 os.environ['ANSIBLE_LOOKUP_PLUGINS'] = path.join(cwd, 'plugins', 'lookup') + os.pathsep + '/usr/share/ansible_plugins/lookup_plugins'
+os.environ['ANSIBLE_LIBRARY'] = path.join(cwd, 'modules')
 
 from digital_ocean import DigitalOceanCli
 from local import LocalCli
