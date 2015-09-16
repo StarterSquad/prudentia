@@ -87,4 +87,10 @@ class LookupModule(object):
         vault_conn = HashiVault(**vault_dict)
         value = vault_conn.get()
         ret.append(value)
+
+        if 'write_to_file' in vault_dict.keys():
+            text_file = open(vault_dict['write_to_file'], "w")
+            text_file.write(value)
+            text_file.close()
+
         return ret
