@@ -21,8 +21,3 @@
     when: monit_check_deb.rc == 1
     sudo: yes
     tags: monit
-
-  - name: Monit | Restart
-    service: name=monit state=restarted
-    sudo: yes
-    tags: monit
