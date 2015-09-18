@@ -5,7 +5,7 @@
   #  ufw_rules_allow_from_hosts (optional)
 
   - name: UFW | Disable it
-    ufw: state=disabled
+    ufw: state=reset
     sudo: yes
     tags: ufw
 
