@@ -31,6 +31,19 @@
     sudo: yes
     tags: client
 
+  - name: Client | Copy SSL Certificates
+    copy: src={{ssl_dir_path}}/{{item}} dest={{ssl_install_path}}/{{item}}
+    with_items: ssl_files
+    sudo: yes
+    tags:
+      - client
+      - update
+
+  - name: Client | Generate nginx dhparam.pem if not exists
+    command: openssl dhparam -out {{ssl_install_path}}/dhparam.pem 4096 creates={{ssl_install_path}}/dhparam.pem
+    sudo: yes
+    tags: client
+
   - name: Client | Copy Nginx configuration
     template: src={{root_dir}}/components/templates/client/nginx.conf.j2 dest=/etc/nginx/sites-available/example.com backup=yes
     sudo: yes

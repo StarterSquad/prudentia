@@ -193,9 +193,7 @@ class SimpleProvider(object):
         self.vault_password = False
         self.provisioned = False
         self.tags = {}
-        pd = prudentia_python_dir()
-        self.extra_vars = {'prudentia_dir': pd}
-        self.load_vars(os.path.join(pd, 'vars', 'global.yml'), False)
+        self.extra_vars = {'prudentia_dir': prudentia_python_dir()}
         self.load_tags()
 
     def boxes(self):
