@@ -13,7 +13,7 @@ if os.getenv('VAULT_ADDR') is not None:
     ANSIBLE_HASHI_VAULT_ADDR = os.environ['VAULT_ADDR']
 
 
-class HashiVault:
+class HashiVaultFile:
     def __init__(self, **kwargs):
         try:
             import hvac
@@ -32,10 +32,8 @@ class HashiVault:
             raise Exception("Invalid Hashicorp Vault Token Specified")
 
     def get(self):
-        value = ""
-
         data = self.client.read(self.secret)
-        if data == None:
+        if data is None:
             raise Exception("The secret %s doesn't seem to exist" % self.secret)
         else:
             return data['data']['value']
@@ -45,9 +43,9 @@ if __name__ == '__main__':
     global module
     module = AnsibleModule(
         argument_spec={
-            'secret': { 'required': True, 'type': 'str' },
-            'dest': { 'required': True, 'type': 'str' },
-            'token': { 'required': False, 'type': 'str' },
+            'secret': {'required': True, 'type': 'str'},
+            'dest': {'required': True, 'type': 'str'},
+            'token': {'required': False, 'type': 'str'},
         },
         supports_check_mode=False
     )
@@ -56,7 +54,7 @@ if __name__ == '__main__':
 
     args['url'] = ANSIBLE_HASHI_VAULT_ADDR
     try:
-        vault_conn = HashiVault(**args)
+        vault_conn = HashiVaultFile(**args)
         value = vault_conn.get()
 
         dest_file = os.path.abspath(args['dest'])
@@ -66,6 +64,5 @@ if __name__ == '__main__':
         text_file.close()
 
         module.exit_json(changed=True, file=dest_file)
-
     except Exception, e:
         module.fail_json(msg=str(e))

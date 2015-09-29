@@ -32,7 +32,6 @@ __metaclass__ = type
 import os
 
 from ansible.errors import *
-from ansible.utils import safe_eval
 
 ANSIBLE_HASHI_VAULT_ADDR = 'http://127.0.0.1:8200'
 
@@ -40,7 +39,7 @@ if os.getenv('VAULT_ADDR') is not None:
     ANSIBLE_HASHI_VAULT_ADDR = os.environ['VAULT_ADDR']
 
 
-class HashiVault:
+class HashiVaultLookup:
     def __init__(self, **kwargs):
         try:
             import hvac
@@ -59,23 +58,18 @@ class HashiVault:
             raise AnsibleError("Invalid Hashicorp Vault Token Specified")
 
     def get(self):
-        value = ""
-
         data = self.client.read(self.secret)
-        if data == None:
+        if data is None:
             raise AnsibleError("The secret %s doesn't seem to exist" % self.secret)
         else:
             return data['data']['value']
 
 
 class LookupModule(object):
-
     def __init__(self, basedir=None, **kwargs):
         pass
 
     def run(self, terms, inject=None, **kwargs):
-
-#        terms = safe_eval(terms)
         vault_args = terms.split(' ')
         vault_dict = {}
         ret = []
@@ -84,7 +78,7 @@ class LookupModule(object):
             key, value = param.split('|')
             vault_dict[key] = value
 
-        vault_conn = HashiVault(**vault_dict)
+        vault_conn = HashiVaultLookup(**vault_dict)
         value = vault_conn.get()
         ret.append(value)
 
