@@ -1,6 +1,22 @@
 Release History
 ---------------
 
+0.15 (2015-09-29)
++++++++++++++++++
+
+**Improvements**
+
+- Adds script that can generate dynamically an Ansible inventory based on the instances connected to an AWS ELB.
+- Adds HashiCorp Vault Ansible lookup plugin.
+- Adds HashiCorp File Ansible module.
+- Adds bundled task: mongodb_3.
+- Updates Ngnix example and improves Monit task.
+- Updates to Ansible 1.9.3.
+
+**Bugfixes**
+
+- Changed state for UFW from 'disabled' to 'reset' to avoid old and new rules to be merged.
+
 0.14 (2015-09-04)
 +++++++++++++++++
 
