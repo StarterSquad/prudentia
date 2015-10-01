@@ -27,7 +27,7 @@ setup(
     long_description=readme + '\n\n' + history,
     url='https://github.com/StarterSquad/prudentia',
     license='MIT',
-    install_requires=['ansible', 'requests[security]', 'dopy', 'boto'],
+    install_requires=['ansible', 'requests[security]', 'dopy', 'boto', 'hvac'],
     packages=['prudentia', 'prudentia.utils'],
     include_package_data=True,
     scripts=['bin/prudentia'],
