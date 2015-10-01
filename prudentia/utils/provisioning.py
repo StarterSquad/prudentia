@@ -88,7 +88,7 @@ def run_module(runner):
     module_success = True
     module_result = ''
     results = runner.run()
-    if len(results['dark']):
+    if not len(results['contacted']):
         module_success = False
         print 'Host not contacted: %s' % results
     else:
