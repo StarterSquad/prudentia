@@ -42,7 +42,6 @@ class DigitalOceanProvider(FactoryProvider):
 
     def register(self):
         try:
-            name = None
             ip = None
             ext = DOExt()
 
@@ -62,38 +61,32 @@ class DigitalOceanProvider(FactoryProvider):
                 ext.region = droplet_info['region']['slug']
                 print 'Region: %s\n' % ext.region
 
-            playbook = input_path('playbook path')
-            hostname = self.fetch_box_hostname(playbook)
-
-            if not name:
+                playbook = input_path('playbook path')
+                hostname = self.fetch_box_hostname(playbook)
+                user = input_value('remote user', C.active_user)
+            else:
+                playbook = input_path('playbook path')
+                hostname = self.fetch_box_hostname(playbook)
                 name = input_value('box name', self.suggest_name(hostname))
+                user = input_value('remote user', C.active_user)
 
-            user = input_value('remote user', C.active_user)
-
-            if not ext.image:
                 all_images = self.manager.all_images()
                 print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
                 default_image = next((img for img in all_images if self.DEFAULT_IMAGE_NAME in img['name']), None)
                 image_desc = '{0} - {1} {2}'.format(default_image['id'], default_image['distribution'], default_image['name'])
                 ext.image = input_value('image', default_image['id'], image_desc)
 
-            if not ext.size:
                 all_sizes = self.manager.sizes()
                 sizes_slug = [o['slug'] for o in all_sizes]
                 print '\nAvailable sizes: \n%s' % '\n'.join(sizes_slug)
                 ext.size = input_choice('size', self.DEFAULT_SIZE_SLUG, choices=sizes_slug)
 
-            if not ext.region:
                 all_regions = self.manager.all_regions()
                 regions_slug = [o['slug'] for o in all_regions]
                 print '\nAvailable regions: \n%s' % '\n'.join(regions_slug)
                 ext.region = input_choice('region', self.DEFAULT_REGION_SLUG, choices=regions_slug)
 
-            if not ext.keys:
-                all_keys = self.manager.all_ssh_keys()
-                print '\nAvailable keys: \n%s' % self._print_object_id_name(all_keys)
-                default_keys = ','.join([str(k['id']) for k in all_keys])
-                ext.keys = input_value('keys', default_keys)
+                ext.keys = self._input_ssh_keys()
 
             box = Box(name, playbook, hostname, ip, user, extra=ext)
             self.add_box(box)
@@ -136,9 +129,7 @@ class DigitalOceanProvider(FactoryProvider):
                 print '\nAvailable regions: \n%s' % '\n'.join(regions_slug)
                 ext.region = input_value('region', previous_box.extra.region)
 
-                all_keys = self.manager.all_ssh_keys()
-                print '\nAvailable keys: \n%s' % self._print_object_id_name(all_keys)
-                ext.keys = input_value('keys', previous_box.extra.keys)
+                ext.keys = self._input_ssh_keys(previous_box.extra.keys)
             else:
                 ext = previous_box.extra
 
@@ -157,6 +148,9 @@ class DigitalOceanProvider(FactoryProvider):
     def create(self, box):
         e = box.extra
         if not e.id:
+            if not e.keys:
+                print '\nNo valid keys are defined, please run `reconfigure {0}` to provide them.'.format(box.name)
+                return False
             print '\nCreating instance \'{0}\' ...'.format(box.name)
             droplet = self.manager.new_droplet(name=box.name, size_id=e.size, image_id=e.image, region_id=e.region,
                                                ssh_key_ids=e.keys.split(','))
@@ -211,6 +205,15 @@ class DigitalOceanProvider(FactoryProvider):
                 time.sleep(10)  # Wait for some network latency ...
                 return droplet_ip_address
         raise DoError('Wait for droplet running timeout', droplet_id)
+
+    def _input_ssh_keys(self, previous=None):
+        all_keys = self.manager.all_ssh_keys()
+        print '\nAvailable keys: \n%s' % self._print_object_id_name(all_keys)
+        if not previous:
+            default_keys = ','.join([str(k['id']) for k in all_keys])
+        else:
+            default_keys = previous
+        return input_value('keys', default_keys)
 
 
 class DOGeneral(object):
