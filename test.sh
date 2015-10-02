@@ -16,7 +16,7 @@ if [ ${INVENV} == 0 ]; then
   then
     echo "Installing Python dependencies ..."
     diff ./requirements.txt ${TMP_DEPS}
-    pip install -q -r ./requirements.txt
+    pip install -r ./requirements.txt
   fi
 else
   echo -e "Virtual Env active.\n"
