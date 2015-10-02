@@ -1,6 +1,20 @@
 Release History
 ---------------
 
+0.15.1 (2015-10-02)
++++++++++++++++++++
+
+**Bugfixes**
+
+- Digital Ocean: better error handling in case the target instance cannot be contacted.
+- Digital Ocean: avoids misleading keys definition when registering an existing box.
+- Uses correctly hostname as pattern during provisioning to instruct Ansible which instance to target.
+- Adds hvac missing dependency used by Vault module and plugin.
+
+**Improvements**
+
+- Updates dependencies to latest version for development.
+
 0.15 (2015-09-29)
 +++++++++++++++++
 
