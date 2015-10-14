@@ -9,11 +9,11 @@
     tags: fail2ban
 
   - name: Fail2Ban | Configure local fail2ban jail
-    template: src={{prudentia_dir}}/files/file2ban/jail.local.j2 dest=/etc/fail2ban/jail.local
-    sudo: yes 
+    template: src={{prudentia_dir}}/files/fail2ban/jail.local.j2 dest=/etc/fail2ban/jail.local
+    sudo: yes
     tags: fail2ban
 
   - name: Fail2Ban | Reload
-    service: name=fail2ban state=reloaded      
+    service: name=fail2ban state=reloaded
     sudo: yes
     tags: fail2ban
