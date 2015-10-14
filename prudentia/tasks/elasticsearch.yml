@@ -5,7 +5,7 @@
   #  elasticsearch_config_file
 
   - name: ElasticSearch | Install python-pycurl
-    apt: pkg=python-pycurl state=installed
+    apt: pkg=python-pycurl state=installed update-cache=yes
     sudo: yes
     tags: es
 
