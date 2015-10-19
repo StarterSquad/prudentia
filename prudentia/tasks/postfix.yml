@@ -1,0 +1,40 @@
+---
+  - name: Postfix | Check if is installed
+    command: test -x /usr/sbin/postfix
+    register: postfix_present
+    when: ansible_os_family == "Debian"
+    ignore_errors: yes
+    tags:
+      - postfix
+
+  - name: Postfix | Set up postmail selections
+    command: echo "postfix postfix/main_mailer_type select Internet Site" | debconf-set-selections
+    when: ansible_os_family == "Debian" and postfix_present|failed
+
+    sudo: yes
+    tags:
+      - postfix
+
+  - name: Postfix | Set up postmail selections
+    command: echo "postfix postfix/mailname string {{box_address}}" | debconf-set-selections
+    when: ansible_os_family == "Debian" and postfix_present|failed
+    sudo: yes
+    tags:
+      - postfix
+
+  - name: Postfix | Install postfix and mailutils
+    apt: update-cache=yes force=yes state=present pkg={{item}}
+    when: ansible_os_family == "Debian" and postfix_present|failed
+    with_items:
+      - postfix
+      - mailutils
+    sudo: yes
+    tags:
+      - postfix
+
+  - name: Postfix | Restart
+    service: name=postfix state=restarted
+    when: ansible_os_family == "Debian" and postfix_present|failed
+    sudo: yes
+    tags:
+      - postfix
