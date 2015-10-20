@@ -22,12 +22,6 @@
     tags:
       - jre-headless
 
-  - name: JRE headless | Debug platform
-    debug: msg="{{platform}}"
-    when: ansible_os_family == "Debian"
-    tags:
-      - jre-headless
-
   - name: JRE headless | Set JRE download URL
     set_fact:
       jre_download_url: "http://download.oracle.com/otn-pub/java/jdk/7u80-b15/server-jre-7u80-linux-{{platform}}.tar.gz"
