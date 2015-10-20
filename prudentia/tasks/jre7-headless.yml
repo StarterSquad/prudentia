@@ -1,0 +1,54 @@
+---
+  # Provided:
+  # jre_download_url: Specify JRE download path (http://www.oracle.com/technetwork/java/javase/downloads/server-jre7-downloads-1931105.html)
+
+  - name: JRE headless | Check platform (x64) if we don't have explicit download link
+    shell: "uname -m"
+    register: platform
+    when: (jre_download_url is not defined) or (jre_download_url == '')
+    tags:
+      - jre-headless
+
+  - name: JRE headless | Is it x64?
+    set_fact:
+      platform: "x64"
+    when: platform == "x86_64" or (jre_download_url is not defined) or (jre_download_url == '')
+    tags:
+      - jre-headless
+
+  - name: JRE headless | Fail if it isn't x64
+    fail: msg = "Unknown platform architecture (should be i387 or x64, got {{platform)}"
+    when: platform != "x64"
+    tags:
+      - jre-headless
+
+  - name: JRE headless | Set JRE download URL
+    set_fact:
+      jre_download_url: "http://download.oracle.com/otn-pub/java/jdk/7u80-b15/server-jre-7u80-linux-{{platform}}.tar.gz"
+    when: (jre_download_url is not defined) or (jre_download_url == '')
+    tags:
+      - jre-headless
+
+  - name: JRE headless | Download and install
+    shell: "{{item}}"
+    with_items:
+      - mkdir -p /usr/lib/jvm
+      - wget -O /usr/lib/jre.tgz --no-check-certificate --no-cookies - --header "Cookie: oraclelicense=accept-securebackup-cookie" {{jre_download_url}}
+      - cd /usr/lib/jvm && tar -zxf jre.tgz
+      - rm -f /usr/lib/jvm/jre.tgz
+    sudo: yes
+    tags:
+      - jre-headless
+
+  - name: JRE headless | Print reminder
+    debug: msg = {{item}
+    with_items:
+      - "Task completed, don't forget to run as root:"
+      - "  - update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/<new JRE directory>/bin/javac 1"
+      - "  - update-alternatives --install /usr/bin/javac java /usr/lib/jvm/<new JRE directory>/bin/java 1"
+      - "  - update-alternatives --set javac /usr/lib/jvm/<new JRE directory>/bin/javac"
+      - "  - update-alternatives --set java /usr/lib/jvm/<new JRE directory>/bin/java"
+      - "and update the following shell variables:"
+      - "  - export JAVA_HOME=/usr/lib/jvm/<new JRE directory>"
+      - "  - export PATH=${PATH}:${JAVA_HOME}/bin"
+
