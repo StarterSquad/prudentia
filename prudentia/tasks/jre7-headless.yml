@@ -5,27 +5,27 @@
   - name: JRE headless | Check platform (x64) if we don't have explicit download link
     shell: "uname -m"
     register: platform
-    when: (jre_download_url is not defined) or (jre_download_url == '')
+    when: ((jre_download_url is not defined) or (jre_download_url == '')) and ansible_os_family == "Debian"
     tags:
       - jre-headless
 
   - name: JRE headless | Is it x64?
     set_fact:
       platform: "x64"
-    when: platform == "x86_64" or (jre_download_url is not defined) or (jre_download_url == '')
+    when: (platform == "x86_64" or (jre_download_url is not defined) or (jre_download_url == '')) and ansible_os_family == "Debian"
     tags:
       - jre-headless
 
   - name: JRE headless | Fail if it isn't x64
     fail: msg = "Unknown platform architecture (should be i387 or x64, got {{platform)}"
-    when: platform != "x64"
+    when: platform != "x64" and ansible_os_family == "Debian"
     tags:
       - jre-headless
 
   - name: JRE headless | Set JRE download URL
     set_fact:
       jre_download_url: "http://download.oracle.com/otn-pub/java/jdk/7u80-b15/server-jre-7u80-linux-{{platform}}.tar.gz"
-    when: (jre_download_url is not defined) or (jre_download_url == '')
+    when: ((jre_download_url is not defined) or (jre_download_url == '')) and ansible_os_family == "Debian"
     tags:
       - jre-headless
 
@@ -36,12 +36,14 @@
       - wget -O /usr/lib/jre.tgz --no-check-certificate --no-cookies - --header "Cookie: oraclelicense=accept-securebackup-cookie" {{jre_download_url}}
       - cd /usr/lib/jvm && tar -zxf jre.tgz
       - rm -f /usr/lib/jvm/jre.tgz
+    when: ((jre_download_url is defined) or (jre_download_url != '')) and ansible_os_family == "Debian"
     sudo: yes
     tags:
       - jre-headless
 
   - name: JRE headless | Print reminder
     debug: msg = {{item}
+    when: ansible_os_family == "Debian"
     with_items:
       - "Task completed, don't forget to run as root:"
       - "  - update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/<new JRE directory>/bin/javac 1"
@@ -51,4 +53,3 @@
       - "and update the following shell variables:"
       - "  - export JAVA_HOME=/usr/lib/jvm/<new JRE directory>"
       - "  - export PATH=${PATH}:${JAVA_HOME}/bin"
-
