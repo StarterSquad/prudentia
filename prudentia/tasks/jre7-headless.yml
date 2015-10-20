@@ -17,8 +17,14 @@
       - jre-headless
 
   - name: JRE headless | Fail if it isn't x64
-    fail: msg = "Unknown platform architecture (should be i387 or x64, got {{platform)}"
-    when: platform != "x64" and ansible_os_family == "Debian"
+    fail: msg="Unknown platform architecture (should be x64, got {{platform}}"
+    when: (platform != "x64" and ((jre_download_url is not defined) or (jre_download_url == ''))) and ansible_os_family == "Debian"
+    tags:
+      - jre-headless
+
+  - name: JRE headless | Debug platform
+    debug: msg="{{platform}}"
+    when: ansible_os_family == "Debian"
     tags:
       - jre-headless
 
@@ -29,21 +35,26 @@
     tags:
       - jre-headless
 
+  - name: JRE headless | Debug jre_download_url
+    debug: msg="{{jre_download_url}}"
+    when: ansible_os_family == "Debian"
+    tags:
+      - jre-headless
+
   - name: JRE headless | Download and install
     shell: "{{item}}"
     with_items:
-      - mkdir -p /usr/lib/jvm
-      - wget -O /usr/lib/jre.tgz --no-check-certificate --no-cookies - --header "Cookie: oraclelicense=accept-securebackup-cookie" {{jre_download_url}}
-      - cd /usr/lib/jvm && tar -zxf jre.tgz
-      - rm -f /usr/lib/jvm/jre.tgz
+      - "mkdir -p /usr/lib/jvm"
+      - "wget -O /usr/lib/jvm/jre.tgz --no-check-certificate --no-cookies --header \"Cookie: oraclelicense=accept-securebackup-cookie\" {{jre_download_url}}"
+      - "cd /usr/lib/jvm && tar -zxf jre.tgz"
+      - "rm -f /usr/lib/jvm/jre.tgz"
     when: ((jre_download_url is defined) or (jre_download_url != '')) and ansible_os_family == "Debian"
     sudo: yes
     tags:
       - jre-headless
 
-  - name: JRE headless | Print reminder
-    debug: msg = {{item}
-    when: ansible_os_family == "Debian"
+  - name: JRE headless | Print postinstall help
+    set_fact: help="{{item}}"
     with_items:
       - "Task completed, don't forget to run as root:"
       - "  - update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/<new JRE directory>/bin/javac 1"
@@ -53,3 +64,6 @@
       - "and update the following shell variables:"
       - "  - export JAVA_HOME=/usr/lib/jvm/<new JRE directory>"
       - "  - export PATH=${PATH}:${JAVA_HOME}/bin"
+    when: ansible_os_family == "Debian"
+    tags:
+      - jre-headless
