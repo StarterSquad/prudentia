@@ -1,4 +1,7 @@
 ---
+  # Parameters:
+  #  server_name: Server name or IP address to use for postfix
+
   - name: Postfix | Check if is installed
     command: test -x /usr/sbin/postfix
     register: postfix_present
@@ -16,7 +19,7 @@
       - postfix
 
   - name: Postfix | Set up postmail selections
-    command: echo "postfix postfix/mailname string {{ansible_fqdn}}" | debconf-set-selections
+    command: echo "postfix postfix/mailname string {{server_name}}" | debconf-set-selections
     when: ansible_os_family == "Debian" and postfix_present|failed
     sudo: yes
     tags:
