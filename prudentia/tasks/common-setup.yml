@@ -10,8 +10,8 @@
     sudo: yes
     tags: common
 
-  - name: Common setup | Message of the day explaining server is under Ansible control
-    copy: src={{prudentia_dir}}/files/common/etc-update-motd-d-95-ansible dest=/etc/update-motd.d/95-ansible mode=755
+  - name: Common setup | Message of the day explaining server is under Prudentia control
+    copy: src={{prudentia_dir}}/files/common/etc-update-motd-d-95-prudentia dest=/etc/update-motd.d/95-prudentia mode=755
     when: ansible_system == "Linux"
     sudo: yes
     tags: common
