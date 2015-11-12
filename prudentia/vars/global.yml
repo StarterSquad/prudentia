@@ -5,9 +5,9 @@
   sbt_version: 0.13.8
   sbt_artifact: sbt-{{sbt_version}}.deb
 
-  nvm_version: v0.22.0
-  node_version: v0.10.35
-  node_path: "{{ansible_env.HOME}}/.nvm/{{node_version}}"
+  nvm_version: v0.29.0
+  node_version: v0.12.7
+  node_path: "{{ansible_env.HOME}}/.nvm/versions/node/{{node_version}}"
 
   postgresql_apt_key_id: ACCC4CF8
   postgresql_apt_key_url: "https://www.postgresql.org/media/keys/{{postgresql_apt_key_id}}.asc"
