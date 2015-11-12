@@ -1,6 +1,6 @@
 ---
   # Provided:
-  # jre_download_url: Specify JRE download path (http://www.oracle.com/technetwork/java/javase/downloads/server-jre7-downloads-1931105.html)
+  # jre_download_url: Specify JRE download path (http://www.oracle.com/technetwork/java/javase/downloads/server-jre8-downloads-2133154.html)
 
   - name: JRE headless | Check platform (x64) if we don't have explicit download link
     shell: "uname -m"
@@ -24,7 +24,7 @@
 
   - name: JRE headless | Set JRE download URL
     set_fact:
-      jre_download_url: "http://download.oracle.com/otn-pub/java/jdk/7u80-b15/server-jre-7u80-linux-{{platform}}.tar.gz"
+      jre_download_url: "http://download.oracle.com/otn-pub/java/jdk/8u65-b17/server-jre-8u65-linux-{{platform}}.tar.gz"
     when: ((jre_download_url is not defined) or (jre_download_url == '')) and ansible_os_family == "Debian"
     tags:
       - jre-headless
