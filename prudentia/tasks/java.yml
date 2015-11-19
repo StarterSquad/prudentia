@@ -17,7 +17,7 @@
     sudo: yes
 
   - name: Java JDK | Accept the Oracle license before the installation
-    shell: echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+    shell: echo oracle-java{{java_jdk_version}}-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
     when: ansible_distribution == "Ubuntu" and java_present|failed
     tags: jdk
     sudo: yes
