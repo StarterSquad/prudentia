@@ -1,6 +1,9 @@
 ---
 - hosts: tasks-host
 
+  vars_files:
+    - "{{prudentia_dir}}/vars/global.yml"
+
   vars:
     - mylist: [1, 2, 3, 4, 5]
 

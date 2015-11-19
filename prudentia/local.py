@@ -23,7 +23,7 @@ class LocalProvider(SimpleProvider):
     def register(self):
         try:
             playbook = input_path('playbook path')
-            hostname = self.fetch_box_hostname(playbook)
+            hostname = self.fetch_box_hosts(playbook)
             name = input_value('box name', self.suggest_name(hostname))
 
             box = Box(name, playbook, hostname, '127.0.0.1')
@@ -38,7 +38,7 @@ class LocalProvider(SimpleProvider):
             self.remove_box(previous_box)
 
             playbook = input_path('playbook path', previous_box.playbook)
-            hostname = self.fetch_box_hostname(playbook)
+            hostname = self.fetch_box_hosts(playbook)
 
             box = Box(previous_box.name, playbook, hostname, '127.0.0.1')
             self.add_box(box)

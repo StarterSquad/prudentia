@@ -24,12 +24,12 @@
 
   - name: Sudo User | Copy authorized_keys from root
     command: cp /root/.ssh/authorized_keys {{home}}/.ssh/authorized_keys
-    when: check_authorized_keys.stat.exists    
+    when: check_authorized_keys.stat.exists
     tags: sudoer
 
   - name: Sudo User | Set permission on authorized_keys
     file: path={{home}}/.ssh/authorized_keys mode=600 owner={{user}} group={{group}}
-    when: check_authorized_keys.stat.exists        
+    when: check_authorized_keys.stat.exists
     tags: sudoer
 
   - name: Sudo User | Ensuring sudoers no pwd prompting

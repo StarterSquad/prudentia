@@ -9,6 +9,9 @@
   - include: "{{prudentia_dir}}/tasks/java.yml"
     tags: protractor
 
+  - include: "{{prudentia_dir}}/tasks/nodejs.yml"
+    tags: protractor
+
   - name: Xvfb | Install
     apt: force=yes state=present pkg=xvfb
     when: ansible_distribution == "Ubuntu"
@@ -16,7 +19,7 @@
     tags: protractor
 
   - name: Protractor | Check if is present
-    command: test -x /usr/bin/webdriver-manager
+    command: test -x /usr/local/bin/webdriver-manager
     when: ansible_system == "Linux"
     ignore_errors: yes
     register: protractor_present
@@ -33,6 +36,12 @@
 
   - name: Webdriver daemon | Copy upstart script
     template: src={{prudentia_dir}}/files/protractor/webdriver-upstart.conf dest=/etc/init/webdriver.conf
+    when: ansible_distribution == "Ubuntu"
+    sudo: yes
+    tags: protractor
+
+  - name: Webdriver daemon | Start
+    service: name=webdriver state=started
     when: ansible_distribution == "Ubuntu"
     sudo: yes
     tags: protractor

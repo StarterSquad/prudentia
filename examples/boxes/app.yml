@@ -6,6 +6,7 @@
     - root_dir: ..
 
   vars_files:
+    - "{{prudentia_dir}}/vars/global.yml"
     - ./app_vars.yml
 
   tasks:

@@ -1,6 +1,22 @@
 Release History
 ---------------
 
+0.16 (2015-11-19)
++++++++++++++++++
+
+**Improvements**
+
+- Removes update-cache from all apt tasks.
+- Updates to SBT 0.13.9, nvm 0.29, node 0.12.
+- Revisions task and file namings.
+- Enhances project readme.
+- Adds bundled tasks: jre, postfix.
+
+**Bugfixes**
+
+- Leverages Ansible play to get proper information that will be used by the box.
+- Makes sure webdriver path is found, is dependant from node and adds start at the end of the installation.
+
 0.15.1 (2015-10-02)
 +++++++++++++++++++
 

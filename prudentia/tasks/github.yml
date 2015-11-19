@@ -2,7 +2,7 @@
   # Parameters:
   #  prudentia_dir (provided)
   #  ssh_dir
-  
+
   - include: "{{prudentia_dir}}/tasks/git.yml"
     tags: github
 

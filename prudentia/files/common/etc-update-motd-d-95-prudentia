@@ -1,0 +1,10 @@
+#!/bin/sh
+
+echo
+echo "************************************************"
+echo "* This server is managed by Prudentia.         *"
+echo "*                                              *"
+echo "* For more information:                        *"
+echo "* https://github.com/TizianoPerrucci/prudentia *"
+echo "************************************************"
+echo

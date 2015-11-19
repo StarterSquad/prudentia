@@ -20,7 +20,7 @@
     tags: vault
 
   - name: Vault | Install unzip
-    apt: pkg=unzip update-cache=yes state=present
+    apt: pkg=unzip state=present
     when: ansible_os_family == "Debian" and vault_present|failed
     sudo: yes
     tags: vault

@@ -1,0 +1,57 @@
+---
+  # Parameters:
+  #  java_jre_version (provided)
+  #  java_jre_build (provided)
+
+  - name: Java JRE | Check if is present
+    command: test -x /usr/bin/java
+    when: ansible_system == "Linux"
+    ignore_errors: yes
+    register: java_present
+    tags: jre
+
+  - name: Java JRE | Are we running on x64?
+    set_fact:
+      platform: "x64"
+    when: ansible_architecture == "x86_64" and ansible_os_family == "Debian" and java_present|failed
+    tags: jre
+
+  - name: Java JRE | Fail if it isn't x64
+    fail: msg="Unknown platform architecture (should be x64, got {{ansible_architecture}}"
+    when: platform != "x64" and ansible_os_family == "Debian" and java_present|failed
+    tags: jre
+
+  - name: Java JRE | Set download URL
+    set_fact:
+      jre_download_url: "http://download.oracle.com/otn-pub/java/jdk/{{java_jre_version}}-{{java_jre_build}}/server-jre-{{java_jre_version}}-linux-{{platform}}.tar.gz"
+    when: ansible_os_family == "Debian" and java_present|failed
+    tags: jre
+
+  - name: Java JRE | Get directory name
+    shell: "echo jdk1.{{java_jre_version}} |sed 's/u/.0_/'"
+    register: java_dir
+    when: ansible_os_family == "Debian" and java_present|failed
+    sudo: yes
+    tags: jre
+
+  - name: Java JRE | Download and install
+    shell: "{{item}}"
+    with_items:
+      - "mkdir -p /usr/lib/jvm"
+      - "wget -O /usr/lib/jvm/{{java_dir.stdout}}.tgz --no-check-certificate --no-cookies --header \"Cookie: oraclelicense=accept-securebackup-cookie\" {{jre_download_url}}"
+      - "cd /usr/lib/jvm && tar -zxf {{java_dir.stdout}}.tgz"
+      - "rm -f /usr/lib/jvm/{{java_dir.stdout}}.tgz"
+    when: ansible_os_family == "Debian" and java_present|failed
+    sudo: yes
+    tags: jre
+
+  - name: Java JRE | Post install updates
+    shell: "{{item}}"
+    with_items:
+      - "update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/{{java_dir.stdout}}/bin/javac 1"
+      - "update-alternatives --install /usr/bin/java java /usr/lib/jvm/{{java_dir.stdout}}/bin/java 1"
+      - "update-alternatives --set javac /usr/lib/jvm/{{java_dir.stdout}}/bin/javac"
+      - "update-alternatives --set java /usr/lib/jvm/{{java_dir.stdout}}/bin/java"
+    when: ansible_os_family == "Debian" and java_present|failed
+    sudo: yes
+    tags: jre

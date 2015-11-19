@@ -14,7 +14,7 @@ streamlining all the actions needed to provision your architectural components.
 ********
 Features
 ********
-Prudentia uses Ansible_ as its main automation system, so it easily understands Ansible playbooks. 
+Prudentia uses Ansible_ as its main automation system, so it easily understands Ansible playbooks.
 A playbook is one of the components needed to define a Prudentia Box.
 
 Prudentia currently offers:
@@ -25,7 +25,7 @@ Prudentia currently offers:
 * management of the lifecycle of a Box that has been created through Prudentia
 * creating Boxes using one of these providers:
 
-  * Vagrant 
+  * Vagrant
   * DigitalOcean
   * local
   * ssh
@@ -51,27 +51,27 @@ Installation
 To install Prudentia:
 
 .. code-block:: bash
-    
+
     $ pip install prudentia
 
 
 It may be necessary to have root privileges, in which case:
 
 .. code-block:: bash
-    
+
     $ sudo pip install prudentia
 
 
 To uninstall:
 
 .. code-block:: bash
-    
+
     $ pip uninstall prudentia
 
 **************
 Box operations
 **************
-Simple providers (e.g. Local provider or SSH provider) have the following operations available:
+A Simple provider (e.g. Local provider or SSH provider) have the following operations available:
 
 * *register*: adds a new box definition to the registry
 * *unregister*: removes a box from the registry
@@ -85,8 +85,8 @@ Simple providers (e.g. Local provider or SSH provider) have the following operat
 * *decrypt*: sets the password used to decrypt Ansible vault files
 * *verbose*: sets Ansible verbosity, using a value between 0 and 4
 
-Factory providers (e.g. Vagrant provider or DigitalOcean provider) extend simple providers and add allow you to change
-the box life cycle:
+A Factory provider (e.g. Vagrant provider or DigitalOcean provider) extend simple provider and adds the ability
+to change the box life cycle:
 
 * *create*: instantiate a new instance based of the box definition
 * *restart*: reloads the instance
@@ -122,10 +122,10 @@ Let's start registering a new box::
 Now Prudentia is asking for a playbook path, and this is actually an Ansible playbook.
 
 You can use one of the samples that you can find in the `examples/boxes` directory.
-For instance, the `tasks.yml` that will run some Ansible tasks that we've defined (those tasks are not that meaningful, but 
-they are used as a sanity check in our tests).
-        
-So let's continue using the `tasks.yml`::
+For instance, the `tasks.yml` that will run some Ansible tasks that we've defined (those tasks are not that meaningful,
+but they are used as a sanity check in our tests).
+
+So let's continue using the `tasks.yml`:
 
     (Prudentia > Ssh) register
     Specify the playbook path: /path/to/prudentia/examples/boxes/tasks.yml
@@ -133,11 +133,11 @@ So let's continue using the `tasks.yml`::
     Specify the instance address or inventory: ip.of.your.server
     Specify the remote user [default: _your_user_]: 
     Specify the password for the remote user [default: ssh key]:
-    
+
     Box example -> (/path/to/prudentia/examples/boxes/tasks.yml, tasks-host, ip.of.your.server, _your_user_) added.
 
-You will notice that, for some questions, Prudentia gives us a suggested answer within `[ ]`. For instance, the suggested Box name is
-`tasks-host`. If you like the suggestion, just press enter to choose it.
+You will notice that, for some questions, Prudentia gives suggested answer within `[ ]`. For instance, the suggested
+Box name is `tasks-host`. If you like the suggestion, just press enter to choose it.
 
 So far we've registered a Prudentia Box that can be used to play around. If you want to check the definition again::
 
@@ -188,7 +188,7 @@ Now that we have double-checked that our Box has been registered, we can provisi
     
     Play run took 0 minutes
 
-Now Prudentia has done the reasonable uninteresting uname, shuffling a list of ints and noop tasks for me on the remote machine.
+Now Prudentia has done the reasonable uninteresting uname, shuffling a list of ints and noop tasks on the remote machine.
 
 Here-Document
 =============
@@ -256,7 +256,7 @@ Questions, Contributions and Feedback are more than welcome.
 
 You can checkout planned new features on the `Trello Board`_. Feel free to create feature requests on github issues.
 
-You can e-mail me at: 
+You can e-mail me at:
 
 ``tiziano@startersquad.com``
 
@@ -272,14 +272,14 @@ You can e-mail me at:
 
 .. _Trello board: https://trello.com/b/CyRrVZom
 
-.. |status| image:: https://travis-ci.org/StarterSquad/prudentia.png?branch=master
+.. |status| image:: https://travis-ci.org/StarterSquad/prudentia.png?branch=develop
    :target: https://travis-ci.org/StarterSquad/prudentia
    :alt: Status
-.. |health| image:: https://landscape.io/github/StarterSquad/prudentia/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/StarterSquad/prudentia/master
+.. |health| image:: https://landscape.io/github/StarterSquad/prudentia/develop/landscape.svg?style=flat
+   :target: https://landscape.io/github/StarterSquad/prudentia/develop
    :alt: Health
-.. |coverage| image:: http://codecov.io/github/StarterSquad/prudentia/coverage.svg?branch=master
-   :target: http://codecov.io/github/StarterSquad/prudentia?branch=master
+.. |coverage| image:: http://codecov.io/github/StarterSquad/prudentia/coverage.svg?branch=develop
+   :target: http://codecov.io/github/StarterSquad/prudentia?branch=develop
    :alt: Coverage
 .. |version| image:: https://badge.fury.io/py/prudentia.svg
    :target: http://badge.fury.io/py/prudentia
