@@ -272,14 +272,14 @@ You can e-mail me at:
 
 .. _Trello board: https://trello.com/b/CyRrVZom
 
-.. |status| image:: https://travis-ci.org/StarterSquad/prudentia.png?branch=master
+.. |status| image:: https://travis-ci.org/StarterSquad/prudentia.png?branch=develop
    :target: https://travis-ci.org/StarterSquad/prudentia
    :alt: Status
-.. |health| image:: https://landscape.io/github/StarterSquad/prudentia/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/StarterSquad/prudentia/master
+.. |health| image:: https://landscape.io/github/StarterSquad/prudentia/develop/landscape.svg?style=flat
+   :target: https://landscape.io/github/StarterSquad/prudentia/develop
    :alt: Health
-.. |coverage| image:: http://codecov.io/github/StarterSquad/prudentia/coverage.svg?branch=master
-   :target: http://codecov.io/github/StarterSquad/prudentia?branch=master
+.. |coverage| image:: http://codecov.io/github/StarterSquad/prudentia/coverage.svg?branch=develop
+   :target: http://codecov.io/github/StarterSquad/prudentia?branch=develop
    :alt: Coverage
 .. |version| image:: https://badge.fury.io/py/prudentia.svg
    :target: http://badge.fury.io/py/prudentia
