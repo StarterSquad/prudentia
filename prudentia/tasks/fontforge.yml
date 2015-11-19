@@ -13,7 +13,7 @@
     tags: fontforge
 
   - name: FontForge | Install last stable
-    apt: update-cache=yes force=yes state=present pkg=fontforge
+    apt: force=yes state=present pkg=fontforge
     when: ansible_distribution == "Ubuntu" and fontforge_present|failed
     sudo: yes
     tags: fontforge

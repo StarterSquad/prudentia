@@ -6,11 +6,11 @@
     tags: tomcat
 
   - name: Tomcat | Install
-    apt: update-cache=yes force=yes state=present pkg=tomcat7
+    apt: force=yes state=present pkg=tomcat7
     sudo: yes
     tags: tomcat
 
   - name: Tomcat | Install APR native library
-    apt: update-cache=yes force=yes state=present pkg=libtcnative-1
+    apt: force=yes state=present pkg=libtcnative-1
     sudo: yes
     tags: tomcat

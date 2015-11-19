@@ -4,7 +4,7 @@
   #  whitelisted_ips (optional) list of ips for /etc/hosts.allow
 
   - name: Fail2Ban | Install fail2ban
-    apt: pkg=fail2ban state=installed update-cache=yes
+    apt: pkg=fail2ban state=installed
     sudo: yes
     tags: fail2ban
 

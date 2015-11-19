@@ -10,7 +10,7 @@
     tags: vsftpd
 
   - name: vsftpd | Install
-    apt: update-cache=yes force=yes state=present pkg=vsftpd
+    apt: force=yes state=present pkg=vsftpd
     when: ansible_os_family == "Debian" and vsftpd_present|failed
     sudo: yes
     tags: vsftpd

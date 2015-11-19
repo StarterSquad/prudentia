@@ -13,7 +13,7 @@
     tags: protractor
 
   - name: Xvfb | Install
-    apt: force=yes state=present pkg=xvfb update-cache=yes
+    apt: force=yes state=present pkg=xvfb
     when: ansible_distribution == "Ubuntu"
     sudo: yes
     tags: protractor

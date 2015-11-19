@@ -16,7 +16,7 @@
     sudo: yes
 
   - name: HAProxy | Install
-    apt: update-cache=yes force=yes state=present pkg=haproxy
+    apt: force=yes state=present pkg=haproxy
     when: ansible_distribution == "Ubuntu" and haproxy_present|failed
     tags: haproxy
     sudo: yes

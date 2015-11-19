@@ -3,7 +3,7 @@
   #  ssh_dir
 
   - name: Git | Install git-core
-    apt: update-cache=yes pkg=git-core state=present
+    apt: pkg=git-core state=present
     when: ansible_os_family == "Debian"
     tags: git
     sudo: yes
