@@ -1,6 +1,5 @@
 import logging
 from os.path import dirname
-import re
 import os
 from abc import ABCMeta, abstractmethod
 from cmd import Cmd
@@ -186,8 +185,6 @@ class SimpleCli(Cmd):
 class SimpleProvider(object):
     __metaclass__ = ABCMeta
 
-    box_name_pattern = re.compile('- hosts: (.*)')
-
     def __init__(self, name, general_type=None, box_extra_type=None):
         self.env = Environment(name, general_type, box_extra_type)
         self.vault_password = False
@@ -236,21 +233,24 @@ class SimpleProvider(object):
         self.env.add(box)
         self.load_tags(box)
 
+    def _play_from_file(self, playbook_file):
+        playbook = PlayBook(
+            playbook=playbook_file,
+            inventory=Inventory([]),
+            callbacks=DefaultRunnerCallbacks(),
+            runner_callbacks=DefaultRunnerCallbacks(),
+            stats=AggregateStats(),
+            extra_vars=self.extra_vars
+        )
+        return Play(playbook, playbook.playbook[0], dirname(playbook_file))
+
     def load_tags(self, box=None):
         for b in ([box] if box else self.boxes()):
             if not os.path.exists(b.playbook):
                 print 'WARNING: Box \'{0}\' points to a NON existing playbook. ' \
                       'Please `reconfigure` or `unregister` the box.\n'.format(b.name)
             else:
-                playbook = PlayBook(
-                    playbook=b.playbook,
-                    inventory=Inventory([]),
-                    callbacks=DefaultRunnerCallbacks(),
-                    runner_callbacks=DefaultRunnerCallbacks(),
-                    stats=AggregateStats(),
-                    extra_vars=self.extra_vars
-                )
-                play = Play(playbook, playbook.playbook[0], dirname(b.playbook))
+                play = self._play_from_file(b.playbook)
                 (matched_tags, unmatched_tags) = play.compare_tags('')
                 self.tags[b.name] = list(unmatched_tags)
 
@@ -271,16 +271,8 @@ class SimpleProvider(object):
         self.remove_box(box)
         print "\nBox %s removed.\n" % box.name
 
-    def fetch_box_hostname(self, playbook):
-        with open(playbook, 'r') as f:
-            hostname = None
-            for i, line in enumerate(f):
-                if i == 1:  # 2nd line contains the host box_name
-                    match = self.box_name_pattern.match(line)
-                    hostname = match.group(1)
-                elif i > 1:
-                    break
-        return hostname
+    def fetch_box_hosts(self, playbook):
+        return self._play_from_file(playbook).hosts
 
     def suggest_name(self, hostname):
         if hostname not in self.env.boxes:

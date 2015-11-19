@@ -49,7 +49,7 @@ class VagrantProvider(FactoryProvider):
                 print 'Once you\'ve chosen the <box> add it using the following cmd \'$ vagrant box add <box>\'.\n'
             else:
                 playbook = io.input_path('playbook path')
-                hostname = self.fetch_box_hostname(playbook)
+                hostname = self.fetch_box_hosts(playbook)
                 name = io.input_value('box name', self.suggest_name(hostname))
                 ip = io.input_value('internal IP')
 
@@ -85,7 +85,7 @@ class VagrantProvider(FactoryProvider):
             self.remove_box(previous_box)
 
             playbook = io.input_path('playbook path', previous_box.playbook)
-            hostname = self.fetch_box_hostname(playbook)
+            hostname = self.fetch_box_hosts(playbook)
             ip = io.input_value('internal IP', previous_box.ip)
 
             ext = VagrantExt()

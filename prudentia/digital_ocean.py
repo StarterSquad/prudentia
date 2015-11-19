@@ -62,11 +62,11 @@ class DigitalOceanProvider(FactoryProvider):
                 print 'Region: %s\n' % ext.region
 
                 playbook = input_path('playbook path')
-                hostname = self.fetch_box_hostname(playbook)
+                hostname = self.fetch_box_hosts(playbook)
                 user = input_value('remote user', C.active_user)
             else:
                 playbook = input_path('playbook path')
-                hostname = self.fetch_box_hostname(playbook)
+                hostname = self.fetch_box_hosts(playbook)
                 name = input_value('box name', self.suggest_name(hostname))
                 user = input_value('remote user', C.active_user)
 
@@ -103,7 +103,7 @@ class DigitalOceanProvider(FactoryProvider):
             self.remove_box(previous_box)
 
             playbook = input_path('playbook path', previous_box.playbook)
-            hostname = self.fetch_box_hostname(playbook)
+            hostname = self.fetch_box_hosts(playbook)
             ip = previous_box.ip
             user = input_value('remote user', previous_box.remote_user)
 
