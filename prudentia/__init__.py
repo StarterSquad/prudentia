@@ -1,2 +1,2 @@
-__version__ = '0.16'
+__version__ = '0.16.1'
 __author__ = 'Tiziano Perrucci'
