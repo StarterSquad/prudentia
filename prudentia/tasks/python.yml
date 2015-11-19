@@ -1,16 +1,16 @@
 ---
   - name: Python | Install
     apt: pkg={{item}} state=present
-    when: ansible_os_family == "Debian"
-    tags: python
-    sudo: yes
     with_items:
       - python
       - python-dev
       - python-pip
+    when: ansible_os_family == "Debian"
+    sudo: yes
+    tags: python
 
-  - name: Python | Upgrade Setuptools
-    pip: name=setuptools state=latest
+  - name: Python | Install latest pip
+    shell: curl https://bootstrap.pypa.io/get-pip.py | python
     when: ansible_os_family == "Debian"
     sudo: yes
     tags: python
