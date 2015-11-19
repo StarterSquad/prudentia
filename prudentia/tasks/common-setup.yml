@@ -17,7 +17,7 @@
     tags: common
 
   - name: Common setup | Install common apt packages
-    apt: pkg={{item}} state=present
+    apt: update-cache=yes pkg={{item}} state=present
     when: ansible_os_family == "Debian"
     with_items:
       - build-essential

@@ -22,7 +22,7 @@
     tags: mongodb26
 
   - name: MongoDB | Install
-    apt: force=yes state=present pkg=mongodb-org
+    apt: update-cache=yes force=yes state=present pkg=mongodb-org
     when: ansible_os_family == "Debian" and mongo_present|failed
     sudo: yes
     tags: mongodb26

@@ -26,7 +26,7 @@
     tags: sysdig
 
   - name: Sysdig | Install
-    apt: force=yes state=present pkg=sysdig
+    apt: update-cache=yes force=yes state=present pkg=sysdig
     when: ansible_os_family == "Debian" and sysdig_present|failed
     sudo: yes
     tags: sysdig

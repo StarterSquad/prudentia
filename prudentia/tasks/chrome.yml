@@ -15,7 +15,7 @@
     sudo: yes
 
   - name: Chrome | Install last stable
-    apt: force=yes state=present pkg=google-chrome-stable
+    apt: update-cache=yes force=yes state=present pkg=google-chrome-stable
     when: ansible_os_family == "Debian"
     tags: chrome
     sudo: yes

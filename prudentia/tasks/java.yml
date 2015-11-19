@@ -23,7 +23,7 @@
     sudo: yes
 
   - name: Java JDK | Install
-    apt: force=yes state=present pkg=oracle-java{{java_jdk_version}}-installer
+    apt: update-cache=yes force=yes state=present pkg=oracle-java{{java_jdk_version}}-installer
     when: ansible_distribution == "Ubuntu" and java_present|failed
     tags: jdk
     sudo: yes

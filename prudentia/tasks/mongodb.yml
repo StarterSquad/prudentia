@@ -22,7 +22,7 @@
     tags: mongodb
 
   - name: MongoDB | Install
-    apt: force=yes state=present pkg=mongodb-10gen
+    apt: update-cache=yes force=yes state=present pkg=mongodb-10gen
     when: ansible_os_family == "Debian" and mongo_present|failed
     sudo: yes
     tags: mongodb

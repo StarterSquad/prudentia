@@ -18,7 +18,7 @@
     sudo: yes
 
   - name: Jenkins | Install
-    apt: force=yes state=present pkg=jenkins
+    apt: update-cache=yes force=yes state=present pkg=jenkins
     when: ansible_os_family == "Debian"
     tags: jenkins
     register: jenkins_installed

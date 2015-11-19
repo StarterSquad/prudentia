@@ -25,7 +25,7 @@
     tags: osquery
 
   - name: OSQuery | Install
-    apt: force=yes state=present pkg={{item}}
+    apt: update-cache=yes force=yes state=present pkg={{item}}
     with_items:
       - osquery
       - libcryptsetup-dev

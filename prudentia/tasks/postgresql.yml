@@ -28,7 +28,7 @@
     tags: psql
 
   - name: PostgreSQL | Install
-    apt: force=yes state=present pkg={{item}}
+    apt: update-cache=yes force=yes state=present pkg={{item}}
     with_items:
       - libpq-dev
       - python-psycopg2
