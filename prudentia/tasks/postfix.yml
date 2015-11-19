@@ -26,7 +26,7 @@
       - postfix
 
   - name: Postfix | Install postfix and mailutils
-    apt: update-cache=yes force=yes state=present pkg={{item}}
+    apt: force=yes state=present pkg={{item}}
     when: ansible_os_family == "Debian" and postfix_present|failed
     with_items:
       - postfix

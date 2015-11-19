@@ -10,7 +10,7 @@
     tags: zeromq
 
   - name: ZeroMQ | Base packages
-    apt: pkg=libtool,autoconf,automake,uuid-dev state=installed update-cache=yes
+    apt: pkg=libtool,autoconf,automake,uuid-dev state=installed
     when: ansible_os_family == "Debian" and zmq_present|failed
     sudo: yes
     tags: zeromq

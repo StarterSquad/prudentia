@@ -6,7 +6,7 @@
   #  target_dir: Target directory where to install key and crt
 
   - name: SSL self certificate | Install last stable
-    apt: update-cache=yes force=yes state=present pkg=openssl
+    apt: force=yes state=present pkg=openssl
     when: ansible_os_family == "Debian"
     tags: ssl-self
     sudo: yes

@@ -1,6 +1,6 @@
 ---
   - name: Python | Install
-    apt: update-cache=yes pkg={{item}} state=present
+    apt: pkg={{item}} state=present
     when: ansible_os_family == "Debian"
     tags: python
     sudo: yes
