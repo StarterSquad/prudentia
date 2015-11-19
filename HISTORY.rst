@@ -1,6 +1,14 @@
 Release History
 ---------------
 
+0.16.1 (2015-11-19)
++++++++++++++++++++
+
+**Bugfixes**
+
+- Update apt cache after adding ubuntu repositories.
+- Installs correctly prudentia when using the homonym task.
+
 0.16 (2015-11-19)
 +++++++++++++++++
 

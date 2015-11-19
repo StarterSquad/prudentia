@@ -15,7 +15,7 @@
     tags: opencv
 
   - name: OpenCV | Install
-    apt: force=yes state=present pkg=opencv
+    apt: update-cache=yes force=yes state=present pkg=opencv
     when: ansible_os_family == "Debian"
     sudo: yes
     tags: opencv

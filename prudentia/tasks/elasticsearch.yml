@@ -20,7 +20,7 @@
     tags: es
 
   - name: ElasticSearch | Install
-    apt: pkg=elasticsearch state=latest
+    apt: update-cache=yes pkg=elasticsearch state=latest
     sudo: yes
     tags: es
 

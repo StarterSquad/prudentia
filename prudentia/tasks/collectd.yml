@@ -6,7 +6,7 @@
     sudo: yes
 
   - name: Collectd | Install
-    apt: force=yes state=present pkg=collectd={{collectd_version}}
+    apt: update-cache=yes force=yes state=present pkg=collectd={{collectd_version}}
     when: ansible_distribution == "Ubuntu"
     tags: collectd
     sudo: yes

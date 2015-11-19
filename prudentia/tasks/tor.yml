@@ -28,7 +28,7 @@
     sudo: yes
 
   - name: Tor | Install
-    apt: pkg={{item}} state=present
+    apt: update-cache=yes pkg={{item}} state=present
     when: ansible_os_family == "Debian" and tor_present|failed
     with_items:
       - deb.torproject.org-keyring
