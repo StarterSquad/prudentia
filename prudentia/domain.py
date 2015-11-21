@@ -84,8 +84,7 @@ class Environment(object):
 
 
 class Box(object):
-    def __init__(self, name, playbook, hostname, ip, remote_user=None, remote_pwd=None,
-                 extra=None, use_prudentia_lib=False):
+    def __init__(self, name, playbook, hostname, ip, remote_user=None, remote_pwd=None, extra=None):
         self.name = name
         self.playbook = playbook
         self.hostname = hostname
@@ -93,7 +92,7 @@ class Box(object):
         self.remote_user = remote_user
         self.remote_pwd = remote_pwd
         self.extra = extra
-        self.use_prudentia_lib = use_prudentia_lib
+        self.use_prudentia_lib = False
         self.transport = None
 
     def get_remote_user(self):
