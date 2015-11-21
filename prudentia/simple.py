@@ -245,7 +245,7 @@ class SimpleProvider(object):
         return Play(playbook, playbook.playbook[0], dirname(playbook_file))
 
     def load_tags(self, box=None):
-        for b in ([box] if box else self.boxes()):
+        for b in [box] if box else self.boxes():
             if not os.path.exists(b.playbook):
                 print 'WARNING: Box \'{0}\' points to a NON existing playbook. ' \
                       'Please `reconfigure` or `unregister` the box.\n'.format(b.name)
