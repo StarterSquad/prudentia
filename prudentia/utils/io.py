@@ -1,6 +1,6 @@
 import os
 from getpass import getpass
-
+import sys
 
 def prudentia_python_dir():
     cwd = os.path.realpath(__file__)
@@ -28,7 +28,13 @@ def _input(msg):
 
 def _hidden_input(msg):
     first_time_input()
-    return getpass(msg)
+    # When using here documents the getpass does not accept automatic inputs
+    # so we fall back to the raw input.
+    # The raw input will not display the information provided through the heredoc
+    if not sys.stdin.isatty():
+        return _input(msg)
+    else:
+        return getpass(msg)
 
 
 def input_value(topic, default_value=None, default_description=None, mandatory=True,
