@@ -13,7 +13,8 @@ from prudentia.domain import Box
 
 
 def run_playbook(playbook_file, inventory, vault_password, remote_user=C.DEFAULT_REMOTE_USER,
-                 remote_pass=C.DEFAULT_REMOTE_PASS, transport=C.DEFAULT_TRANSPORT, extra_vars=None, only_tags=None):
+                 remote_pass=C.DEFAULT_REMOTE_PASS, transport=C.DEFAULT_TRANSPORT,
+                 extra_vars=None, only_tags=None):
     stats = callbacks.AggregateStats()
     playbook_cb = callbacks.PlaybookCallbacks()
     runner_cb = callbacks.PlaybookRunnerCallbacks(stats)
@@ -138,7 +139,8 @@ def create_user(box):
                     pattern='localhost',
                     inventory=inventory,
                     module_name='wait_for',
-                    module_args='host={0} port=22 delay=10 timeout=60'.format(box.ip))
+                    module_args='host={0} port=22 delay=10 timeout=60'.format(box.ip)
+                )
             },
             {
                 'summary': 'Creating group \'{0}\' ...'.format(user),
@@ -147,7 +149,8 @@ def create_user(box):
                     inventory=inventory,
                     remote_user='root',
                     module_name='group',
-                    module_args='name={0} state=present'.format(user))
+                    module_args='name={0} state=present'.format(user)
+                )
             },
             {
                 'summary': 'Creating user \'{0}\' ...'.format(user),
@@ -156,8 +159,8 @@ def create_user(box):
                     inventory=inventory,
                     remote_user='root',
                     module_name='user',
-                    module_args='name={0} home={1} state=present shell=/bin/bash generate_ssh_key=yes group={0} groups=sudo'.format(
-                        user, user_home)
+                    module_args='state=present shell=/bin/bash generate_ssh_key=yes '
+                                'name={0} home={1} group={0} groups=sudo'.format(user, user_home)
                 )
             },
             {
@@ -167,7 +170,8 @@ def create_user(box):
                     inventory=inventory,
                     remote_user='root',
                     module_name='command',
-                    module_args="cp /root/.ssh/authorized_keys {0}/.ssh/authorized_keys".format(user_home)
+                    module_args="cp /root/.ssh/authorized_keys {0}/.ssh/authorized_keys".format(
+                        user_home)
                 )
             },
             {
@@ -177,7 +181,8 @@ def create_user(box):
                     inventory=inventory,
                     remote_user='root',
                     module_name='file',
-                    module_args="path={0}/.ssh/authorized_keys mode=600 owner={1} group={1}".format(user_home, user)
+                    module_args="path={0}/.ssh/authorized_keys mode=600 owner={1} group={1}".format(
+                        user_home, user)
                 )
             },
             {
@@ -187,7 +192,8 @@ def create_user(box):
                     inventory=inventory,
                     remote_user='root',
                     module_name='lineinfile',
-                    module_args="dest=/etc/sudoers state=present regexp=%sudo line='%sudo ALL=(ALL:ALL) NOPASSWD:ALL' validate='visudo -cf %s'"
+                    module_args="dest=/etc/sudoers state=present regexp=%sudo "
+                                "line='%sudo ALL=(ALL:ALL) NOPASSWD:ALL' validate='visudo -cf %s'"
                 )
             }
         ])

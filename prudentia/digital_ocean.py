@@ -34,7 +34,9 @@ class DigitalOceanProvider(FactoryProvider):
         self.manager = DoManager(None, g.api_token, api_version=2)
 
     def _input_general_env_conf(self):
-        print '\nThe DigitalOcean API (v2) token is not configured, if you don\'t have one please visit https://cloud.digitalocean.com/settings/applications and generate it.'
+        print '\nThe DigitalOcean API (v2) token is not configured.'
+        print 'If you don\'t have it please visit ' \
+              'https://cloud.digitalocean.com/settings/applications and generate one.'
         api_token = input_value('api token')
         do_general = DOGeneral(api_token)
         self.env.set_general(do_general)
@@ -72,8 +74,13 @@ class DigitalOceanProvider(FactoryProvider):
 
                 all_images = self.manager.all_images()
                 print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
-                default_image = next((img for img in all_images if self.DEFAULT_IMAGE_NAME in img['name']), None)
-                image_desc = '{0} - {1} {2}'.format(default_image['id'], default_image['distribution'], default_image['name'])
+                default_image = next((img for img in all_images
+                                      if self.DEFAULT_IMAGE_NAME in img['name']), None)
+                image_desc = '{0} - {1} {2}'.format(
+                    default_image['id'],
+                    default_image['distribution'],
+                    default_image['name']
+                )
                 ext.image = input_value('image', default_image['id'], image_desc)
 
                 all_sizes = self.manager.sizes()
@@ -113,9 +120,14 @@ class DigitalOceanProvider(FactoryProvider):
                 ext.id = previous_box.extra.id
                 all_images = self.manager.all_images()
                 print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
-                prev_image = next((img for img in all_images if previous_box.extra.image == img['id']), None)
+                prev_image = next((img for img in all_images
+                                   if previous_box.extra.image == img['id']), None)
                 if prev_image:
-                    prev_image_desc = '{0} - {1} {2}'.format(prev_image['id'], prev_image['distribution'], prev_image['name'])
+                    prev_image_desc = '{0} - {1} {2}'.format(
+                        prev_image['id'],
+                        prev_image['distribution'],
+                        prev_image['name']
+                    )
                     ext.image = input_value('image', prev_image['id'], prev_image_desc)
                 else:
                     ext.image = input_value('image')
@@ -150,11 +162,15 @@ class DigitalOceanProvider(FactoryProvider):
         e = box.extra
         if not e.id:
             if not e.keys:
-                print '\nNo valid keys are defined, please run `reconfigure {0}` to provide them.'.format(box.name)
+                print '\nNo valid keys are defined.'
+                print 'Please run `reconfigure {0}` to provide them.'.format(box.name)
                 return False
             print '\nCreating instance \'{0}\' ...'.format(box.name)
-            droplet = self.manager.new_droplet(name=box.name, size_id=e.size, image_id=e.image, region_id=e.region,
-                                               ssh_key_ids=e.keys.split(','))
+            droplet = self.manager.new_droplet(
+                name=box.name, size_id=e.size,
+                image_id=e.image, region_id=e.region,
+                ssh_key_ids=e.keys.split(',')
+            )
             box.extra.id = droplet['id']
             box.ip = self._wait_to_be_active(box.extra.id)
         else:
@@ -244,7 +260,8 @@ class DOExt(object):
             self.id, self.image, self.size, self.keys, self.region)
 
     def to_json(self):
-        return {'id': self.id, 'image': self.image, 'size': self.size, 'keys': self.keys, 'region': self.region}
+        return {'id': self.id, 'image': self.image, 'size': self.size,
+                'keys': self.keys, 'region': self.region}
 
     @staticmethod
     def from_json(json):

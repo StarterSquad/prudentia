@@ -42,11 +42,17 @@ class VagrantProvider(FactoryProvider):
 
     def register(self):
         try:
-            vagrant_boxes = self._action(action="box", action_args=("list",), output=False).splitlines()
+            vagrant_boxes = self._action(
+                action="box",
+                action_args=("list",),
+                output=False
+            ).splitlines()
             if not vagrant_boxes:
-                print '\nThere are no available Vagrant (base) boxes, please search for a suitable one at ' \
+                print '\nThere are no available Vagrant (base) boxes.'
+                print 'Please search for a suitable one at ' \
                       'https://atlas.hashicorp.com/boxes/search.'
-                print 'Once you\'ve chosen the <box> add it using the following cmd \'$ vagrant box add <box>\'.\n'
+                print 'Once you\'ve chosen the <box> add it using the following cmd:' \
+                      ' \'$ vagrant box add <box>\'.\n'
             else:
                 playbook = io.input_path('playbook path')
                 hostname = self.fetch_box_hosts(playbook)
@@ -96,7 +102,8 @@ class VagrantProvider(FactoryProvider):
             ext.set_image(previous_box.extra.image)
             ext.set_provider(previous_box.extra.provider)
 
-            box = Box(previous_box.name, playbook, hostname, ip, self.DEFAULT_USER, self.DEFAULT_PWD, ext)
+            box = Box(previous_box.name, playbook, hostname, ip,
+                      self.DEFAULT_USER, self.DEFAULT_PWD, ext)
             self.add_box(box)
             print "\nBox %s reconfigured." % box
         except Exception as e:
@@ -210,7 +217,8 @@ class VagrantExt(object):
                (self.mem, self.shares, self.image, self.provider)
 
     def to_json(self):
-        return {'mem': self.mem, 'shares': self.shares, 'image': self.image, 'provider': self.provider}
+        return {'mem': self.mem, 'shares': self.shares, 'image': self.image,
+                'provider': self.provider}
 
     @staticmethod
     def from_json(json):

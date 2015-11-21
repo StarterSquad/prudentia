@@ -83,7 +83,8 @@ class Environment(object):
 
 
 class Box(object):
-    def __init__(self, name, playbook, hostname, ip, remote_user=None, remote_pwd=None, extra=None, use_prudentia_lib=False):
+    def __init__(self, name, playbook, hostname, ip, remote_user=None, remote_pwd=None,
+                 extra=None, use_prudentia_lib=False):
         self.name = name
         self.playbook = playbook
         self.hostname = hostname
@@ -110,7 +111,8 @@ class Box(object):
         return inv
 
     def __repr__(self):
-        values = [self.playbook, self.hostname, self.ip, self.remote_user, '*****' if self.remote_pwd else '', xstr(self.extra)]
+        values = [self.playbook, self.hostname, self.ip, self.remote_user,
+                  '*****' if self.remote_pwd else '', xstr(self.extra)]
         return '%s -> (%s)' % (self.name, ', '.join(i for i in values if i and i.strip()))
 
     def to_json(self):

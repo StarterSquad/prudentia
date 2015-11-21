@@ -133,8 +133,9 @@ class SimpleCli(Cmd):
 
     @staticmethod
     def help_unset():
-        print "Unsets an existing Ansible extra variable. If this action is invoked without parameter it will show " \
-              "the current set variables.\n"
+        print "Unsets an existing Ansible extra variable. " \
+              "If this action is invoked without parameter it will show " \
+              "the current set of variables.\n"
 
     def do_unset(self, line):
         self.provider.unset_var(line)
@@ -161,14 +162,16 @@ class SimpleCli(Cmd):
 
     @staticmethod
     def help_vars():
-        print "Loads Ansible extra vars from a .yml or .json file (they will override existing ones).\n"
+        print "Loads Ansible extra vars from a .yml or .json file " \
+              "(they will override existing ones).\n"
 
     def do_vars(self, line):
         self.provider.load_vars(line.strip())
 
     @staticmethod
     def help_verbose():
-        print "Sets Ansible verbosity. Allowed values are between 0 (only task status) and 4 (full connection info).\n"
+        print "Sets Ansible verbosity. Allowed values are " \
+              "between 0 (only task status) and 4 (full connection info).\n"
 
     def do_verbose(self, line):
         self.provider.verbose(line.strip())
@@ -197,12 +200,14 @@ class SimpleProvider(object):
         return self.env.boxes.values()
 
     def _show_current_vars(self):
-        print 'Current set variables:\n%s\n' % '\n'.join([n + ' -> ' + str(v) for n, v in self.extra_vars.iteritems()])
+        print 'Current set variables:\n%s\n' % '\n'.join(
+            [n + ' -> ' + str(v) for n, v in self.extra_vars.iteritems()]
+        )
 
     def set_var(self, var, value, verbose=True):
         if var in self.extra_vars:
-            print 'NOTICE: Variable \'{0}\' is already set to this value: \'{1}\' and it will be overwritten.'\
-                .format(var, self.extra_vars[var])
+            print 'NOTICE: Variable \'{0}\' is already set to this value: \'{1}\' ' \
+                  'and it will be overwritten.'.format(var, self.extra_vars[var])
         self.extra_vars[var] = value
         if verbose:
             print "Set \'{0}\' -> {1}\n".format(var, value)

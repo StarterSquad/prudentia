@@ -10,7 +10,8 @@ from . import __version__
 cwd = path.dirname(path.realpath(__file__))
 os.environ['ANSIBLE_CONFIG'] = path.join(cwd, 'ansible.cfg')
 os.environ['ANSIBLE_ROLES_PATH'] = path.join(cwd, 'roles') + os.pathsep + '/etc/ansible/roles'
-os.environ['ANSIBLE_LOOKUP_PLUGINS'] = path.join(cwd, 'plugins', 'lookup') + os.pathsep + '/usr/share/ansible_plugins/lookup_plugins'
+os.environ['ANSIBLE_LOOKUP_PLUGINS'] = path.join(cwd, 'plugins', 'lookup') + \
+                                       os.pathsep + '/usr/share/ansible_plugins/lookup_plugins'
 os.environ['ANSIBLE_LIBRARY'] = path.join(cwd, 'modules')
 
 from prudentia.digital_ocean import DigitalOceanCli
@@ -27,9 +28,13 @@ Providers = {
 
 
 def parse(args=None):
-    parser = argparse.ArgumentParser(prog='prudentia', description='A useful Continuous Deployment toolkit.')
+    parser = argparse.ArgumentParser(
+        prog='prudentia',
+        description='A useful Continuous Deployment toolkit.'
+    )
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-    parser.add_argument('provider', choices=Providers.keys(), help='use one of the available providers')
+    parser.add_argument('provider', choices=Providers.keys(),
+                        help='use one of the available providers')
     parser.add_argument('commands', nargs='*', default='',
                         help='optional quoted list of commands to run with the chosen provider')
     if len(sys.argv) == 1:

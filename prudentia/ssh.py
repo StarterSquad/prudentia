@@ -27,7 +27,12 @@ class SshProvider(SimpleProvider):
             name = input_value('box name', self.suggest_name(hostname))
             ip = input_value('instance address or inventory')
             user = input_value('remote user', C.active_user)
-            pwd = input_value('password for the remote user', default_description='ssh key', mandatory=False, hidden=True)
+            pwd = input_value(
+                'password for the remote user',
+                default_description='ssh key',
+                mandatory=False,
+                hidden=True
+            )
 
             box = Box(name, playbook, hostname, ip, user, pwd)
             self.add_box(box)
@@ -45,9 +50,20 @@ class SshProvider(SimpleProvider):
             ip = input_value('instance address or inventory', previous_box.ip)
             user = input_value('remote user', previous_box.remote_user)
             if previous_box.remote_pwd:
-                pwd = input_value('password for the remote user', default_value=previous_box.remote_pwd, default_description='*****', mandatory=False, hidden=True)
+                pwd = input_value(
+                    'password for the remote user',
+                    default_value=previous_box.remote_pwd,
+                    default_description='*****',
+                    mandatory=False,
+                    hidden=True
+                )
             else:
-                pwd = input_value('password for the remote user', default_description='ssh key', mandatory=False, hidden=True)
+                pwd = input_value(
+                    'password for the remote user',
+                    default_description='ssh key',
+                    mandatory=False,
+                    hidden=True
+                )
 
             box = Box(previous_box.name, playbook, hostname, ip, user, pwd)
             self.add_box(box)

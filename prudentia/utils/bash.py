@@ -43,8 +43,8 @@ class BashCmd(object):
 
     def execute(self):
         try:
-            p = Popen(args=self.cmd_args, bufsize=1, stdout=PIPE, stderr=PIPE, close_fds=self.ON_POSIX, env=self.env,
-                      cwd=self.cwd)
+            p = Popen(args=self.cmd_args, bufsize=1, stdout=PIPE, stderr=PIPE,
+                      close_fds=self.ON_POSIX, env=self.env, cwd=self.cwd)
             t = Thread(target=self.print_output, args=(p.stdout, p.stderr))
             t.daemon = True  # thread dies with the program
             t.start()
