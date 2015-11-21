@@ -13,6 +13,8 @@ class BashCmd(object):
         self.show_output = True
         self.output_stdout = []
         self.output_stderr = []
+        self.stdout = ""
+        self.stderr = ""
         self.returncode = 1
         self.ON_POSIX = 'posix' in sys.builtin_module_names
 
