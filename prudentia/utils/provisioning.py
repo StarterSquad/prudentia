@@ -38,15 +38,15 @@ def run_playbook(playbook_file, inventory, vault_password, remote_user=C.DEFAULT
         hosts = sorted(playbook.stats.processed.keys())
         print callbacks.banner("PLAY RECAP")
         playbook_cb.on_stats(playbook.stats)
-        for h in hosts:
-            t = playbook.stats.summarize(h)
+        for host in hosts:
+            table = playbook.stats.summarize(host)
             print "%s : %s %s %s %s\n" % (
-                _hostcolor(h, t),
-                _colorize('ok', t['ok'], 'green'),
-                _colorize('changed', t['changed'], 'yellow'),
-                _colorize('unreachable', t['unreachable'], 'red'),
-                _colorize('failed', t['failures'], 'red'))
-            if t['unreachable'] == 0 and t['failures'] == 0:
+                _hostcolor(host, table),
+                _colorize('ok', table['ok'], 'green'),
+                _colorize('changed', table['changed'], 'yellow'),
+                _colorize('unreachable', table['unreachable'], 'red'),
+                _colorize('failed', table['failures'], 'red'))
+            if table['unreachable'] == 0 and table['failures'] == 0:
                 provision_success = True
 
         print "Play run took {0} minutes\n".format((datetime.now() - start).seconds / 60)

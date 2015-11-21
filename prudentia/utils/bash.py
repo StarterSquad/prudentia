@@ -45,11 +45,11 @@ class BashCmd(object):
         try:
             p = Popen(args=self.cmd_args, bufsize=1, stdout=PIPE, stderr=PIPE,
                       close_fds=self.ON_POSIX, env=self.env, cwd=self.cwd)
-            t = Thread(target=self.print_output, args=(p.stdout, p.stderr))
-            t.daemon = True  # thread dies with the program
-            t.start()
+            th = Thread(target=self.print_output, args=(p.stdout, p.stderr))
+            th.daemon = True  # thread dies with the program
+            th.start()
             self.returncode = p.wait()
-            t.join()
+            th.join()
             self.stdout = "".join(self.output_stdout)
             self.stderr = "".join(self.output_stderr)
         except Exception as ex:
