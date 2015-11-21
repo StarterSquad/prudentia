@@ -95,7 +95,8 @@ class DigitalOceanProvider(FactoryProvider):
             logging.exception('Box not added.')
             print '\nError: %s\n' % e
 
-    def _print_object_id_name(self, objs):
+    @staticmethod
+    def _print_object_id_name(objs):
         return '\n'.join([str(o['id']) + ' -> ' + o['name'] for o in objs])
 
     def reconfigure(self, previous_box):

@@ -58,15 +58,15 @@ class SimpleCli(Cmd):
                 completions = [c for c in completions if c not in current_tags]
         return completions
 
-
-    def help_register(self):
+    @staticmethod
+    def help_register():
         print "Registers a new box.\n"
 
     def do_register(self, line):
         self.provider.register()
 
-
-    def help_reconfigure(self):
+    @staticmethod
+    def help_reconfigure():
         print "Reconfigures an existing box.\n"
 
     def complete_reconfigure(self, text, line, begidx, endidx):
@@ -77,8 +77,8 @@ class SimpleCli(Cmd):
         if box:
             self.provider.reconfigure(box)
 
-
-    def help_provision(self):
+    @staticmethod
+    def help_provision():
         print "Starts and provisions the box, it accepts as optional argument a playbook tag.\n"
 
     def complete_provision(self, text, line, begidx, endidx):
@@ -90,8 +90,8 @@ class SimpleCli(Cmd):
         if box:
             self.provider.provision(box, *tokens[1:])
 
-
-    def help_unregister(self):
+    @staticmethod
+    def help_unregister():
         print "Unregisters an existing box.\n"
 
     def complete_unregister(self, text, line, begidx, endidx):
@@ -102,8 +102,8 @@ class SimpleCli(Cmd):
         if box:
             self.provider.unregister(box)
 
-
-    def help_set(self):
+    @staticmethod
+    def help_set():
         print "Sets the value of an Ansible extra variable. " \
               "During provisioning it will forcibly override the one defined in any playbook.\n"
 
@@ -117,8 +117,8 @@ class SimpleCli(Cmd):
             logging.exception('Error in setting variable for the current provider.')
             print 'Please provide the name of the variable followed by its value.\n'
 
-
-    def help_envset(self):
+    @staticmethod
+    def help_envset():
         print "Sets the value of an environment variable.\n"
 
     def do_envset(self, line):
@@ -131,16 +131,16 @@ class SimpleCli(Cmd):
             logging.exception('Error in setting variable for the current provider.')
             print 'Please provide the name of the variable followed by its value.\n'
 
-
-    def help_unset(self):
+    @staticmethod
+    def help_unset():
         print "Unsets an existing Ansible extra variable. If this action is invoked without parameter it will show " \
               "the current set variables.\n"
 
     def do_unset(self, line):
         self.provider.unset_var(line)
 
-
-    def help_list(self):
+    @staticmethod
+    def help_list():
         print "Shows a list of current boxes.\n"
 
     def do_list(self, line):
@@ -151,30 +151,30 @@ class SimpleCli(Cmd):
             for b in boxes:
                 print b
 
-
-    def help_decrypt(self):
+    @staticmethod
+    def help_decrypt():
         print "Provides the password that will be used to decrypt Ansible vault files. " \
               "For more information visit http://docs.ansible.com/playbooks_vault.html.\n"
 
     def do_decrypt(self, line):
         self.provider.set_vault_password()
 
-
-    def help_vars(self):
+    @staticmethod
+    def help_vars():
         print "Loads Ansible extra vars from a .yml or .json file (they will override existing ones).\n"
 
     def do_vars(self, line):
         self.provider.load_vars(line.strip())
 
-
-    def help_verbose(self):
+    @staticmethod
+    def help_verbose():
         print "Sets Ansible verbosity. Allowed values are between 0 (only task status) and 4 (full connection info).\n"
 
     def do_verbose(self, line):
         self.provider.verbose(line.strip())
 
-
-    def do_EOF(self, line):
+    @staticmethod
+    def do_EOF(line):
         print "\n"
         return True
 
@@ -306,7 +306,8 @@ class SimpleProvider(object):
             vault_password=self.vault_password
         )
 
-    def verbose(self, value):
+    @staticmethod
+    def verbose(value):
         iv = int(value)
         if 0 <= iv <= 4:
             utils.VERBOSITY = iv

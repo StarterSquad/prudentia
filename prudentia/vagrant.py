@@ -103,7 +103,8 @@ class VagrantProvider(FactoryProvider):
             logging.exception('Box not reconfigured.')
             print '\nError: %s\n' % e
 
-    def _input_shares(self):
+    @staticmethod
+    def _input_shares():
         shares = []
         loop = True
         while loop:
