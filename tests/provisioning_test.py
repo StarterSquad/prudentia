@@ -34,7 +34,7 @@ class TestProvisioning(unittest.TestCase):
         with patch('ansible.runner.Runner.__init__') as runner_mock:
             runner_mock.return_value = None
 
-            b = Box('box-name', 'dev.yml', 'box-host', '0.0.0.0', 'user')
+            b = Box('box-name', 'uname.yml', 'box-host', '0.0.0.0', 'user')
             provisioning.create_user(b)
 
             args_list = runner_mock.call_args_list

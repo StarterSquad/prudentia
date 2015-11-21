@@ -11,7 +11,7 @@ class TestLocalProvider(unittest.TestCase):
         self.provider = LocalProvider()
 
     def test_provision_sample_task(self):
-        r_box = Box('local-testbox', self.tests_path + '/../examples/boxes/tasks.yml', 'tasks-host', '127.0.0.1')
+        r_box = Box('local-testbox', self.tests_path + '/prudentia_vars.yml', 'tasks-host', '127.0.0.1')
         self.provider.add_box(r_box)
 
         self.provider.provision(r_box)
@@ -23,7 +23,7 @@ class TestLocalProvider(unittest.TestCase):
         self.provider.remove_box(r_box)
 
     def test_should_list_tag(self):
-        e_box = Box('simple-box', './dev.yml', 'hostname', '0.0.0.0')
+        e_box = Box('simple-box', './uname.yml', 'hostname', '0.0.0.0')
         self.provider.load_tags(e_box)
         self.assertEqual(self.provider.tags.has_key(e_box.name), True)
         self.assertEqual(self.provider.tags[e_box.name], ['one', 'echo'])

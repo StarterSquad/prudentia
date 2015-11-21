@@ -7,7 +7,7 @@ from prudentia.domain import Environment, Box
 class TestEnvironment(unittest.TestCase):
     def setUp(self):
         self.env = Environment(id_env='env-test')
-        self.test_box = Box('box-name', 'dev.yml', 'box-host', '0.0.0.0')
+        self.test_box = Box('box-name', 'uname.yml', 'box-host', '0.0.0.0')
         self.env.add(self.test_box)
 
     def tearDown(self):
@@ -30,7 +30,7 @@ class TestEnvironment(unittest.TestCase):
 
     def test_get_valid_box(self):
         b = self.env.get('box-name')
-        self.assertEqual(b.playbook, 'dev.yml')
+        self.assertEqual(b.playbook, 'uname.yml')
 
     def test_get_not_valid_box(self):
         b = self.env.get('whatever')
