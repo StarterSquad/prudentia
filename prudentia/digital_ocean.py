@@ -104,7 +104,10 @@ class DigitalOceanProvider(FactoryProvider):
 
     @staticmethod
     def _print_object_id_name(objs):
-        return '\n'.join([str(o['id']) + ' -> ' + o['name'] for o in objs])
+        def _dist_if_exists(prop):
+            return prop['distribution'] + ' ' if 'distribution' in prop else ''
+
+        return '\n'.join([str(o['id']) + ' -> ' + _dist_if_exists(o) + o['name'] for o in objs])
 
     def reconfigure(self, previous_box):
         try:
