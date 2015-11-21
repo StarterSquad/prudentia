@@ -113,7 +113,7 @@ class SimpleCli(Cmd):
             name = line[:first_space_idx].strip()
             value = line[first_space_idx:].strip()
             self.provider.set_var(name, value)
-        except ValueError as e:
+        except ValueError:
             logging.exception('Error in setting variable for the current provider.')
             print 'Please provide the name of the variable followed by its value.\n'
 
@@ -127,7 +127,7 @@ class SimpleCli(Cmd):
             name = line[:first_space_idx].strip()
             value = line[first_space_idx:].strip()
             os.environ[name] = value
-        except ValueError as e:
+        except ValueError:
             logging.exception('Error in setting variable for the current provider.')
             print 'Please provide the name of the variable followed by its value.\n'
 
