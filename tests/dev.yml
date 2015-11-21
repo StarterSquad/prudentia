@@ -6,3 +6,5 @@
     - name: Uname
       command: uname -a
       tags: one
+
+    - include: include.yml
