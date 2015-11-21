@@ -9,8 +9,6 @@ from ansible import callbacks, errors
 import ansible.constants as C
 from ansible.color import stringc
 
-from prudentia.domain import Box
-
 
 def run_playbook(playbook_file, inventory, vault_password, remote_user=C.DEFAULT_REMOTE_USER,
                  remote_pass=C.DEFAULT_REMOTE_PASS, transport=C.DEFAULT_TRANSPORT,
@@ -117,10 +115,6 @@ def generate_inventory(box):
         finally:
             f.close()
     return Inventory(tmp_inventory)
-
-
-def local_inventory():
-    return generate_inventory(Box('local', None, 'local', '127.0.0.1', use_prudentia_lib=True))
 
 
 def create_user(box):
