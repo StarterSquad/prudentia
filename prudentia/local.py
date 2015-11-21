@@ -1,10 +1,8 @@
 import logging
 
-import ansible.constants as C
 from prudentia.domain import Box
 from prudentia.simple import SimpleProvider, SimpleCli
 from prudentia.utils.io import input_value, input_path
-from prudentia.utils.provisioning import run_playbook, generate_inventory
 
 
 class LocalCli(SimpleCli):
@@ -48,28 +46,6 @@ class LocalProvider(SimpleProvider):
             print '\nError: %s\n' % ex
 
     def provision(self, box, *tags):
-        remote_user = C.DEFAULT_REMOTE_USER
-        if box.remote_user:
-            remote_user = box.remote_user
-
-        remote_pwd = C.DEFAULT_REMOTE_PASS
-        if not box.use_ssh_key():
-            remote_pwd = box.remote_pwd
-
-        transport = 'local'
+        box.transport = 'local'
         box.use_prudentia_lib = True
-
-        only_tags = None
-        if tags is not ():
-            only_tags = tags
-
-        self.provisioned = run_playbook(
-            playbook_file=box.playbook,
-            inventory=generate_inventory(box),
-            remote_user=remote_user,
-            remote_pass=remote_pwd,
-            transport=transport,
-            extra_vars=self.extra_vars,
-            only_tags=only_tags,
-            vault_password=self.vault_password
-        )
+        super(LocalProvider, self).provision(box, *tags)

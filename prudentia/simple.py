@@ -10,7 +10,6 @@ from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
 from ansible.inventory import Inventory
 from ansible.playbook import PlayBook
 from ansible.playbook.play import Play
-import ansible.constants as C
 
 from prudentia.domain import Environment
 from prudentia.utils.provisioning import run_playbook, generate_inventory
@@ -286,16 +285,6 @@ class SimpleProvider(object):
             return hostname + '-' + str(random.randint(0, 100))
 
     def provision(self, box, *tags):
-        remote_user = C.DEFAULT_REMOTE_USER
-        if box.remote_user:
-            remote_user = box.remote_user
-
-        remote_pwd = C.DEFAULT_REMOTE_PASS
-        transport = C.DEFAULT_TRANSPORT
-        if not box.use_ssh_key():
-            remote_pwd = box.remote_pwd
-            transport = 'paramiko'
-
         only_tags = None
         if tags is not ():
             only_tags = tags
@@ -303,9 +292,9 @@ class SimpleProvider(object):
         self.provisioned = run_playbook(
             playbook_file=box.playbook,
             inventory=generate_inventory(box),
-            remote_user=remote_user,
-            remote_pass=remote_pwd,
-            transport=transport,
+            remote_user=box.get_remote_user(),
+            remote_pass=box.get_remote_pwd(),
+            transport=box.get_transport(),
             extra_vars=self.extra_vars,
             only_tags=only_tags,
             vault_password=self.vault_password

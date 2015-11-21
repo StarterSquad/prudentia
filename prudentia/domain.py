@@ -3,6 +3,7 @@ import os
 from os import path
 import sys
 
+import ansible.constants as C
 from prudentia.utils.io import xstr
 
 
@@ -93,9 +94,21 @@ class Box(object):
         self.remote_pwd = remote_pwd
         self.extra = extra
         self.use_prudentia_lib = use_prudentia_lib
+        self.transport = None
 
-    def use_ssh_key(self):
-        return self.remote_pwd is None
+    def get_remote_user(self):
+        return self.remote_user if self.remote_user else C.DEFAULT_REMOTE_USER
+
+    def get_remote_pwd(self):
+        return self.remote_pwd if self.remote_pwd else C.DEFAULT_REMOTE_PASS
+
+    def get_transport(self):
+        if self.transport:
+            return self.transport
+        elif self.remote_pwd:
+            return 'paramiko'
+        else:
+            return C.DEFAULT_TRANSPORT
 
     def inventory(self):
         prudentia_python_interpreter = ' ansible_python_interpreter=' + sys.executable
