@@ -52,7 +52,7 @@ def input_value(topic, default_value=None, default_description=None, mandatory=T
             else:
                 answer = None
     else:
-        if default_value and type(default_value) == int:
+        if default_value and isinstance(default_value, int):
             answer = int(answer)
     return answer
 
