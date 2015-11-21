@@ -4,11 +4,11 @@ import time
 import ansible.constants as C
 
 from dopy.manager import DoManager, DoError
-from domain import Box
-from factory import FactoryProvider, FactoryCli
-from simple import SimpleProvider
-from utils.provisioning import create_user
-from utils.io import input_yes_no, input_value, input_path, xstr, input_choice
+from prudentia.domain import Box
+from prudentia.factory import FactoryProvider, FactoryCli
+from prudentia.simple import SimpleProvider
+from prudentia.utils.provisioning import create_user
+from prudentia.utils.io import input_yes_no, input_value, input_path, xstr, input_choice
 
 
 class DigitalOceanCli(FactoryCli):

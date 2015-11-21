@@ -2,9 +2,9 @@ import logging
 
 import ansible.constants as C
 
-from domain import Box
-from simple import SimpleProvider, SimpleCli
-from utils.io import input_value, input_path
+from prudentia.domain import Box
+from prudentia.simple import SimpleProvider, SimpleCli
+from prudentia.utils.io import input_value, input_path
 
 
 class SshCli(SimpleCli):

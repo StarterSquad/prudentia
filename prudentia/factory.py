@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABCMeta
 
-from simple import SimpleCli, SimpleProvider
+from prudentia.simple import SimpleCli, SimpleProvider
 
 
 class FactoryCli(SimpleCli):

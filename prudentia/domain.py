@@ -3,7 +3,7 @@ import os
 from os import path
 import sys
 
-from utils.io import xstr
+from prudentia.utils.io import xstr
 
 
 class Environment(object):

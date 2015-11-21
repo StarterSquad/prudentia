@@ -5,12 +5,12 @@ import re
 import jinja2
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
-from domain import Box
-from domain import Environment as PrudentiaEnv
-from factory import FactoryProvider, FactoryCli
-from simple import SimpleProvider
-from utils.bash import BashCmd
-from utils import io
+from prudentia.domain import Box
+from prudentia.domain import Environment as PrudentiaEnv
+from prudentia.factory import FactoryProvider, FactoryCli
+from prudentia.simple import SimpleProvider
+from prudentia.utils.bash import BashCmd
+from prudentia.utils import io
 
 
 class VagrantCli(FactoryCli):

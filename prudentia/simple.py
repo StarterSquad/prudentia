@@ -12,9 +12,9 @@ from ansible.playbook import PlayBook
 from ansible.playbook.play import Play
 import ansible.constants as C
 
-from domain import Environment
-from utils.provisioning import run_playbook, generate_inventory
-from utils.io import prudentia_python_dir, input_path, input_value
+from prudentia.domain import Environment
+from prudentia.utils.provisioning import run_playbook, generate_inventory
+from prudentia.utils.io import prudentia_python_dir, input_path, input_value
 
 
 class SimpleCli(Cmd):
