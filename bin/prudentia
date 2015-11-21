@@ -73,9 +73,7 @@ if __name__ == "__main__":
     init_readline(ud)
     check_latest()
 
-    from prudentia.cli import CLI
-
-    cli = CLI()
+    from prudentia import cli
 
     exit_error = 1
     args = cli.parse()

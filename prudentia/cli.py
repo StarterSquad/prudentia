@@ -26,24 +26,24 @@ Providers = {
 }
 
 
-class CLI(object):
-    def parse(self, args=None):
-        parser = argparse.ArgumentParser(prog='prudentia', description='A useful Continuous Deployment toolkit.')
-        parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
-        parser.add_argument('provider', choices=Providers.keys(), help='use one of the available providers')
-        parser.add_argument('commands', nargs='*', default='',
-                            help='optional quoted list of commands to run with the chosen provider')
-        if len(sys.argv) == 1:
-            parser.print_help()
-            sys.exit(1)
-        return parser.parse_args(args)
+def parse(args=None):
+    parser = argparse.ArgumentParser(prog='prudentia', description='A useful Continuous Deployment toolkit.')
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
+    parser.add_argument('provider', choices=Providers.keys(), help='use one of the available providers')
+    parser.add_argument('commands', nargs='*', default='',
+                        help='optional quoted list of commands to run with the chosen provider')
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+    return parser.parse_args(args)
 
-    def run(self, args):
-        chosen_cli = Providers[args.provider]()
-        if args.commands:
-            for c in args.commands:
-                print "Executing: '{0}'\n".format(c)
-                chosen_cli.onecmd(c)
-        else:
-            chosen_cli.cmdloop()
-        return chosen_cli.provider.provisioned
+
+def run(args):
+    chosen_cli = Providers[args.provider]()
+    if args.commands:
+        for c in args.commands:
+            print "Executing: '{0}'\n".format(c)
+            chosen_cli.onecmd(c)
+    else:
+        chosen_cli.cmdloop()
+    return chosen_cli.provider.provisioned
