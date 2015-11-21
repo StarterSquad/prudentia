@@ -122,7 +122,7 @@ class VagrantProvider(FactoryProvider):
         available_imgs = {}
         default_trusty_img = None
         for i in vagrant_boxes:
-            pattern = '(.*)\s*\((.*),.*\)'
+            pattern = r'(.*)\s*\((.*),.*\)'
             match = re.match(pattern, i, re.DOTALL)
             img_name = match.group(1).strip()
             img_provider = match.group(2).strip()
@@ -161,7 +161,7 @@ class VagrantProvider(FactoryProvider):
 
     def status(self, box):
         output = self._action(action="status", action_args=(box.name,), output=False)
-        pattern = '.*' + box.name + '\s*(.*?) \(virtualbox\).*'
+        pattern = r'.*{0}\s*(.*?) \(virtualbox\).*'.format(box.name)
         match = re.match(pattern, output, re.DOTALL)
         print match.group(1)
 
