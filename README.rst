@@ -125,7 +125,7 @@ You can use one of the samples that you can find in the `examples/boxes` directo
 For instance, the `tasks.yml` that will run some Ansible tasks that we've defined (those tasks are not that meaningful,
 but they are used as a sanity check in our tests).
 
-So let's continue using the `tasks.yml`:
+So let's continue using the `tasks.yml`::
 
     (Prudentia > Ssh) register
     Specify the playbook path: /path/to/prudentia/examples/boxes/tasks.yml
