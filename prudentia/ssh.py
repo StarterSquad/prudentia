@@ -37,9 +37,9 @@ class SshProvider(SimpleProvider):
             box = Box(name, playbook, hostname, ip, user, pwd)
             self.add_box(box)
             print "\nBox %s added." % box
-        except Exception as e:
+        except Exception as ex:
             logging.exception('Box not added.')
-            print '\nError: %s\n' % e
+            print '\nError: %s\n' % ex
 
     def reconfigure(self, previous_box):
         try:
@@ -68,6 +68,6 @@ class SshProvider(SimpleProvider):
             box = Box(previous_box.name, playbook, hostname, ip, user, pwd)
             self.add_box(box)
             print "\nBox %s reconfigured." % box
-        except Exception as e:
+        except Exception as ex:
             logging.exception('Box not reconfigured.')
-            print '\nError: %s\n' % e
+            print '\nError: %s\n' % ex

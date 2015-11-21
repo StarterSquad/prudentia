@@ -98,9 +98,9 @@ class DigitalOceanProvider(FactoryProvider):
             box = Box(name, playbook, hostname, ip, user, extra=ext)
             self.add_box(box)
             print "\nBox %s added." % box
-        except Exception as e:
+        except Exception as ex:
             logging.exception('Box not added.')
-            print '\nError: %s\n' % e
+            print '\nError: %s\n' % ex
 
     @staticmethod
     def _print_object_id_name(objs):
@@ -149,9 +149,9 @@ class DigitalOceanProvider(FactoryProvider):
             box = Box(previous_box.name, playbook, hostname, ip, user, extra=ext)
             self.add_box(box)
             print "\nBox %s reconfigured." % box
-        except Exception as e:
+        except Exception as ex:
             logging.exception('Box not reconfigured.')
-            print '\nError: %s\n' % e
+            print '\nError: %s\n' % ex
 
     def add_box(self, box):
         if not box.ip:
@@ -159,23 +159,23 @@ class DigitalOceanProvider(FactoryProvider):
         SimpleProvider.add_box(self, box)
 
     def create(self, box):
-        e = box.extra
-        if not e.id:
-            if not e.keys:
+        ext = box.extra
+        if not ext.id:
+            if not ext.keys:
                 print '\nNo valid keys are defined.'
                 print 'Please run `reconfigure {0}` to provide them.'.format(box.name)
                 return False
             print '\nCreating instance \'{0}\' ...'.format(box.name)
             droplet = self.manager.new_droplet(
-                name=box.name, size_id=e.size,
-                image_id=e.image, region_id=e.region,
-                ssh_key_ids=e.keys.split(',')
+                name=box.name, size_id=ext.size,
+                image_id=ext.image, region_id=ext.region,
+                ssh_key_ids=ext.keys.split(',')
             )
             box.extra.id = droplet['id']
             box.ip = self._wait_to_be_active(box.extra.id)
         else:
-            info = self.manager.show_droplet(e.id)
-            print 'Droplet {0} already exists - status: {1}.'.format(e.id, info['status'])
+            info = self.manager.show_droplet(ext.id)
+            print 'Droplet {0} already exists - status: {1}.'.format(ext.id, info['status'])
         create_user(box)
 
     def start(self, box):
@@ -198,10 +198,10 @@ class DigitalOceanProvider(FactoryProvider):
             self.manager.destroy_droplet(box_id, scrub_data=True)
 
     def rebuild(self, box):
-        e = box.extra
-        print 'Rebuilding droplet %s ...' % e.id
-        self.manager.rebuild_droplet(e.id, e.image)
-        self._wait_to_be_active(e.id)
+        ext = box.extra
+        print 'Rebuilding droplet %s ...' % ext.id
+        self.manager.rebuild_droplet(ext.id, ext.image)
+        self._wait_to_be_active(ext.id)
         create_user(box)
 
     def status(self, box):
@@ -265,10 +265,10 @@ class DOExt(object):
 
     @staticmethod
     def from_json(json):
-        e = DOExt()
-        e.id = json['id']
-        e.image = json['image']
-        e.size = json['size']
-        e.keys = json['keys']
-        e.region = json['region']
-        return e
+        ext = DOExt()
+        ext.id = json['id']
+        ext.image = json['image']
+        ext.size = json['size']
+        ext.keys = json['keys']
+        ext.region = json['region']
+        return ext

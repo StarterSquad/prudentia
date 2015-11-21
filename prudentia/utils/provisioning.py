@@ -52,8 +52,8 @@ def run_playbook(playbook_file, inventory, vault_password, remote_user=C.DEFAULT
                 provision_success = True
 
         print "Play run took {0} minutes\n".format((datetime.now() - start).seconds / 60)
-    except errors.AnsibleError, e:
-        print >> sys.stderr, "ERROR: %s" % e
+    except errors.AnsibleError, ex:
+        print >> sys.stderr, "ERROR: %s" % ex
     return provision_success
 
 
@@ -112,8 +112,8 @@ def generate_inventory(box):
         try:
             f = open(tmp_inventory, 'w')
             f.write(box.inventory())
-        except IOError, e:
-            print e
+        except IOError, ex:
+            print ex
         finally:
             f.close()
     return Inventory(tmp_inventory)

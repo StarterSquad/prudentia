@@ -73,9 +73,9 @@ class VagrantProvider(FactoryProvider):
                 box = Box(name, playbook, hostname, ip, self.DEFAULT_USER, self.DEFAULT_PWD, ext)
                 self.add_box(box)
                 print "\nBox %s added." % box
-        except Exception as e:
+        except Exception as ex:
             logging.exception('Box not added.')
-            print '\nError: %s\n' % e
+            print '\nError: %s\n' % ex
 
     def add_box(self, box):
         SimpleProvider.add_box(self, box)
@@ -106,9 +106,9 @@ class VagrantProvider(FactoryProvider):
                       self.DEFAULT_USER, self.DEFAULT_PWD, ext)
             self.add_box(box)
             print "\nBox %s reconfigured." % box
-        except Exception as e:
+        except Exception as ex:
             logging.exception('Box not reconfigured.')
-            print '\nError: %s\n' % e
+            print '\nError: %s\n' % ex
 
     @staticmethod
     def _input_shares():
@@ -222,9 +222,9 @@ class VagrantExt(object):
 
     @staticmethod
     def from_json(json):
-        e = VagrantExt()
-        e.set_mem(json['mem'])
-        e.set_shares(json['shares'])
-        e.set_image(json['image'])
-        e.set_provider(json['provider'])
-        return e
+        ext = VagrantExt()
+        ext.set_mem(json['mem'])
+        ext.set_shares(json['shares'])
+        ext.set_image(json['image'])
+        ext.set_provider(json['provider'])
+        return ext

@@ -23,9 +23,9 @@ class SimpleCli(Cmd):
     def cmdloop(self, intro=None):
         try:
             Cmd.cmdloop(self, intro)
-        except Exception as e:
+        except Exception as ex:
             logging.exception('Got a nasty error.')
-            print '\nGot a nasty error: %s\n' % e
+            print '\nGot a nasty error: %s\n' % ex
 
     def _get_box(self, box_name):
         b = self.provider.env.get(box_name)

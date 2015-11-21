@@ -60,8 +60,8 @@ class Environment(object):
             for jb in json_boxes:
                 b = Box.from_json(jb, self.box_extra_type)
                 self.boxes[b.name] = b
-        except IOError, e:
-            print e
+        except IOError, ex:
+            print ex
         finally:
             if f:
                 f.close()
@@ -75,8 +75,8 @@ class Environment(object):
                 json.dump([self.general.to_json(), json_boxes], f)
             else:
                 json.dump(json_boxes, f)
-        except IOError, e:
-            print e
+        except IOError, ex:
+            print ex
         finally:
             if f:
                 f.close()

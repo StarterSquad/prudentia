@@ -52,9 +52,9 @@ class BashCmd(object):
             t.join()
             self.stdout = "".join(self.output_stdout)
             self.stderr = "".join(self.output_stderr)
-        except Exception as e:
+        except Exception as ex:
             logging.exception('Command not executed.')
-            print "ERROR - Problem running {0}: {1}".format(self.cmd_args, e)
+            print "ERROR - Problem running {0}: {1}".format(self.cmd_args, ex)
 
     def __repr__(self):
         return "{0}" \
