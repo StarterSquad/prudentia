@@ -18,6 +18,12 @@ class LocalProvider(SimpleProvider):
     def __init__(self):
         super(LocalProvider, self).__init__(self.NAME)
 
+    @staticmethod
+    def _prepare(box):
+        box.transport = 'local'
+        box.use_prudentia_lib = True
+        return box
+
     def register(self):
         try:
             playbook = input_path('playbook path')
@@ -46,6 +52,8 @@ class LocalProvider(SimpleProvider):
             print '\nError: %s\n' % ex
 
     def provision(self, box, *tags):
-        box.transport = 'local'
-        box.use_prudentia_lib = True
-        super(LocalProvider, self).provision(box, *tags)
+        super(LocalProvider, self).provision(LocalProvider._prepare(box), *tags)
+
+    @staticmethod
+    def facts(box, regex='*'):
+        return SimpleProvider.facts(LocalProvider._prepare(box), regex)
