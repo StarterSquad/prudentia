@@ -32,3 +32,7 @@ class TestLocalProvider(unittest.TestCase):
         ne_box = Box('simple-box-2', 'xxx.yml', 'ssh-hostname', '0.0.0.0')
         self.provider.load_tags(ne_box)
         self.assertEqual(self.provider.tags.has_key(ne_box.name), False)
+
+    def test_gather_facts(self):
+        box = Box('simple-box', './uname.yml', 'hostname', '0.0.0.0')
+        self.assertTrue('ansible_system' in self.provider.facts(box))

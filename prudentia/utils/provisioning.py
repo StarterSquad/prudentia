@@ -191,3 +191,17 @@ def create_user(box):
                 )
             }
         ])
+
+
+def gather_facts(box, filter_value):
+    return run_module(
+        Runner(
+            pattern=box.hostname,
+            inventory=generate_inventory(box),
+            remote_user=box.get_remote_user(),
+            remote_pass=box.get_remote_pwd(),
+            transport=box.get_transport(),
+            module_name='setup',
+            module_args='filter=' + filter_value
+        )
+    )

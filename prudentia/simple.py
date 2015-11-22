@@ -1,3 +1,4 @@
+import json
 import logging
 from os.path import dirname
 import os
@@ -12,7 +13,7 @@ from ansible.playbook import PlayBook
 from ansible.playbook.play import Play
 
 from prudentia.domain import Environment
-from prudentia.utils.provisioning import run_playbook, generate_inventory
+from prudentia.utils.provisioning import run_playbook, generate_inventory, gather_facts
 from prudentia.utils.io import prudentia_python_dir, input_path, input_value
 
 
@@ -176,6 +177,20 @@ class SimpleCli(Cmd):
         self.provider.verbose(line.strip())
 
     @staticmethod
+    def help_facts():
+        print 'Gathers and shows useful information about the box. ' \
+              'Accepts optional parameter to filter shown properties.'
+
+    def complete_facts(self, text, line, begidx, endidx):
+        return self.complete_box_names(text, line, begidx, endidx)
+
+    def do_facts(self, line):
+        tokens = line.split(' ')
+        box = self._get_box(tokens[0])
+        if box:
+            print self.provider.facts(box, *tokens[1:])
+
+    @staticmethod
     def do_EOF(line):
         print "\n"
         return True
@@ -307,3 +322,12 @@ class SimpleProvider(object):
             utils.VERBOSITY = iv
         else:
             print 'Verbosity value {0} not allowed.'.format(value)
+
+    @staticmethod
+    def facts(box, regex='*'):
+        (success, result) = gather_facts(box, regex)
+        facts_string = ''
+        if success:
+            res = result['ansible_facts']
+            facts_string = json.dumps(res, sort_keys=True, indent=4, separators=(',', ': '))
+        return facts_string

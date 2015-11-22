@@ -84,6 +84,7 @@ A Simple provider (e.g. Local provider or SSH provider) have the following opera
 * *provision*: runs tasks defined in the playbook associated with a box
 * *decrypt*: sets the password used to decrypt Ansible vault files
 * *verbose*: sets Ansible verbosity, using a value between 0 and 4
+* *facts*: shows useful information about the box and accepts optional parameter to filter properties
 
 A Factory provider (e.g. Vagrant provider or DigitalOcean provider) extend simple provider and adds the ability
 to change the box life cycle:
