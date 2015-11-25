@@ -76,12 +76,15 @@ class DigitalOceanProvider(FactoryProvider):
                 print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
                 default_image = next((img for img in all_images
                                       if self.DEFAULT_IMAGE_NAME in img['name']), None)
-                image_desc = '{0} - {1} {2}'.format(
-                    default_image['id'],
-                    default_image['distribution'],
-                    default_image['name']
-                )
-                ext.image = input_value('image', default_image['id'], image_desc)
+                if default_image:
+                    image_desc = '{0} - {1} {2}'.format(
+                        default_image['id'],
+                        default_image['distribution'],
+                        default_image['name']
+                    )
+                    ext.image = input_value('image', default_image['id'], image_desc)
+                else:
+                    ext.image = input_value('image')
 
                 all_sizes = self.manager.sizes()
                 sizes_slug = [o['slug'] for o in all_sizes]
