@@ -3,8 +3,15 @@
   #  java_jre_version (provided)
   #  java_jre_build (provided)
 
-  - name: Java JRE | Check if is present
-    command: test -x /usr/bin/java
+  - name: Java JRE | Get JRE directory name
+    shell: "echo jdk1.{{java_jre_version}} |sed 's/u/.0_/'"
+    register: java_dir
+    when: ansible_os_family == "Debian"
+    sudo: yes
+    tags: jre
+
+  - name: Java JRE | Check if it is present
+    command: test -d /usr/lib/jvm/{{java_dir.stdout}}
     when: ansible_system == "Linux"
     ignore_errors: yes
     register: java_present
@@ -25,13 +32,6 @@
     set_fact:
       jre_download_url: "http://download.oracle.com/otn-pub/java/jdk/{{java_jre_version}}-{{java_jre_build}}/server-jre-{{java_jre_version}}-linux-{{platform}}.tar.gz"
     when: ansible_os_family == "Debian" and java_present|failed
-    tags: jre
-
-  - name: Java JRE | Get directory name
-    shell: "echo jdk1.{{java_jre_version}} |sed 's/u/.0_/'"
-    register: java_dir
-    when: ansible_os_family == "Debian" and java_present|failed
-    sudo: yes
     tags: jre
 
   - name: Java JRE | Download and install
