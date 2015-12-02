@@ -25,7 +25,7 @@
 
   - name: Java JRE | Fail if it isn't x64
     fail: msg="Unknown platform architecture (should be x64, got {{ansible_architecture}}"
-    when: platform != "x64" and ansible_os_family == "Debian" and java_present|failed
+    when: (platform is not defined or platform != "x64") and ansible_os_family == "Debian" and java_present|failed
     tags: jre
 
   - name: Java JRE | Set download URL
@@ -52,6 +52,6 @@
       - "update-alternatives --install /usr/bin/java java /usr/lib/jvm/{{java_dir.stdout}}/bin/java 1"
       - "update-alternatives --set javac /usr/lib/jvm/{{java_dir.stdout}}/bin/javac"
       - "update-alternatives --set java /usr/lib/jvm/{{java_dir.stdout}}/bin/java"
-    when: ansible_os_family == "Debian" and java_present|failed
+    when: ansible_os_family == "Debian"
     sudo: yes
     tags: jre
