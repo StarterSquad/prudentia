@@ -1,6 +1,21 @@
 Release History
 ---------------
 
+0.17 (2015-12-04)
++++++++++++++++++
+
+**Improvements**
+
+- Adds `facts` CLI action that can be used to show information gathered from a box.
+- Allows jre bundled task to provision a different java version.
+- Digital-Ocean provider: prints image distribution as well when listing images.
+- Digital-Ocean provider: uses image slug for default image instead of id.
+
+**Bugfixes**
+
+- Avoids use of getpass when inputing sensible information through heredoc.
+- Digital-Ocean provider: not suggests default ubuntu image if not available within the images list.
+
 0.16.1 (2015-11-19)
 +++++++++++++++++++
 
