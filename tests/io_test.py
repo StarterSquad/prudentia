@@ -31,7 +31,7 @@ class TestIO(unittest.TestCase):
         self.assertEqual(io.input_value('pwd', hidden=True, hidden_prompt_fn=lambda (m): pwd), pwd)
 
     def test_path_file(self):
-        f = "./dev.yml"
+        f = "./uname.yml"
         self.assertNotEqual(io.input_path('cwd file', prompt_fn=lambda (m): f), None)
 
     def test_prudentia_dir(self):
@@ -41,7 +41,7 @@ class TestIO(unittest.TestCase):
     def test_invalid_path_file(self):
         self.assertRaises(ValueError, io.input_path, 'cwd file', prompt_fn=lambda (m): 'foo')
         self.assertRaises(ValueError, io.input_path, 'cwd file', prompt_fn=lambda (m): '.')
-        self.assertRaises(ValueError, io.input_path, 'cwd file', is_file=False, prompt_fn=lambda (m): './dev.yml')
+        self.assertRaises(ValueError, io.input_path, 'cwd file', is_file=False, prompt_fn=lambda (m): './uname.yml')
 
     def test_sanity_choices(self):
         self.assertRaises(ValueError, io.input_choice, 'choice topic', choices=None)

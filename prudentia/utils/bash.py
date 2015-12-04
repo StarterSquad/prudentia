@@ -13,6 +13,8 @@ class BashCmd(object):
         self.show_output = True
         self.output_stdout = []
         self.output_stderr = []
+        self.stdout = ""
+        self.stderr = ""
         self.returncode = 1
         self.ON_POSIX = 'posix' in sys.builtin_module_names
 
@@ -41,18 +43,18 @@ class BashCmd(object):
 
     def execute(self):
         try:
-            p = Popen(args=self.cmd_args, bufsize=1, stdout=PIPE, stderr=PIPE, close_fds=self.ON_POSIX, env=self.env,
-                      cwd=self.cwd)
-            t = Thread(target=self.print_output, args=(p.stdout, p.stderr))
-            t.daemon = True  # thread dies with the program
-            t.start()
+            p = Popen(args=self.cmd_args, bufsize=1, stdout=PIPE, stderr=PIPE,
+                      close_fds=self.ON_POSIX, env=self.env, cwd=self.cwd)
+            th = Thread(target=self.print_output, args=(p.stdout, p.stderr))
+            th.daemon = True  # thread dies with the program
+            th.start()
             self.returncode = p.wait()
-            t.join()
+            th.join()
             self.stdout = "".join(self.output_stdout)
             self.stderr = "".join(self.output_stderr)
-        except Exception as e:
+        except Exception as ex:
             logging.exception('Command not executed.')
-            print("ERROR - Problem running {0}: {1}".format(self.cmd_args, e))
+            print "ERROR - Problem running {0}: {1}".format(self.cmd_args, ex)
 
     def __repr__(self):
         return "{0}" \

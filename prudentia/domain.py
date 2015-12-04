@@ -3,7 +3,8 @@ import os
 from os import path
 import sys
 
-from utils.io import xstr
+import ansible.constants as C
+from prudentia.utils.io import xstr
 
 
 class Environment(object):
@@ -60,8 +61,8 @@ class Environment(object):
             for jb in json_boxes:
                 b = Box.from_json(jb, self.box_extra_type)
                 self.boxes[b.name] = b
-        except IOError, e:
-            print e
+        except IOError, ex:
+            print ex
         finally:
             if f:
                 f.close()
@@ -75,15 +76,15 @@ class Environment(object):
                 json.dump([self.general.to_json(), json_boxes], f)
             else:
                 json.dump(json_boxes, f)
-        except IOError, e:
-            print e
+        except IOError, ex:
+            print ex
         finally:
             if f:
                 f.close()
 
 
 class Box(object):
-    def __init__(self, name, playbook, hostname, ip, remote_user=None, remote_pwd=None, extra=None, use_prudentia_lib=False):
+    def __init__(self, name, playbook, hostname, ip, remote_user=None, remote_pwd=None, extra=None):
         self.name = name
         self.playbook = playbook
         self.hostname = hostname
@@ -91,10 +92,22 @@ class Box(object):
         self.remote_user = remote_user
         self.remote_pwd = remote_pwd
         self.extra = extra
-        self.use_prudentia_lib = use_prudentia_lib
+        self.use_prudentia_lib = False
+        self.transport = None
 
-    def use_ssh_key(self):
-        return self.remote_pwd is None
+    def get_remote_user(self):
+        return self.remote_user if self.remote_user else C.DEFAULT_REMOTE_USER
+
+    def get_remote_pwd(self):
+        return self.remote_pwd if self.remote_pwd else C.DEFAULT_REMOTE_PASS
+
+    def get_transport(self):
+        if self.transport:
+            return self.transport
+        elif self.remote_pwd:
+            return 'paramiko'
+        else:
+            return C.DEFAULT_TRANSPORT
 
     def inventory(self):
         prudentia_python_interpreter = ' ansible_python_interpreter=' + sys.executable
@@ -110,7 +123,8 @@ class Box(object):
         return inv
 
     def __repr__(self):
-        values = [self.playbook, self.hostname, self.ip, self.remote_user, '*****' if self.remote_pwd else '', xstr(self.extra)]
+        values = [self.playbook, self.hostname, self.ip, self.remote_user,
+                  '*****' if self.remote_pwd else '', xstr(self.extra)]
         return '%s -> (%s)' % (self.name, ', '.join(i for i in values if i and i.strip()))
 
     def to_json(self):

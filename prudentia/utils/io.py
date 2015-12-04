@@ -1,6 +1,6 @@
 import os
 from getpass import getpass
-
+import sys
 
 def prudentia_python_dir():
     cwd = os.path.realpath(__file__)
@@ -28,11 +28,17 @@ def _input(msg):
 
 def _hidden_input(msg):
     first_time_input()
-    return getpass(msg)
+    # When using here documents the getpass does not accept automatic inputs
+    # so we fall back to the raw input.
+    # The raw input will not display the information provided through the heredoc
+    if not sys.stdin.isatty():
+        return _input(msg)
+    else:
+        return getpass(msg)
 
 
-def input_value(topic, default_value=None, default_description=None, mandatory=True, hidden=False, prompt_fn=_input,
-                hidden_prompt_fn=_hidden_input):
+def input_value(topic, default_value=None, default_description=None, mandatory=True,
+                hidden=False, prompt_fn=_input, hidden_prompt_fn=_hidden_input):
     default = default_description if default_description else default_value
     if default:
         input_msg = 'Specify the %s [default: %s]: ' % (topic, default)
@@ -52,13 +58,13 @@ def input_value(topic, default_value=None, default_description=None, mandatory=T
             else:
                 answer = None
     else:
-        if default_value and type(default_value) == int:
+        if default_value and isinstance(default_value, int):
             answer = int(answer)
     return answer
 
 
-def input_path(topic, default_value=None, default_description=None, mandatory=True, is_file=True, prompt_fn=_input,
-               retries=3):
+def input_path(topic, default_value=None, default_description=None, mandatory=True,
+               is_file=True, prompt_fn=_input, retries=3):
     times = 0
     while times < retries:
         path = os.path.realpath(os.path.expanduser(
@@ -93,7 +99,8 @@ def input_choice(topic, default=None, choices=None, prompt_fn=_input, retries=3)
     elif not len(choices):
         raise ValueError('Choices are empty.')
     elif default and default not in choices:
-        raise ValueError('Default value \'{0}\' is not part of provided choices: \'{1}\'.'.format(default, choices))
+        raise ValueError('Default value \'{0}\' is not part of provided choices:'
+                         ' \'{1}\'.'.format(default, choices))
     else:
         times = 0
         while times < retries:

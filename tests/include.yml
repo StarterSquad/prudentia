@@ -1,0 +1,4 @@
+---
+  - name: echo
+    command: echo a
+    tags: echo

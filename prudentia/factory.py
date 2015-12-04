@@ -1,10 +1,11 @@
 from abc import abstractmethod, ABCMeta
 
-from simple import SimpleCli, SimpleProvider
+from prudentia.simple import SimpleCli, SimpleProvider
 
 
 class FactoryCli(SimpleCli):
-    def help_create(self):
+    @staticmethod
+    def help_create():
         print "Creates the box.\n"
 
     def complete_create(self, text, line, begidx, endidx):
@@ -15,8 +16,8 @@ class FactoryCli(SimpleCli):
         if box:
             self.provider.create(box)
 
-
-    def help_start(self):
+    @staticmethod
+    def help_start():
         print "Starts the box.\n"
 
     def complete_start(self, text, line, begidx, endidx):
@@ -27,8 +28,8 @@ class FactoryCli(SimpleCli):
         if box:
             self.provider.start(box)
 
-
-    def help_restart(self):
+    @staticmethod
+    def help_restart():
         print "Restarts the box.\n"
 
     def complete_restart(self, text, line, begidx, endidx):
@@ -40,8 +41,8 @@ class FactoryCli(SimpleCli):
             self.provider.stop(box)
             self.provider.start(box)
 
-
-    def help_phoenix(self):
+    @staticmethod
+    def help_phoenix():
         print "Regenerates a box: destroy -> create -> provision.\n"
 
     def complete_phoenix(self, text, line, begidx, endidx):
@@ -53,8 +54,8 @@ class FactoryCli(SimpleCli):
             self.provider.rebuild(box)
             self.provider.provision(box)
 
-
-    def help_stop(self):
+    @staticmethod
+    def help_stop():
         print "Stops the box.\n"
 
     def complete_stop(self, text, line, begidx, endidx):
@@ -65,8 +66,8 @@ class FactoryCli(SimpleCli):
         if box:
             self.provider.stop(box)
 
-
-    def help_destroy(self):
+    @staticmethod
+    def help_destroy():
         print "Destroys the box.\n"
 
     def complete_destroy(self, text, line, begidx, endidx):
@@ -77,7 +78,8 @@ class FactoryCli(SimpleCli):
         if box:
             self.provider.destroy(box)
 
-    def help_status(self):
+    @staticmethod
+    def help_status():
         print "Check the status of the box.\n"
 
     def complete_status(self, text, line, begidx, endidx):

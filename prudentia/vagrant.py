@@ -5,12 +5,12 @@ import re
 import jinja2
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
-from domain import Box
-from domain import Environment as PrudentiaEnv
-from factory import FactoryProvider, FactoryCli
-from simple import SimpleProvider
-from utils.bash import BashCmd
-from utils import io
+from prudentia.domain import Box
+from prudentia.domain import Environment as PrudentiaEnv
+from prudentia.factory import FactoryProvider, FactoryCli
+from prudentia.simple import SimpleProvider
+from prudentia.utils.bash import BashCmd
+from prudentia.utils import io
 
 
 class VagrantCli(FactoryCli):
@@ -42,11 +42,17 @@ class VagrantProvider(FactoryProvider):
 
     def register(self):
         try:
-            vagrant_boxes = self._action(action="box", action_args=("list",), output=False).splitlines()
+            vagrant_boxes = self._action(
+                action="box",
+                action_args=("list",),
+                output=False
+            ).splitlines()
             if not vagrant_boxes:
-                print '\nThere are no available Vagrant (base) boxes, please search for a suitable one at ' \
+                print '\nThere are no available Vagrant (base) boxes.'
+                print 'Please search for a suitable one at ' \
                       'https://atlas.hashicorp.com/boxes/search.'
-                print 'Once you\'ve chosen the <box> add it using the following cmd \'$ vagrant box add <box>\'.\n'
+                print 'Once you\'ve chosen the <box> add it using the following cmd:' \
+                      ' \'$ vagrant box add <box>\'.\n'
             else:
                 playbook = io.input_path('playbook path')
                 hostname = self.fetch_box_hosts(playbook)
@@ -67,9 +73,9 @@ class VagrantProvider(FactoryProvider):
                 box = Box(name, playbook, hostname, ip, self.DEFAULT_USER, self.DEFAULT_PWD, ext)
                 self.add_box(box)
                 print "\nBox %s added." % box
-        except Exception as e:
+        except Exception as ex:
             logging.exception('Box not added.')
-            print '\nError: %s\n' % e
+            print '\nError: %s\n' % ex
 
     def add_box(self, box):
         SimpleProvider.add_box(self, box)
@@ -96,14 +102,16 @@ class VagrantProvider(FactoryProvider):
             ext.set_image(previous_box.extra.image)
             ext.set_provider(previous_box.extra.provider)
 
-            box = Box(previous_box.name, playbook, hostname, ip, self.DEFAULT_USER, self.DEFAULT_PWD, ext)
+            box = Box(previous_box.name, playbook, hostname, ip,
+                      self.DEFAULT_USER, self.DEFAULT_PWD, ext)
             self.add_box(box)
             print "\nBox %s reconfigured." % box
-        except Exception as e:
+        except Exception as ex:
             logging.exception('Box not reconfigured.')
-            print '\nError: %s\n' % e
+            print '\nError: %s\n' % ex
 
-    def _input_shares(self):
+    @staticmethod
+    def _input_shares():
         shares = []
         loop = True
         while loop:
@@ -121,7 +129,7 @@ class VagrantProvider(FactoryProvider):
         available_imgs = {}
         default_trusty_img = None
         for i in vagrant_boxes:
-            pattern = '(.*)\s*\((.*),.*\)'
+            pattern = r'(.*)\s*\((.*),.*\)'
             match = re.match(pattern, i, re.DOTALL)
             img_name = match.group(1).strip()
             img_provider = match.group(2).strip()
@@ -160,7 +168,7 @@ class VagrantProvider(FactoryProvider):
 
     def status(self, box):
         output = self._action(action="status", action_args=(box.name,), output=False)
-        pattern = '.*' + box.name + '\s*(.*?) \(virtualbox\).*'
+        pattern = r'.*{0}\s*(.*?) \(virtualbox\).*'.format(box.name)
         match = re.match(pattern, output, re.DOTALL)
         print match.group(1)
 
@@ -209,13 +217,14 @@ class VagrantExt(object):
                (self.mem, self.shares, self.image, self.provider)
 
     def to_json(self):
-        return {'mem': self.mem, 'shares': self.shares, 'image': self.image, 'provider': self.provider}
+        return {'mem': self.mem, 'shares': self.shares, 'image': self.image,
+                'provider': self.provider}
 
     @staticmethod
     def from_json(json):
-        e = VagrantExt()
-        e.set_mem(json['mem'])
-        e.set_shares(json['shares'])
-        e.set_image(json['image'])
-        e.set_provider(json['provider'])
-        return e
+        ext = VagrantExt()
+        ext.set_mem(json['mem'])
+        ext.set_shares(json['shares'])
+        ext.set_image(json['image'])
+        ext.set_provider(json['provider'])
+        return ext
