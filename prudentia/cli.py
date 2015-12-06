@@ -3,7 +3,8 @@ import os
 from os import path
 import sys
 
-from . import __version__
+from . import __version__ as prudentia_ver
+from ansible import __version__ as ansible_ver
 
 
 # Setting Ansible config file environment variable as first thing
@@ -29,10 +30,11 @@ Providers = {
 
 def parse(args=None):
     parser = argparse.ArgumentParser(
-        prog='prudentia',
+        prog='Prudentia',
         description='A useful Continuous Deployment toolkit.'
     )
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
+    parser.add_argument('-v', '--version', action='version',
+                        version='%(prog)s ' + prudentia_ver + ', Ansible ' + ansible_ver)
     parser.add_argument('provider', choices=Providers.keys(),
                         help='use one of the available providers')
     parser.add_argument('commands', nargs='*', default='',
