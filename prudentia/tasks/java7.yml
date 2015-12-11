@@ -1,0 +1,4 @@
+---
+  - set_fact: java_jdk_version=7
+
+  - include: "{{prudentia_dir}}/tasks/java.yml"
