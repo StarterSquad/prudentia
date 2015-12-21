@@ -225,6 +225,6 @@ class VagrantExt(object):
         ext = VagrantExt()
         ext.set_mem(json['mem'])
         ext.set_shares(json['shares'])
-        ext.set_image(json['image'])
-        ext.set_provider(json['provider'])
+        ext.set_image(json.get('image'))
+        ext.set_provider(json.get('provider'))
         return ext
