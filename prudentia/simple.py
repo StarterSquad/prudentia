@@ -27,15 +27,6 @@ class SimpleCli(Cmd):
             logging.exception('Got a nasty error.')
             print '\nGot a nasty error: %s\n' % ex
 
-    def _get_box(self, box_name):
-        b = self.provider.env.get(box_name)
-        if not b:
-            print 'The box \'%s\' you entered does not exists.\n\n' \
-                  'After typing the command press Tab for box suggestions.\n' % box_name
-            return None
-        else:
-            return b
-
     def complete_box_names(self, text, line, begidx, endidx):
         completions = ['']
         tokens = line.split(' ')
@@ -73,7 +64,7 @@ class SimpleCli(Cmd):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_reconfigure(self, line):
-        box = self._get_box(line)
+        box = self.provider.get_box(line)
         if box:
             self.provider.reconfigure(box)
 
@@ -86,7 +77,7 @@ class SimpleCli(Cmd):
 
     def do_provision(self, line):
         tokens = line.split(' ')
-        box = self._get_box(tokens[0])
+        box = self.provider.get_box(tokens[0])
         if box:
             self.provider.provision(box, *tokens[1:])
 
@@ -98,7 +89,7 @@ class SimpleCli(Cmd):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_unregister(self, line):
-        box = self._get_box(line)
+        box = self.provider.get_box(line)
         if box:
             self.provider.unregister(box)
 
@@ -186,7 +177,7 @@ class SimpleCli(Cmd):
 
     def do_facts(self, line):
         tokens = line.split(' ')
-        box = self._get_box(tokens[0])
+        box = self.provider.get_box(tokens[0])
         if box:
             print self.provider.facts(box, *tokens[1:])
 
@@ -212,6 +203,15 @@ class SimpleProvider(object):
 
     def boxes(self):
         return self.env.boxes.values()
+
+    def get_box(self, box_name):
+        b = self.env.get(box_name)
+        if not b:
+            print 'The box \'%s\' you entered does not exists.\n\n' \
+                  'After typing the command press Tab for box suggestions.\n' % box_name
+            return None
+        else:
+            return b
 
     def _show_current_vars(self):
         print 'Current set variables:\n%s\n' % '\n'.join(

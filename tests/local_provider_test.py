@@ -1,6 +1,7 @@
 import unittest
 import os
 
+from mock import patch
 from prudentia.domain import Box
 from prudentia.local import LocalProvider
 
@@ -36,3 +37,14 @@ class TestLocalProvider(unittest.TestCase):
     def test_gather_facts(self):
         box = Box('simple-box', './uname.yml', 'hostname', '0.0.0.0')
         self.assertTrue('ansible_system' in self.provider.facts(box))
+
+    def test_register(self):
+        def input_side_effect(*args):
+            input_values = {'playbook path': './uname.yml', 'box name': 'b_name'}
+            return input_values[args[0]]
+
+        with patch('prudentia.utils.io.input_value') as iv:
+            iv.side_effect=input_side_effect
+
+            self.provider.register()
+            self.assertIsNotNone(self.provider.get_box('b_name'))
