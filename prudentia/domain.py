@@ -4,7 +4,7 @@ from os import path
 import sys
 
 import ansible.constants as C
-from prudentia.utils.io import xstr
+from prudentia.utils import io
 
 
 class Environment(object):
@@ -16,8 +16,8 @@ class Environment(object):
         self.id_env = id_env
         env_path = path.join(envs_path, id_env)
         if not os.path.exists(env_path):
-            print 'Initializing environment {0} ({1}) ...'.format(id_env, env_path)
             os.makedirs(env_path)
+            print 'Environment {0} ({1}) created'.format(id_env, env_path)
         self.file = path.join(env_path, file_name)
         self.general_type = general_type
         self.box_extra_type = box_extra_type
@@ -26,8 +26,8 @@ class Environment(object):
         try:
             self._load()
             self.initialized = True
-        except IOError:
-            self.initialized = False
+        except Exception as ex:
+            io.track_error('cannot load {0}'.format(self.file), ex)
 
     def set_general(self, general):
         self.general = general
@@ -49,39 +49,25 @@ class Environment(object):
         return b
 
     def _load(self):
-        f = None
-        try:
-            f = open(self.file, 'r')
-            json_objects = json.load(f)
-            if self.general_type:
-                self.general = self.general_type.from_json(json_objects[0])
-                json_boxes = json_objects[1]
-            else:
-                json_boxes = json_objects
-            for jb in json_boxes:
-                b = Box.from_json(jb, self.box_extra_type)
-                self.boxes[b.name] = b
-        except IOError, ex:
-            print ex
-        finally:
-            if f:
-                f.close()
+        if os.path.exists(self.file):
+            with open(self.file, 'r') as f:
+                json_objects = json.load(f)
+                if self.general_type:
+                    self.general = self.general_type.from_json(json_objects[0])
+                    json_boxes = json_objects[1]
+                else:
+                    json_boxes = json_objects
+                for jb in json_boxes:
+                    b = Box.from_json(jb, self.box_extra_type)
+                    self.boxes[b.name] = b
 
     def _save(self):
         json_boxes = [b.to_json() for b in self.boxes.values()]
-        f = None
-        try:
-            f = open(self.file, 'w')
+        with open(self.file, 'w') as f:
             if self.general_type:
                 json.dump([self.general.to_json(), json_boxes], f)
             else:
                 json.dump(json_boxes, f)
-        except IOError, ex:
-            print ex
-        finally:
-            if f:
-                f.close()
-
 
 class Box(object):
     def __init__(self, name, playbook, hostname, ip, remote_user=None, remote_pwd=None, extra=None):
@@ -124,7 +110,7 @@ class Box(object):
 
     def __repr__(self):
         values = [self.playbook, self.hostname, self.ip, self.remote_user,
-                  '*****' if self.remote_pwd else '', xstr(self.extra)]
+                  '*****' if self.remote_pwd else '', io.xstr(self.extra)]
         return '%s -> (%s)' % (self.name, ', '.join(i for i in values if i and i.strip()))
 
     def to_json(self):

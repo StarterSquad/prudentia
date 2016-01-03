@@ -28,8 +28,9 @@ def init_user_dir():
 
 def init_logging(user_dir):
     """Initializes the logging using the cli.log located inside the Prudentia user directory."""
+    os.environ['PRUDENTIA_LOG'] = log_file = path.join(user_dir, 'cli.log')
     logging.basicConfig(
-        filename=path.join(user_dir, 'cli.log'),
+        filename=log_file,
         format='%(asctime)s.%(msecs).03d [%(name)s] %(levelname)s: %(message)s',
         datefmt='%d-%m-%Y %H:%M:%S',
         level=logging.WARNING

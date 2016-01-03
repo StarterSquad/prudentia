@@ -23,6 +23,7 @@ else
 fi
 
 export PRUDENTIA_USER_DIR=.
+export PRUDENTIA_LOG=
 
 rm -rf tests/envs tests/cover
 
