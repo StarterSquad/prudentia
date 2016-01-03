@@ -1,8 +1,9 @@
-import logging
 import os
 from subprocess import PIPE, Popen
 from threading import Thread
 import sys
+
+from prudentia.utils import io
 
 
 class BashCmd(object):
@@ -53,8 +54,7 @@ class BashCmd(object):
             self.stdout = "".join(self.output_stdout)
             self.stderr = "".join(self.output_stderr)
         except Exception as ex:
-            logging.exception('Command not executed.')
-            print "ERROR - Problem running {0}: {1}".format(self.cmd_args, ex)
+            io.track_error('cannot execute command {0}'.format(self.cmd_args), ex)
 
     def __repr__(self):
         return "{0}" \

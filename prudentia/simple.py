@@ -24,8 +24,7 @@ class SimpleCli(Cmd):
         try:
             Cmd.cmdloop(self, intro)
         except Exception as ex:
-            logging.exception('Got a nasty error.')
-            print '\nGot a nasty error: %s\n' % ex
+            io.track_error('something bad happened', ex)
 
     def complete_box_names(self, text, line, begidx, endidx):
         completions = ['']
@@ -264,7 +263,7 @@ class SimpleProvider(object):
             )
             return Play(playbook, playbook.playbook[0], dirname(playbook_file))
         except Exception as ex:
-            io.track_error('Cannot parse playbook {0}'.format(playbook_file), ex)
+            io.track_error('cannot parse playbook {0}'.format(playbook_file), ex)
 
     def load_tags(self, box=None):
         for b in [box] if box else self.boxes():
@@ -328,7 +327,6 @@ class SimpleProvider(object):
                 iv = int(value)
             except ValueError:
                 iv = -1
-                pass
             if 0 <= iv <= 4:
                 utils.VERBOSITY = iv
             else:

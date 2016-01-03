@@ -1,4 +1,3 @@
-import logging
 from os import path
 import re
 
@@ -74,8 +73,7 @@ class VagrantProvider(FactoryProvider):
                 self.add_box(box)
                 print "\nBox %s added." % box
         except Exception as ex:
-            logging.exception('Box not added.')
-            print '\nError: %s\n' % ex
+            io.track_error('cannot add box', ex)
 
     def add_box(self, box):
         SimpleProvider.add_box(self, box)
@@ -107,8 +105,7 @@ class VagrantProvider(FactoryProvider):
             self.add_box(box)
             print "\nBox %s reconfigured." % box
         except Exception as ex:
-            logging.exception('Box not reconfigured.')
-            print '\nError: %s\n' % ex
+            io.track_error('cannot reconfigure box', ex)
 
     @staticmethod
     def _input_shares():

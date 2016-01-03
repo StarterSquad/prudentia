@@ -1,5 +1,3 @@
-import logging
-
 from prudentia.domain import Box
 from prudentia.simple import SimpleProvider, SimpleCli
 from prudentia.utils import io
@@ -34,8 +32,7 @@ class LocalProvider(SimpleProvider):
             self.add_box(box)
             print "\nBox %s added." % box
         except Exception as ex:
-            logging.exception('Box not added.')
-            print '\nError: %s\n' % ex
+            io.track_error('cannot add box', ex)
 
     def reconfigure(self, previous_box):
         try:
@@ -47,8 +44,7 @@ class LocalProvider(SimpleProvider):
             self.add_box(box)
             print "\nBox %s reconfigured." % box
         except Exception as ex:
-            logging.exception('Box not reconfigured.')
-            print '\nError: %s\n' % ex
+            io.track_error('cannot reconfigure box', ex)
 
     def provision(self, box, *tags):
         super(LocalProvider, self).provision(LocalProvider._prepare(box), *tags)

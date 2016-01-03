@@ -1,4 +1,3 @@
-import logging
 import time
 
 import ansible.constants as C
@@ -8,7 +7,7 @@ from prudentia.domain import Box
 from prudentia.factory import FactoryProvider, FactoryCli
 from prudentia.simple import SimpleProvider
 from prudentia.utils.provisioning import create_user
-from prudentia.utils.io import input_yes_no, input_value, input_path, xstr, input_choice
+from prudentia.utils import io
 
 
 class DigitalOceanCli(FactoryCli):
@@ -37,7 +36,7 @@ class DigitalOceanProvider(FactoryProvider):
         print '\nThe DigitalOcean API (v2) token is not configured.'
         print 'If you don\'t have it please visit ' \
               'https://cloud.digitalocean.com/settings/applications and generate one.'
-        api_token = input_value('api token')
+        api_token = io.input_value('api token')
         do_general = DOGeneral(api_token)
         self.env.set_general(do_general)
         return do_general
@@ -47,14 +46,14 @@ class DigitalOceanProvider(FactoryProvider):
             ip = None
             ext = DOExt()
 
-            if input_yes_no('register an existing droplet'):
-                droplet_id = input_value('droplet id')
+            if io.input_yes_no('register an existing droplet'):
+                droplet_id = io.input_value('droplet id')
                 droplet_info = self.manager.show_droplet(droplet_id)
                 ext.id = droplet_id
                 name = droplet_info['name']
                 created = droplet_info['created_at']
                 print '\nFound droplet \'{0}\' (created {1})'.format(name, created)
-                ip = xstr(droplet_info['ip_address'])
+                ip = io.xstr(droplet_info['ip_address'])
                 print 'IP: %s' % ip
                 ext.image = droplet_info['image']['id']
                 print 'Image: %s' % ext.image
@@ -63,14 +62,14 @@ class DigitalOceanProvider(FactoryProvider):
                 ext.region = droplet_info['region']['slug']
                 print 'Region: %s\n' % ext.region
 
-                playbook = input_path('playbook path')
+                playbook = io.input_path('playbook path')
                 hostname = self.fetch_box_hosts(playbook)
-                user = input_value('remote user', C.active_user)
+                user = io.input_value('remote user', C.active_user)
             else:
-                playbook = input_path('playbook path')
+                playbook = io.input_path('playbook path')
                 hostname = self.fetch_box_hosts(playbook)
-                name = input_value('box name', self.suggest_name(hostname))
-                user = input_value('remote user', C.active_user)
+                name = io.input_value('box name', self.suggest_name(hostname))
+                user = io.input_value('remote user', C.active_user)
 
                 all_images = self.manager.all_images()
                 print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
@@ -82,19 +81,19 @@ class DigitalOceanProvider(FactoryProvider):
                         default_image['distribution'],
                         default_image['name']
                     )
-                    ext.image = input_value('image', default_image['id'], image_desc)
+                    ext.image = io.input_value('image', default_image['id'], image_desc)
                 else:
-                    ext.image = input_value('image')
+                    ext.image = io.input_value('image')
 
                 all_sizes = self.manager.sizes()
                 sizes_slug = [o['slug'] for o in all_sizes]
                 print '\nAvailable sizes: \n%s' % '\n'.join(sizes_slug)
-                ext.size = input_choice('size', self.DEFAULT_SIZE_SLUG, choices=sizes_slug)
+                ext.size = io.input_choice('size', self.DEFAULT_SIZE_SLUG, choices=sizes_slug)
 
                 all_regions = self.manager.all_regions()
                 regions_slug = [o['slug'] for o in all_regions]
                 print '\nAvailable regions: \n%s' % '\n'.join(regions_slug)
-                ext.region = input_choice('region', self.DEFAULT_REGION_SLUG, choices=regions_slug)
+                ext.region = io.input_choice('region', self.DEFAULT_REGION_SLUG, choices=regions_slug)
 
                 ext.keys = self._input_ssh_keys()
 
@@ -102,8 +101,7 @@ class DigitalOceanProvider(FactoryProvider):
             self.add_box(box)
             print "\nBox %s added." % box
         except Exception as ex:
-            logging.exception('Box not added.')
-            print '\nError: %s\n' % ex
+            io.track_error('cannot add box', ex)
 
     @staticmethod
     def _print_object_id_name(objs):
@@ -116,10 +114,10 @@ class DigitalOceanProvider(FactoryProvider):
         try:
             self.remove_box(previous_box)
 
-            playbook = input_path('playbook path', previous_box.playbook)
+            playbook = io.input_path('playbook path', previous_box.playbook)
             hostname = self.fetch_box_hosts(playbook)
             ip = previous_box.ip
-            user = input_value('remote user', previous_box.remote_user)
+            user = io.input_value('remote user', previous_box.remote_user)
 
             if not previous_box.extra.id:
                 ext = DOExt()
@@ -134,19 +132,19 @@ class DigitalOceanProvider(FactoryProvider):
                         prev_image['distribution'],
                         prev_image['name']
                     )
-                    ext.image = input_value('image', prev_image['id'], prev_image_desc)
+                    ext.image = io.input_value('image', prev_image['id'], prev_image_desc)
                 else:
-                    ext.image = input_value('image')
+                    ext.image = io.input_value('image')
 
                 all_sizes = self.manager.sizes()
                 sizes_slug = [o['slug'] for o in all_sizes]
                 print '\nAvailable sizes: \n%s' % '\n'.join(sizes_slug)
-                ext.size = input_value('size', previous_box.extra.size)
+                ext.size = io.input_value('size', previous_box.extra.size)
 
                 all_regions = self.manager.all_regions()
                 regions_slug = [o['slug'] for o in all_regions]
                 print '\nAvailable regions: \n%s' % '\n'.join(regions_slug)
-                ext.region = input_value('region', previous_box.extra.region)
+                ext.region = io.input_value('region', previous_box.extra.region)
 
                 ext.keys = self._input_ssh_keys(previous_box.extra.keys)
             else:
@@ -156,8 +154,7 @@ class DigitalOceanProvider(FactoryProvider):
             self.add_box(box)
             print "\nBox %s reconfigured." % box
         except Exception as ex:
-            logging.exception('Box not reconfigured.')
-            print '\nError: %s\n' % ex
+            io.track_error('cannot reconfigure box', ex)
 
     def add_box(self, box):
         if not box.ip:
@@ -196,7 +193,7 @@ class DigitalOceanProvider(FactoryProvider):
         self.manager.power_off_droplet(box_id)
 
     def destroy(self, box):
-        if input_yes_no('destroy the droplet \'{0}\''.format(box.name)):
+        if io.input_yes_no('destroy the droplet \'{0}\''.format(box.name)):
             box_id = box.extra.id
             box.ip = None
             box.extra.id = None
@@ -236,7 +233,7 @@ class DigitalOceanProvider(FactoryProvider):
             default_keys = ','.join([str(k['id']) for k in all_keys])
         else:
             default_keys = previous
-        return input_value('keys', default_keys)
+        return io.input_value('keys', default_keys)
 
 
 class DOGeneral(object):
