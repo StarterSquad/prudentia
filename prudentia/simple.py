@@ -317,11 +317,18 @@ class SimpleProvider(object):
 
     @staticmethod
     def verbose(value):
-        iv = int(value)
-        if 0 <= iv <= 4:
-            utils.VERBOSITY = iv
+        if value:
+            try:
+                iv = int(value)
+            except ValueError:
+                iv = -1
+                pass
+            if 0 <= iv <= 4:
+                utils.VERBOSITY = iv
+            else:
+                print 'Verbosity value \'{0}\' not allowed, should be a number between 0 and 4.'.format(value)
         else:
-            print 'Verbosity value {0} not allowed.'.format(value)
+            print 'Current verbosity: {0}'.format(utils.VERBOSITY)
 
     @staticmethod
     def facts(box, regex='*'):
