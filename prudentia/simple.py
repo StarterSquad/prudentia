@@ -112,7 +112,7 @@ class SimpleCli(Cmd):
             first_space_idx = line.index(' ')
             name = line[:first_space_idx].strip()
             value = line[first_space_idx:].strip()
-            self.provider.set_var(name, value)
+            self.provider.set_var(name, value, utils.VERBOSITY > 0)
         except ValueError:
             logging.exception('Error in setting variable for the current provider.')
             print 'Please provide the name of the variable followed by its value.\n'
@@ -166,7 +166,7 @@ class SimpleCli(Cmd):
               "(they will override existing ones).\n"
 
     def do_vars(self, line):
-        self.provider.load_vars(line.strip())
+        self.provider.load_vars(line.strip(), utils.VERBOSITY > 0)
 
     @staticmethod
     def help_verbose():
@@ -218,7 +218,7 @@ class SimpleProvider(object):
             [n + ' -> ' + str(v) for n, v in self.extra_vars.iteritems()]
         )
 
-    def set_var(self, var, value, verbose=True):
+    def set_var(self, var, value, verbose):
         if var in self.extra_vars:
             print 'NOTICE: Variable \'{0}\' is already set to this value: \'{1}\' ' \
                   'and it will be overwritten.'.format(var, self.extra_vars[var])
@@ -241,7 +241,7 @@ class SimpleProvider(object):
         pwd = input_value('Ansible vault password', hidden=True)
         self.vault_password = pwd
 
-    def load_vars(self, vars_file, verbose=True):
+    def load_vars(self, vars_file, verbose):
         if not vars_file:
             vars_file = input_path('path of the variables file')
         vars_dict = utils.parse_yaml_from_file(vars_file, self.vault_password)
