@@ -47,4 +47,4 @@ class TestLocalProvider(unittest.TestCase):
             iv.side_effect=input_side_effect
 
             self.provider.register()
-            self.assertIsNotNone(self.provider.get_box('b_name'))
+            self.assertNotEqual(self.provider.get_box('b_name'), None)
