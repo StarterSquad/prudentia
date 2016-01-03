@@ -22,29 +22,16 @@ class LocalProvider(SimpleProvider):
         box.use_prudentia_lib = True
         return box
 
-    def register(self):
-        try:
-            playbook = io.input_path('playbook path')
-            hostname = self.fetch_box_hosts(playbook)
-            name = io.input_value('box name', self.suggest_name(hostname))
+    def define_box(self):
+        playbook = io.input_path('playbook path')
+        hostname = self.fetch_box_hosts(playbook)
+        name = io.input_value('box name', self.suggest_name(hostname))
+        return Box(name, playbook, hostname, '127.0.0.1')
 
-            box = Box(name, playbook, hostname, '127.0.0.1')
-            self.add_box(box)
-            print "\nBox %s added." % box
-        except Exception as ex:
-            io.track_error('cannot add box', ex)
-
-    def reconfigure(self, previous_box):
-        try:
-            playbook = io.input_path('playbook path', previous_box.playbook)
-            hostname = self.fetch_box_hosts(playbook)
-
-            box = Box(previous_box.name, playbook, hostname, previous_box.ip)
-            self.remove_box(previous_box)
-            self.add_box(box)
-            print "\nBox %s reconfigured." % box
-        except Exception as ex:
-            io.track_error('cannot reconfigure box', ex)
+    def redefine_box(self, previous_box):
+        playbook = io.input_path('playbook path', previous_box.playbook)
+        hostname = self.fetch_box_hosts(playbook)
+        return Box(previous_box.name, playbook, hostname, previous_box.ip)
 
     def provision(self, box, *tags):
         super(LocalProvider, self).provision(LocalProvider._prepare(box), *tags)

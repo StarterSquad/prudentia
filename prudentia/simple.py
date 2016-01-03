@@ -281,12 +281,31 @@ class SimpleProvider(object):
             self.tags.pop(box.name)
         return self.env.remove(box)
 
-    @abstractmethod
     def register(self):
-        pass
+        try:
+            box = self.define_box()
+            if box:
+                self.add_box(box)
+                print "\nBox %s added." % box
+        except Exception as ex:
+            io.track_error('cannot add box', ex)
 
     @abstractmethod
-    def reconfigure(self, box):
+    def define_box(self):
+        pass
+
+    def reconfigure(self, previous_box):
+        try:
+            box = self.redefine_box(previous_box)
+            if box:
+                self.remove_box(previous_box)
+                self.add_box(box)
+                print "\nBox %s reconfigured." % box
+        except Exception as ex:
+            io.track_error('cannot reconfigure box', ex)
+
+    @abstractmethod
+    def redefine_box(self, previous_box):
         pass
 
     def unregister(self, box):
