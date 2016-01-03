@@ -14,7 +14,7 @@ from ansible.playbook.play import Play
 
 from prudentia.domain import Environment
 from prudentia.utils.provisioning import run_playbook, generate_inventory, gather_facts
-from prudentia.utils.io import prudentia_python_dir, input_path, input_value
+from prudentia.utils import io
 
 
 class SimpleCli(Cmd):
@@ -198,7 +198,7 @@ class SimpleProvider(object):
         self.vault_password = False
         self.provisioned = False
         self.tags = {}
-        self.extra_vars = {'prudentia_dir': prudentia_python_dir()}
+        self.extra_vars = {'prudentia_dir': io.prudentia_python_dir()}
         self.load_tags()
 
     def boxes(self):
@@ -238,12 +238,12 @@ class SimpleProvider(object):
             print "Unset \'{0}\'\n".format(var)
 
     def set_vault_password(self):
-        pwd = input_value('Ansible vault password', hidden=True)
+        pwd = io.input_value('Ansible vault password', hidden=True)
         self.vault_password = pwd
 
     def load_vars(self, vars_file):
         if not vars_file:
-            vars_file = input_path('path of the variables file')
+            vars_file = io.input_path('path of the variables file')
         vars_dict = utils.parse_yaml_from_file(vars_file, self.vault_password)
         for key, value in vars_dict.iteritems():
             self.set_var(key, value)
@@ -253,15 +253,18 @@ class SimpleProvider(object):
         self.load_tags(box)
 
     def _play_from_file(self, playbook_file):
-        playbook = PlayBook(
-            playbook=playbook_file,
-            inventory=Inventory([]),
-            callbacks=DefaultRunnerCallbacks(),
-            runner_callbacks=DefaultRunnerCallbacks(),
-            stats=AggregateStats(),
-            extra_vars=self.extra_vars
-        )
-        return Play(playbook, playbook.playbook[0], dirname(playbook_file))
+        try:
+            playbook = PlayBook(
+                playbook=playbook_file,
+                inventory=Inventory([]),
+                callbacks=DefaultRunnerCallbacks(),
+                runner_callbacks=DefaultRunnerCallbacks(),
+                stats=AggregateStats(),
+                extra_vars=self.extra_vars
+            )
+            return Play(playbook, playbook.playbook[0], dirname(playbook_file))
+        except Exception as ex:
+            io.track_error('Cannot parse playbook {0}'.format(playbook_file), ex)
 
     def load_tags(self, box=None):
         for b in [box] if box else self.boxes():
@@ -270,8 +273,9 @@ class SimpleProvider(object):
                       'Please `reconfigure` or `unregister` the box.\n'.format(b.name)
             else:
                 play = self._play_from_file(b.playbook)
-                (matched_tags, unmatched_tags) = play.compare_tags('')
-                self.tags[b.name] = list(unmatched_tags)
+                if play:
+                    (matched_tags, unmatched_tags) = play.compare_tags('')
+                    self.tags[b.name] = list(unmatched_tags)
 
     def remove_box(self, box):
         if box.name in self.tags:
@@ -291,7 +295,9 @@ class SimpleProvider(object):
         print "\nBox %s removed.\n" % box.name
 
     def fetch_box_hosts(self, playbook):
-        return self._play_from_file(playbook).hosts
+        play = self._play_from_file(playbook)
+        if play:
+            return play.hosts
 
     def suggest_name(self, hostname):
         if hostname not in self.env.boxes:
