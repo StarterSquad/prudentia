@@ -14,7 +14,7 @@ from ansible.playbook.play import Play
 
 from prudentia.domain import Environment
 from prudentia.utils.provisioning import run_playbook, generate_inventory, gather_facts
-from prudentia.utils.io import prudentia_python_dir, input_path, input_value
+from prudentia.utils import io
 
 
 class SimpleCli(Cmd):
@@ -24,17 +24,7 @@ class SimpleCli(Cmd):
         try:
             Cmd.cmdloop(self, intro)
         except Exception as ex:
-            logging.exception('Got a nasty error.')
-            print '\nGot a nasty error: %s\n' % ex
-
-    def _get_box(self, box_name):
-        b = self.provider.env.get(box_name)
-        if not b:
-            print 'The box \'%s\' you entered does not exists.\n\n' \
-                  'After typing the command press Tab for box suggestions.\n' % box_name
-            return None
-        else:
-            return b
+            io.track_error('something bad happened', ex)
 
     def complete_box_names(self, text, line, begidx, endidx):
         completions = ['']
@@ -73,7 +63,7 @@ class SimpleCli(Cmd):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_reconfigure(self, line):
-        box = self._get_box(line)
+        box = self.provider.get_box(line)
         if box:
             self.provider.reconfigure(box)
 
@@ -86,7 +76,7 @@ class SimpleCli(Cmd):
 
     def do_provision(self, line):
         tokens = line.split(' ')
-        box = self._get_box(tokens[0])
+        box = self.provider.get_box(tokens[0])
         if box:
             self.provider.provision(box, *tokens[1:])
 
@@ -98,7 +88,7 @@ class SimpleCli(Cmd):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_unregister(self, line):
-        box = self._get_box(line)
+        box = self.provider.get_box(line)
         if box:
             self.provider.unregister(box)
 
@@ -186,7 +176,7 @@ class SimpleCli(Cmd):
 
     def do_facts(self, line):
         tokens = line.split(' ')
-        box = self._get_box(tokens[0])
+        box = self.provider.get_box(tokens[0])
         if box:
             print self.provider.facts(box, *tokens[1:])
 
@@ -207,23 +197,32 @@ class SimpleProvider(object):
         self.vault_password = False
         self.provisioned = False
         self.tags = {}
-        self.extra_vars = {'prudentia_dir': prudentia_python_dir()}
+        self.extra_vars = {'prudentia_dir': io.prudentia_python_dir()}
         self.load_tags()
 
     def boxes(self):
         return self.env.boxes.values()
+
+    def get_box(self, box_name):
+        b = self.env.get(box_name)
+        if not b:
+            print 'The box \'%s\' you entered does not exists.\n\n' \
+                  'After typing the command press Tab for box suggestions.\n' % box_name
+            return None
+        else:
+            return b
 
     def _show_current_vars(self):
         print 'Current set variables:\n%s\n' % '\n'.join(
             [n + ' -> ' + str(v) for n, v in self.extra_vars.iteritems()]
         )
 
-    def set_var(self, var, value, verbose=True):
+    def set_var(self, var, value):
         if var in self.extra_vars:
             print 'NOTICE: Variable \'{0}\' is already set to this value: \'{1}\' ' \
                   'and it will be overwritten.'.format(var, self.extra_vars[var])
         self.extra_vars[var] = value
-        if verbose:
+        if utils.VERBOSITY > 0:
             print "Set \'{0}\' -> {1}\n".format(var, value)
 
     def unset_var(self, var):
@@ -238,30 +237,33 @@ class SimpleProvider(object):
             print "Unset \'{0}\'\n".format(var)
 
     def set_vault_password(self):
-        pwd = input_value('Ansible vault password', hidden=True)
+        pwd = io.input_value('Ansible vault password', hidden=True)
         self.vault_password = pwd
 
-    def load_vars(self, vars_file, verbose=True):
+    def load_vars(self, vars_file):
         if not vars_file:
-            vars_file = input_path('path of the variables file')
+            vars_file = io.input_path('path of the variables file')
         vars_dict = utils.parse_yaml_from_file(vars_file, self.vault_password)
         for key, value in vars_dict.iteritems():
-            self.set_var(key, value, verbose)
+            self.set_var(key, value)
 
     def add_box(self, box):
         self.env.add(box)
         self.load_tags(box)
 
     def _play_from_file(self, playbook_file):
-        playbook = PlayBook(
-            playbook=playbook_file,
-            inventory=Inventory([]),
-            callbacks=DefaultRunnerCallbacks(),
-            runner_callbacks=DefaultRunnerCallbacks(),
-            stats=AggregateStats(),
-            extra_vars=self.extra_vars
-        )
-        return Play(playbook, playbook.playbook[0], dirname(playbook_file))
+        try:
+            playbook = PlayBook(
+                playbook=playbook_file,
+                inventory=Inventory([]),
+                callbacks=DefaultRunnerCallbacks(),
+                runner_callbacks=DefaultRunnerCallbacks(),
+                stats=AggregateStats(),
+                extra_vars=self.extra_vars
+            )
+            return Play(playbook, playbook.playbook[0], dirname(playbook_file))
+        except Exception as ex:
+            io.track_error('cannot parse playbook {0}'.format(playbook_file), ex)
 
     def load_tags(self, box=None):
         for b in [box] if box else self.boxes():
@@ -270,20 +272,40 @@ class SimpleProvider(object):
                       'Please `reconfigure` or `unregister` the box.\n'.format(b.name)
             else:
                 play = self._play_from_file(b.playbook)
-                (matched_tags, unmatched_tags) = play.compare_tags('')
-                self.tags[b.name] = list(unmatched_tags)
+                if play:
+                    (matched_tags, unmatched_tags) = play.compare_tags('')
+                    self.tags[b.name] = list(unmatched_tags)
 
     def remove_box(self, box):
         if box.name in self.tags:
             self.tags.pop(box.name)
         return self.env.remove(box)
 
-    @abstractmethod
     def register(self):
-        pass
+        try:
+            box = self.define_box()
+            if box:
+                self.add_box(box)
+                print "\nBox %s added." % box
+        except Exception as ex:
+            io.track_error('cannot add box', ex)
 
     @abstractmethod
-    def reconfigure(self, box):
+    def define_box(self):
+        pass
+
+    def reconfigure(self, previous_box):
+        try:
+            box = self.redefine_box(previous_box)
+            if box:
+                self.remove_box(previous_box)
+                self.add_box(box)
+                print "\nBox %s reconfigured." % box
+        except Exception as ex:
+            io.track_error('cannot reconfigure box', ex)
+
+    @abstractmethod
+    def redefine_box(self, previous_box):
         pass
 
     def unregister(self, box):
@@ -291,7 +313,9 @@ class SimpleProvider(object):
         print "\nBox %s removed.\n" % box.name
 
     def fetch_box_hosts(self, playbook):
-        return self._play_from_file(playbook).hosts
+        play = self._play_from_file(playbook)
+        if play:
+            return play.hosts
 
     def suggest_name(self, hostname):
         if hostname not in self.env.boxes:
@@ -317,11 +341,17 @@ class SimpleProvider(object):
 
     @staticmethod
     def verbose(value):
-        iv = int(value)
-        if 0 <= iv <= 4:
-            utils.VERBOSITY = iv
+        if value:
+            try:
+                iv = int(value)
+            except ValueError:
+                iv = -1
+            if 0 <= iv <= 4:
+                utils.VERBOSITY = iv
+            else:
+                print 'Verbosity value \'{0}\' not allowed, should be a number between 0 and 4.'.format(value)
         else:
-            print 'Verbosity value {0} not allowed.'.format(value)
+            print 'Current verbosity: {0}'.format(utils.VERBOSITY)
 
     @staticmethod
     def facts(box, regex='*'):

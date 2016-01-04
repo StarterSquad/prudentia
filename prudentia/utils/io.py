@@ -1,3 +1,4 @@
+import logging
 import os
 from getpass import getpass
 import sys
@@ -71,11 +72,11 @@ def input_path(topic, default_value=None, default_description=None, mandatory=Tr
             input_value(topic, default_value, default_description, mandatory, False, prompt_fn)
         ))
         if not os.path.exists(path):
-            print 'The %s you entered does NOT exist.' % topic
+            print 'The {0} you entered \'{1}\' does NOT exist.'.format(topic, path)
         elif is_file and not os.path.isfile(path):
-            print 'The %s you entered is NOT a file.' % topic
+            print 'The {0} you entered \'{1}\' is NOT a file.'.format(topic, path)
         elif not is_file and not os.path.isdir(path):
-            print 'The %s you entered is NOT a directory.' % topic
+            print 'The {0} you entered \'{1}\' is NOT a directory.'.format(topic, path)
         else:
             return path
         times += 1
@@ -118,3 +119,8 @@ def input_choice(topic, default=None, choices=None, prompt_fn=_input, retries=3)
             else:
                 return answer
         raise ValueError('Reached max retries: {0}.'.format(retries))
+
+
+def track_error(msg, e):
+    logging.exception(msg)
+    print '\nERROR: {0}\nReason: {1}\n(see {2} for more details)\n'.format(msg, e, os.environ['PRUDENTIA_LOG'])

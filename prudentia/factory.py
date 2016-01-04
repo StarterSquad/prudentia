@@ -12,7 +12,7 @@ class FactoryCli(SimpleCli):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_create(self, line):
-        box = self._get_box(line)
+        box = self.provider.get_box(line)
         if box:
             self.provider.create(box)
 
@@ -24,7 +24,7 @@ class FactoryCli(SimpleCli):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_start(self, line):
-        box = self._get_box(line)
+        box = self.provider.get_box(line)
         if box:
             self.provider.start(box)
 
@@ -36,7 +36,7 @@ class FactoryCli(SimpleCli):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_restart(self, line):
-        box = self._get_box(line)
+        box = self.provider.get_box(line)
         if box:
             self.provider.stop(box)
             self.provider.start(box)
@@ -49,7 +49,7 @@ class FactoryCli(SimpleCli):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_phoenix(self, line):
-        box = self._get_box(line)
+        box = self.provider.get_box(line)
         if box:
             self.provider.rebuild(box)
             self.provider.provision(box)
@@ -62,7 +62,7 @@ class FactoryCli(SimpleCli):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_stop(self, line):
-        box = self._get_box(line)
+        box = self.provider.get_box(line)
         if box:
             self.provider.stop(box)
 
@@ -74,7 +74,7 @@ class FactoryCli(SimpleCli):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_destroy(self, line):
-        box = self._get_box(line)
+        box = self.provider.get_box(line)
         if box:
             self.provider.destroy(box)
 
@@ -86,7 +86,7 @@ class FactoryCli(SimpleCli):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_status(self, line):
-        box = self._get_box(line)
+        box = self.provider.get_box(line)
         if box:
             self.provider.status(box)
 

@@ -1,8 +1,6 @@
-import logging
-
 from prudentia.domain import Box
 from prudentia.simple import SimpleProvider, SimpleCli
-from prudentia.utils.io import input_value, input_path
+from prudentia.utils import io
 
 
 class LocalCli(SimpleCli):
@@ -24,32 +22,16 @@ class LocalProvider(SimpleProvider):
         box.use_prudentia_lib = True
         return box
 
-    def register(self):
-        try:
-            playbook = input_path('playbook path')
-            hostname = self.fetch_box_hosts(playbook)
-            name = input_value('box name', self.suggest_name(hostname))
+    def define_box(self):
+        playbook = io.input_path('playbook path')
+        hostname = self.fetch_box_hosts(playbook)
+        name = io.input_value('box name', self.suggest_name(hostname))
+        return Box(name, playbook, hostname, '127.0.0.1')
 
-            box = Box(name, playbook, hostname, '127.0.0.1')
-            self.add_box(box)
-            print "\nBox %s added." % box
-        except Exception as ex:
-            logging.exception('Box not added.')
-            print '\nError: %s\n' % ex
-
-    def reconfigure(self, previous_box):
-        try:
-            self.remove_box(previous_box)
-
-            playbook = input_path('playbook path', previous_box.playbook)
-            hostname = self.fetch_box_hosts(playbook)
-
-            box = Box(previous_box.name, playbook, hostname, '127.0.0.1')
-            self.add_box(box)
-            print "\nBox %s reconfigured." % box
-        except Exception as ex:
-            logging.exception('Box not reconfigured.')
-            print '\nError: %s\n' % ex
+    def redefine_box(self, previous_box):
+        playbook = io.input_path('playbook path', previous_box.playbook)
+        hostname = self.fetch_box_hosts(playbook)
+        return Box(previous_box.name, playbook, hostname, previous_box.ip)
 
     def provision(self, box, *tags):
         super(LocalProvider, self).provision(LocalProvider._prepare(box), *tags)

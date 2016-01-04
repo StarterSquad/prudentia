@@ -1,10 +1,8 @@
-import logging
-
 import ansible.constants as C
 
 from prudentia.domain import Box
 from prudentia.simple import SimpleProvider, SimpleCli
-from prudentia.utils.io import input_value, input_path
+from prudentia.utils import io
 
 
 class SshCli(SimpleCli):
@@ -20,54 +18,38 @@ class SshProvider(SimpleProvider):
     def __init__(self):
         super(SshProvider, self).__init__(self.NAME)
 
-    def register(self):
-        try:
-            playbook = input_path('playbook path')
-            hostname = self.fetch_box_hosts(playbook)
-            name = input_value('box name', self.suggest_name(hostname))
-            ip = input_value('instance address or inventory')
-            user = input_value('remote user', C.active_user)
-            pwd = input_value(
+    def define_box(self):
+        playbook = io.input_path('playbook path')
+        hostname = self.fetch_box_hosts(playbook)
+        name = io.input_value('box name', self.suggest_name(hostname))
+        ip = io.input_value('instance address or inventory')
+        user = io.input_value('remote user', C.active_user)
+        pwd = io.input_value(
+            'password for the remote user',
+            default_description='ssh key',
+            mandatory=False,
+            hidden=True
+        )
+        return Box(name, playbook, hostname, ip, user, pwd)
+
+    def redefine_box(self, previous_box):
+        playbook = io.input_path('playbook path', previous_box.playbook)
+        hostname = self.fetch_box_hosts(playbook)
+        ip = io.input_value('instance address or inventory', previous_box.ip)
+        user = io.input_value('remote user', previous_box.remote_user)
+        if previous_box.remote_pwd:
+            pwd = io.input_value(
+                'password for the remote user',
+                default_value=previous_box.remote_pwd,
+                default_description='*****',
+                mandatory=False,
+                hidden=True
+            )
+        else:
+            pwd = io.input_value(
                 'password for the remote user',
                 default_description='ssh key',
                 mandatory=False,
                 hidden=True
             )
-
-            box = Box(name, playbook, hostname, ip, user, pwd)
-            self.add_box(box)
-            print "\nBox %s added." % box
-        except Exception as ex:
-            logging.exception('Box not added.')
-            print '\nError: %s\n' % ex
-
-    def reconfigure(self, previous_box):
-        try:
-            self.remove_box(previous_box)
-
-            playbook = input_path('playbook path', previous_box.playbook)
-            hostname = self.fetch_box_hosts(playbook)
-            ip = input_value('instance address or inventory', previous_box.ip)
-            user = input_value('remote user', previous_box.remote_user)
-            if previous_box.remote_pwd:
-                pwd = input_value(
-                    'password for the remote user',
-                    default_value=previous_box.remote_pwd,
-                    default_description='*****',
-                    mandatory=False,
-                    hidden=True
-                )
-            else:
-                pwd = input_value(
-                    'password for the remote user',
-                    default_description='ssh key',
-                    mandatory=False,
-                    hidden=True
-                )
-
-            box = Box(previous_box.name, playbook, hostname, ip, user, pwd)
-            self.add_box(box)
-            print "\nBox %s reconfigured." % box
-        except Exception as ex:
-            logging.exception('Box not reconfigured.')
-            print '\nError: %s\n' % ex
+        return Box(previous_box.name, playbook, hostname, ip, user, pwd)

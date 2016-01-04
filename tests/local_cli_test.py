@@ -45,6 +45,10 @@ class TestLocalCli(unittest.TestCase):
 
     def test_verbose(self):
         from ansible import utils
+        self.cli.do_verbose('')
+        self.assertEquals(utils.VERBOSITY, 0)
+        self.cli.do_verbose('aaa')
+        self.assertEquals(utils.VERBOSITY, 0)
         self.cli.do_verbose('-1')
         self.assertEquals(utils.VERBOSITY, 0)
         self.cli.do_verbose('5')

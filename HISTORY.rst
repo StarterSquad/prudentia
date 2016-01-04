@@ -1,6 +1,22 @@
 Release History
 ---------------
 
+0.17.1 (2016-01-04)
++++++++++++++++++++
+
+**Improvements**
+
+- Introduces parametrize ntp server address for timezone bundled task.
+- Removes initial warning message when creating environment.
+- Disables output variables sets according to verbosity.
+- Adds six as dependency.
+- Provides backwards compatibility to java7 bundled task.
+
+**Bugfixes**
+
+- Makes verbose command resilient.
+- Catch errors when parsing playbook on env loading.
+
 0.17 (2015-12-04)
 +++++++++++++++++
 

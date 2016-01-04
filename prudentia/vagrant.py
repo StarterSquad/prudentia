@@ -1,4 +1,3 @@
-import logging
 from os import path
 import re
 
@@ -40,42 +39,35 @@ class VagrantProvider(FactoryProvider):
         )
         # BashCmd(path.join(this_path, 'install_vagrant.sh')).execute()
 
-    def register(self):
-        try:
-            vagrant_boxes = self._action(
-                action="box",
-                action_args=("list",),
-                output=False
-            ).splitlines()
-            if not vagrant_boxes:
-                print '\nThere are no available Vagrant (base) boxes.'
-                print 'Please search for a suitable one at ' \
-                      'https://atlas.hashicorp.com/boxes/search.'
-                print 'Once you\'ve chosen the <box> add it using the following cmd:' \
-                      ' \'$ vagrant box add <box>\'.\n'
-            else:
-                playbook = io.input_path('playbook path')
-                hostname = self.fetch_box_hosts(playbook)
-                name = io.input_value('box name', self.suggest_name(hostname))
-                ip = io.input_value('internal IP')
+    def define_box(self):
+        vagrant_boxes = self._action(
+            action="box",
+            action_args=("list",),
+            output=False
+        ).splitlines()
+        if not vagrant_boxes:
+            print '\nThere are no available Vagrant (base) boxes.'
+            print 'Please search for a suitable one at ' \
+                  'https://atlas.hashicorp.com/boxes/search.'
+            print 'Once you\'ve chosen the <box> add it using the following cmd:' \
+                  ' \'$ vagrant box add <box>\'.\n'
+        else:
+            playbook = io.input_path('playbook path')
+            hostname = self.fetch_box_hosts(playbook)
+            name = io.input_value('box name', self.suggest_name(hostname))
+            ip = io.input_value('internal IP')
 
-                ext = VagrantExt()
+            ext = VagrantExt()
 
-                mem = io.input_value('amount of RAM in GB', 1)
-                ext.set_mem(mem * 1024)
+            mem = io.input_value('amount of RAM in GB', 1)
+            ext.set_mem(mem * 1024)
 
-                ext.set_shares(self._input_shares())
+            ext.set_shares(self._input_shares())
 
-                (img, provider) = self._input_img(vagrant_boxes)
-                ext.set_image(img)
-                ext.set_provider(provider)
-
-                box = Box(name, playbook, hostname, ip, self.DEFAULT_USER, self.DEFAULT_PWD, ext)
-                self.add_box(box)
-                print "\nBox %s added." % box
-        except Exception as ex:
-            logging.exception('Box not added.')
-            print '\nError: %s\n' % ex
+            (img, provider) = self._input_img(vagrant_boxes)
+            ext.set_image(img)
+            ext.set_provider(provider)
+            return Box(name, playbook, hostname, ip, self.DEFAULT_USER, self.DEFAULT_PWD, ext)
 
     def add_box(self, box):
         SimpleProvider.add_box(self, box)
@@ -86,29 +78,20 @@ class VagrantProvider(FactoryProvider):
         self._generate_vagrant_file()
         return b
 
-    def reconfigure(self, previous_box):
-        try:
-            self.remove_box(previous_box)
+    def redefine_box(self, previous_box):
+        playbook = io.input_path('playbook path', previous_box.playbook)
+        hostname = self.fetch_box_hosts(playbook)
+        ip = io.input_value('internal IP', previous_box.ip)
 
-            playbook = io.input_path('playbook path', previous_box.playbook)
-            hostname = self.fetch_box_hosts(playbook)
-            ip = io.input_value('internal IP', previous_box.ip)
+        ext = VagrantExt()
+        mem = io.input_value('amount of RAM in GB', previous_box.extra.mem / 1024)
+        ext.set_mem(mem * 1024)
 
-            ext = VagrantExt()
-            mem = io.input_value('amount of RAM in GB', previous_box.extra.mem / 1024)
-            ext.set_mem(mem * 1024)
-
-            ext.set_shares(self._input_shares())
-            ext.set_image(previous_box.extra.image)
-            ext.set_provider(previous_box.extra.provider)
-
-            box = Box(previous_box.name, playbook, hostname, ip,
-                      self.DEFAULT_USER, self.DEFAULT_PWD, ext)
-            self.add_box(box)
-            print "\nBox %s reconfigured." % box
-        except Exception as ex:
-            logging.exception('Box not reconfigured.')
-            print '\nError: %s\n' % ex
+        ext.set_shares(self._input_shares())
+        ext.set_image(previous_box.extra.image)
+        ext.set_provider(previous_box.extra.provider)
+        return Box(previous_box.name, playbook, hostname, ip,
+                   self.DEFAULT_USER, self.DEFAULT_PWD, ext)
 
     @staticmethod
     def _input_shares():
@@ -225,6 +208,6 @@ class VagrantExt(object):
         ext = VagrantExt()
         ext.set_mem(json['mem'])
         ext.set_shares(json['shares'])
-        ext.set_image(json['image'])
-        ext.set_provider(json['provider'])
+        ext.set_image(json.get('image'))
+        ext.set_provider(json.get('provider'))
         return ext
