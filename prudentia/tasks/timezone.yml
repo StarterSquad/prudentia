@@ -1,7 +1,8 @@
 ---
   # Parameters:
   #  prudentia_dir (provided)
-  #  tz
+  #  tz: time zone
+  #  ntp_server_address: ntp server address(es) (provided)
   #
   # Example usage:
   #  - include: "{{prudentia_dir}}/tasks/timezone.yml tz={{tz}}"
@@ -19,7 +20,7 @@
     tags: timezone
 
   - name: Schedule daily NTP update
-    cron: name="ntp-update" hour="1" job="/usr/sbin/ntpdate pool.ntp.org ntp.ubuntu.com > /dev/null"
+    cron: name="ntp-update" hour="1" job="/usr/sbin/ntpdate {{ntp_server_address}} > /dev/null"
     when: ansible_os_family == "Debian"
     sudo: yes
     tags: timezone
