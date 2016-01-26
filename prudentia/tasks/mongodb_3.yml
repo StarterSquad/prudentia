@@ -1,7 +1,7 @@
 ---
   # Parameters:
   #  prudentia_dir (provided)
-  #  mongodb_version (provided)
+  #  mongodb3_version (provided)
 
   - name: MongoDB | Check if is present
     command: test -x /usr/bin/mongo
