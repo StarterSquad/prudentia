@@ -57,3 +57,5 @@
   haproxy_apt_repository: ppa:vbernat/haproxy-{{haproxy_version}}
 
   ntp_server_address: "pool.ntp.org ntp.ubuntu.com"
+
+  mongodb3_version: 3.0
