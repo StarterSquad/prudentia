@@ -233,7 +233,7 @@ You can debug and extend Prudentia (or run the latest develop) simply by sym-lin
 
 .. code-block:: bash
 
-    $ sudo ln -s prudentia.sh /usr/bin/prudentia-dev
+    $ ln -s `pwd`/prudentia.sh /usr/local/bin/prudentia-dev
     $ prudentia-dev
 
 In this way you can have both versions, stable and development, running on your system. The development version will
