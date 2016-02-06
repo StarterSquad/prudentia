@@ -5,6 +5,7 @@ import os
 from abc import ABCMeta, abstractmethod
 from cmd import Cmd
 import random
+import pwd
 
 from ansible import utils
 from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
@@ -199,6 +200,7 @@ class SimpleProvider(object):
         self.tags = {}
         self.extra_vars = {'prudentia_dir': io.prudentia_python_dir()}
         self.load_tags()
+        self.active_user = pwd.getpwuid(os.geteuid())[0]
 
     def boxes(self):
         return self.env.boxes.values()

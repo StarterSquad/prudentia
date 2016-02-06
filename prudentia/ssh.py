@@ -1,5 +1,3 @@
-import ansible.constants as C
-
 from prudentia.domain import Box
 from prudentia.simple import SimpleProvider, SimpleCli
 from prudentia.utils import io
@@ -23,7 +21,7 @@ class SshProvider(SimpleProvider):
         hostname = self.fetch_box_hosts(playbook)
         name = io.input_value('box name', self.suggest_name(hostname))
         ip = io.input_value('instance address or inventory')
-        user = io.input_value('remote user', C.active_user)
+        user = io.input_value('remote user', self.active_user)
         pwd = io.input_value(
             'password for the remote user',
             default_description='ssh key',
