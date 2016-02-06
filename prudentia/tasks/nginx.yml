@@ -50,6 +50,7 @@
     with_items:
       - /etc/nginx/default.conf
       - /etc/nginx/conf.d/default.conf
+      - /etc/nginx/sites-enabled/default
     when: ansible_os_family == "Debian" and nginx_present|failed
     tags: nginx
     sudo: yes
