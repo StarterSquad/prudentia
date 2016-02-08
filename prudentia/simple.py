@@ -8,9 +8,9 @@ import random
 import pwd
 
 from ansible import utils
-from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
+# from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
 from ansible.inventory import Inventory
-from ansible.playbook import PlayBook
+# from ansible.playbook import PlayBook
 from ansible.playbook.play import Play
 
 from prudentia.domain import Environment
@@ -78,7 +78,7 @@ class SimpleCli(Cmd):
         tokens = line.split(' ')
         box = self.provider.get_box(tokens[0])
         if box:
-            self.provider.provision(box, *tokens[1:])
+            self.provider.provision(box, tokens[1:])
 
     @staticmethod
     def help_unregister():
@@ -253,29 +253,31 @@ class SimpleProvider(object):
         self.load_tags(box)
 
     def _play_from_file(self, playbook_file):
-        try:
-            playbook = PlayBook(
-                playbook=playbook_file,
-                inventory=Inventory([]),
-                callbacks=DefaultRunnerCallbacks(),
-                runner_callbacks=DefaultRunnerCallbacks(),
-                stats=AggregateStats(),
-                extra_vars=self.extra_vars
-            )
-            return Play(playbook, playbook.playbook[0], dirname(playbook_file))
-        except Exception as ex:
-            io.track_error('cannot parse playbook {0}'.format(playbook_file), ex)
+        pass
+        # try:
+        #     playbook = PlayBook(
+        #         playbook=playbook_file,
+        #         inventory=Inventory([]),
+        #         callbacks=DefaultRunnerCallbacks(),
+        #         runner_callbacks=DefaultRunnerCallbacks(),
+        #         stats=AggregateStats(),
+        #         extra_vars=self.extra_vars
+        #     )
+        #     return Play(playbook, playbook.playbook[0], dirname(playbook_file))
+        # except Exception as ex:
+        #     io.track_error('cannot parse playbook {0}'.format(playbook_file), ex)
 
     def load_tags(self, box=None):
-        for b in [box] if box else self.boxes():
-            if not os.path.exists(b.playbook):
-                print 'WARNING: Box \'{0}\' points to a NON existing playbook. ' \
-                      'Please `reconfigure` or `unregister` the box.\n'.format(b.name)
-            else:
-                play = self._play_from_file(b.playbook)
-                if play:
-                    (matched_tags, unmatched_tags) = play.compare_tags('')
-                    self.tags[b.name] = list(unmatched_tags)
+        pass
+        # for b in [box] if box else self.boxes():
+        #     if not os.path.exists(b.playbook):
+        #         print 'WARNING: Box \'{0}\' points to a NON existing playbook. ' \
+        #               'Please `reconfigure` or `unregister` the box.\n'.format(b.name)
+        #     else:
+        #         play = self._play_from_file(b.playbook)
+        #         if play:
+        #             (matched_tags, unmatched_tags) = play.compare_tags('')
+        #             self.tags[b.name] = list(unmatched_tags)
 
     def remove_box(self, box):
         if box.name in self.tags:
@@ -314,9 +316,10 @@ class SimpleProvider(object):
         print "\nBox %s removed.\n" % box.name
 
     def fetch_box_hosts(self, playbook):
-        play = self._play_from_file(playbook)
-        if play:
-            return play.hosts
+        pass
+        # play = self._play_from_file(playbook)
+        # if play:
+        #     return play.hosts
 
     def suggest_name(self, hostname):
         if hostname not in self.env.boxes:
@@ -324,9 +327,9 @@ class SimpleProvider(object):
         else:
             return hostname + '-' + str(random.randint(0, 100))
 
-    def provision(self, box, *tags):
+    def provision(self, box, tags):
         only_tags = None
-        if tags is not ():
+        if len(tags) > 0:
             only_tags = tags
 
         self.provisioned = run_playbook(

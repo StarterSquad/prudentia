@@ -1,77 +1,66 @@
-import sys
 from datetime import datetime
 from random import randint
 
-from ansible.inventory import Inventory
-from ansible.playbook import PlayBook
-from ansible.runner import Runner
-from ansible import callbacks, errors
 import ansible.constants as C
-from ansible.color import stringc
+from ansible.executor.playbook_executor import PlaybookExecutor
+from ansible.inventory import Inventory
+from ansible.parsing.dataloader import DataLoader
+from ansible.vars import VariableManager
+from bunch import Bunch
 
 
 def run_playbook(playbook_file, inventory, vault_password, remote_user=C.DEFAULT_REMOTE_USER,
                  remote_pass=C.DEFAULT_REMOTE_PASS, transport=C.DEFAULT_TRANSPORT,
                  extra_vars=None, only_tags=None):
-    stats = callbacks.AggregateStats()
-    playbook_cb = callbacks.PlaybookCallbacks()
-    runner_cb = callbacks.PlaybookRunnerCallbacks(stats)
-    playbook = PlayBook(
-        playbook=playbook_file,
+    loader = DataLoader()
+    loader.set_vault_password(vault_password)
+
+    variable_manager = VariableManager()
+    variable_manager.extra_vars = extra_vars
+
+    inventory = Inventory(loader=loader, variable_manager=variable_manager, host_list=inventory)
+    variable_manager.set_inventory(inventory)
+
+    options = Bunch()
+    options.remote_user = remote_user
+    options.connection = transport
+    options.tags = only_tags
+    options.listhosts = False
+    options.listtasks = False
+    options.listtags = False
+
+    options.syntax = None
+    options.private_key_file = None
+    options.ssh_common_args = None
+    options.sftp_extra_args = None
+    options.scp_extra_args = None
+    options.ssh_extra_args = None
+    options.become = None
+    options.become_method = 'sudo'
+    options.become_user = 'root'
+
+    options.verbosity = 1
+    options.check = None
+
+    options.module_path = None
+    options.forks = 5
+
+    pbex = PlaybookExecutor(
+        playbooks=[playbook_file],
         inventory=inventory,
-        remote_user=remote_user,
-        remote_pass=remote_pass,
-        transport=transport,
-        extra_vars=extra_vars,
-        only_tags=only_tags,
-        callbacks=playbook_cb,
-        runner_callbacks=runner_cb,
-        stats=stats,
-        vault_password=vault_password
+        variable_manager=variable_manager,
+        loader=loader,
+        options=options,
+        passwords={'conn_pass': remote_pass} if remote_pass else {}
     )
 
-    provision_success = False
-    try:
-        start = datetime.now()
-        playbook.run()
+    start = datetime.now()
 
-        hosts = sorted(playbook.stats.processed.keys())
-        print callbacks.banner("PLAY RECAP")
-        playbook_cb.on_stats(playbook.stats)
-        for host in hosts:
-            table = playbook.stats.summarize(host)
-            print "%s : %s %s %s %s\n" % (
-                _hostcolor(host, table),
-                _colorize('ok', table['ok'], 'green'),
-                _colorize('changed', table['changed'], 'yellow'),
-                _colorize('unreachable', table['unreachable'], 'red'),
-                _colorize('failed', table['failures'], 'red'))
-            if table['unreachable'] == 0 and table['failures'] == 0:
-                provision_success = True
+    results = pbex.run()
 
-        print "Play run took {0} minutes\n".format((datetime.now() - start).seconds / 60)
-    except errors.AnsibleError, ex:
-        print >> sys.stderr, "ERROR: %s" % ex
-    return provision_success
+    print "Play run took {0} minutes\n".format((datetime.now() - start).seconds / 60)
 
-
-def _colorize(lead, num, color):
-    """ Print 'lead' = 'num' in 'color' """
-    if num != 0 and color is not None:
-        return "%s%s%-15s" % (stringc(lead, color), stringc("=", color), stringc(str(num), color))
-    else:
-        return "%s=%-4s" % (lead, str(num))
-
-
-def _hostcolor(host, stats, color=True):
-    if color:
-        if stats['failures'] != 0 or stats['unreachable'] != 0:
-            return "%-37s" % stringc(host, 'red')
-        elif stats['changed'] != 0:
-            return "%-37s" % stringc(host, 'yellow')
-        else:
-            return "%-37s" % stringc(host, 'green')
-    return "%-26s" % host
+    return results == 0
 
 
 def run_modules(items):
@@ -114,7 +103,8 @@ def generate_inventory(box):
             print ex
         finally:
             f.close()
-    return Inventory(tmp_inventory)
+    # return Inventory(tmp_inventory)
+    return tmp_inventory
 
 
 def create_user(box):
