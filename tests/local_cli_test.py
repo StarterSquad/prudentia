@@ -1,6 +1,7 @@
 import unittest
 import os
 
+from prudentia.domain import Box
 from prudentia.local import LocalCli
 
 
@@ -59,3 +60,13 @@ class TestLocalCli(unittest.TestCase):
     def test_provision_not_existing_box(self):
         self.cli.do_provision('ne-box')
         self.assertEqual(self.cli.provider.provisioned, False)
+
+    def test_box_name_completion(self):
+        b1 = Box('box-1', './uname.yml', 'hostname', 'ip')
+        b2 = Box('box-2', './uname.yml', 'hostname', 'ip')
+        self.cli.provider.add_box(b1)
+        self.cli.provider.add_box(b2)
+        completions = self.cli.complete_box_names('', 'provision box-', 14, 14)
+        self.cli.provider.remove_box(b1)
+        self.cli.provider.remove_box(b2)
+        self.assertEquals(completions, ['1', '2'])

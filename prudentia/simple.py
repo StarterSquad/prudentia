@@ -5,6 +5,7 @@ import os
 from abc import ABCMeta, abstractmethod
 from cmd import Cmd
 import random
+import pwd
 
 from ansible import utils
 from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
@@ -30,20 +31,19 @@ class SimpleCli(Cmd):
         completions = ['']
         tokens = line.split(' ')
         action = tokens[0]
-        box_name = tokens[1]
+        box_input = tokens[1]
         if len(tokens) <= 2:
             # boxes completion
-            if not text:
-                completions = [b.name for b in self.provider.boxes()]
-            else:
-                completions = [b.name for b in self.provider.boxes() if b.name.startswith(text)]
+            # when matching part of a box names returns only the possible endings
+            il = len(box_input)
+            completions = [text + b.name[il:] for b in self.provider.boxes() if b.name.startswith(box_input)]
         else:
             if action == 'provision':
                 # tags completion
                 if not text:
-                    completions = self.provider.tags[box_name][:]
+                    completions = self.provider.tags[box_input][:]
                 else:
-                    completions = [t for t in self.provider.tags[box_name] if t.startswith(text)]
+                    completions = [t for t in self.provider.tags[box_input] if t.startswith(text)]
                 current_tags = tokens[2:]
                 completions = [c for c in completions if c not in current_tags]
         return completions
@@ -199,6 +199,7 @@ class SimpleProvider(object):
         self.tags = {}
         self.extra_vars = {'prudentia_dir': io.prudentia_python_dir()}
         self.load_tags()
+        self.active_user = pwd.getpwuid(os.geteuid())[0]
 
     def boxes(self):
         return self.env.boxes.values()

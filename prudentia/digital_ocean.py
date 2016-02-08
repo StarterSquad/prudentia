@@ -1,7 +1,5 @@
 import time
 
-import ansible.constants as C
-
 from dopy.manager import DoManager, DoError
 from prudentia.domain import Box
 from prudentia.factory import FactoryProvider, FactoryCli
@@ -63,12 +61,12 @@ class DigitalOceanProvider(FactoryProvider):
 
             playbook = io.input_path('playbook path')
             hostname = self.fetch_box_hosts(playbook)
-            user = io.input_value('remote user', C.active_user)
+            user = io.input_value('remote user', self.active_user)
         else:
             playbook = io.input_path('playbook path')
             hostname = self.fetch_box_hosts(playbook)
             name = io.input_value('box name', self.suggest_name(hostname))
-            user = io.input_value('remote user', C.active_user)
+            user = io.input_value('remote user', self.active_user)
 
             all_images = self.manager.all_images()
             print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
