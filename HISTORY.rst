@@ -1,6 +1,19 @@
 Release History
 ---------------
 
+1.0 (2016-02-09)
+++++++++++++++++
+
+**Improvements**
+
+- Allows specifying version for mongodb_3 bundled task.
+- Avoids dependency from Ansible constants module.
+- Changes default logging level.
+
+**Bugfixes**
+
+- Returns valid cli completions when multiple box names with same prefix are available.
+
 0.17.1 (2016-01-04)
 +++++++++++++++++++
 
