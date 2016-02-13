@@ -178,7 +178,7 @@ class SimpleCli(Cmd):
         tokens = line.split(' ')
         box = self.provider.get_box(tokens[0])
         if box:
-            print self.provider.facts(box, *tokens[1:])
+            self.provider.facts(box, *tokens[1:])
 
     @staticmethod
     def do_EOF(line):
@@ -359,9 +359,4 @@ class SimpleProvider(object):
 
     @staticmethod
     def facts(box, regex='*'):
-        (success, result) = gather_facts(box, regex)
-        facts_string = ''
-        if success:
-            res = result['ansible_facts']
-            facts_string = json.dumps(res, sort_keys=True, indent=4, separators=(',', ': '))
-        return facts_string
+        gather_facts(box, regex)

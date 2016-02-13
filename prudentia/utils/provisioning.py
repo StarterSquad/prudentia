@@ -1,12 +1,16 @@
+import os
 from datetime import datetime
 from random import randint
 
 import ansible.constants as C
 from ansible.executor.playbook_executor import PlaybookExecutor
+from ansible.executor.task_queue_manager import TaskQueueManager
 from ansible.inventory import Inventory
 from ansible.parsing.dataloader import DataLoader
+from ansible.playbook import Play
 from ansible.vars import VariableManager
 from bunch import Bunch
+from prudentia.utils import io
 
 
 def run_playbook(playbook_file, inventory, vault_password, remote_user=C.DEFAULT_REMOTE_USER,
@@ -21,6 +25,73 @@ def run_playbook(playbook_file, inventory, vault_password, remote_user=C.DEFAULT
     inventory = Inventory(loader=loader, variable_manager=variable_manager, host_list=inventory)
     variable_manager.set_inventory(inventory)
 
+    options = default_options(remote_user, transport, only_tags)
+
+    pbex = PlaybookExecutor(
+        playbooks=[playbook_file],
+        inventory=inventory,
+        variable_manager=variable_manager,
+        loader=loader,
+        options=options,
+        passwords={'conn_pass': remote_pass} if remote_pass else {}
+    )
+
+    start = datetime.now()
+    results = pbex.run()
+    print "Play run took {0} minutes\n".format((datetime.now() - start).seconds / 60)
+
+    return results == 0
+
+
+def generate_inventory(box):
+    if box.ip.startswith("./") or box.ip.startswith("/"):
+        tmp_inventory = box.ip
+    else:
+        tmp_inventory = '/tmp/prudentia-inventory-' + str(randint(1, 999999))
+        f = None
+        try:
+            f = open(tmp_inventory, 'w')
+            f.write(box.inventory())
+        except IOError, ex:
+            io.track_error('cannot write invetory file', ex)
+        finally:
+            f.close()
+    return tmp_inventory
+
+
+def run_play(play_ds, inventory, remote_user, remote_pass, transport, extra_vars=None):
+    loader = DataLoader()
+    variable_manager = VariableManager()
+    variable_manager.extra_vars = {} if extra_vars is None else extra_vars
+    inventory = Inventory(loader=loader, variable_manager=variable_manager, host_list=inventory)
+    variable_manager.set_inventory(inventory)
+
+    play = Play().load(play_ds, variable_manager=variable_manager, loader=loader)
+
+    options = default_options(remote_user, transport)
+    passwords = {'conn_pass': remote_pass} if remote_pass else {}
+
+    tqm = None
+    try:
+        tqm = TaskQueueManager(
+            inventory=inventory,
+            variable_manager=variable_manager,
+            loader=loader,
+            options=options,
+            passwords=passwords,
+            stdout_callback='minimal',
+            run_additional_callbacks=C.DEFAULT_LOAD_CALLBACK_PLUGINS,
+            run_tree=False,
+        )
+        result = tqm.run(play)
+    finally:
+        if tqm:
+            tqm.cleanup()
+
+    return result == 0
+
+
+def default_options(remote_user, transport, only_tags=None):
     options = Bunch()
     options.remote_user = remote_user
     options.connection = transport
@@ -45,66 +116,7 @@ def run_playbook(playbook_file, inventory, vault_password, remote_user=C.DEFAULT
     options.module_path = None
     options.forks = 5
 
-    pbex = PlaybookExecutor(
-        playbooks=[playbook_file],
-        inventory=inventory,
-        variable_manager=variable_manager,
-        loader=loader,
-        options=options,
-        passwords={'conn_pass': remote_pass} if remote_pass else {}
-    )
-
-    start = datetime.now()
-
-    results = pbex.run()
-
-    print "Play run took {0} minutes\n".format((datetime.now() - start).seconds / 60)
-
-    return results == 0
-
-
-def run_modules(items):
-    for item in items:
-        print item['summary']
-        success, result = run_module(item['module'])
-        if not success:
-            return False
-    return True
-
-
-def run_module(runner):
-    module_success = True
-    module_result = ''
-    results = runner.run()
-    if not len(results['contacted']):
-        module_success = False
-        print 'Host not contacted: %s' % results
-    else:
-        for (hostname, result) in results['contacted'].items():
-            if 'failed' in result:
-                module_success = False
-                module_result = result['msg']
-                print 'Run failed: %s' % result['msg']
-            else:
-                module_result = result
-    return module_success, module_result
-
-
-def generate_inventory(box):
-    if box.ip.startswith("./") or box.ip.startswith("/"):
-        tmp_inventory = box.ip
-    else:
-        tmp_inventory = '/tmp/prudentia-inventory-' + str(randint(1, 999999))
-        f = None
-        try:
-            f = open(tmp_inventory, 'w')
-            f.write(box.inventory())
-        except IOError, ex:
-            print ex
-        finally:
-            f.close()
-    # return Inventory(tmp_inventory)
-    return tmp_inventory
+    return options
 
 
 def create_user(box):
@@ -115,83 +127,32 @@ def create_user(box):
         else:
             user_home = '/home/' + user
 
-        inventory = generate_inventory(box)
-        run_modules([
-            {
-                'summary': 'Wait for SSH port to become open ...',
-                'module': Runner(
-                    pattern='localhost',
-                    inventory=inventory,
-                    module_name='wait_for',
-                    module_args='host={0} port=22 delay=10 timeout=60'.format(box.ip)
-                )
-            },
-            {
-                'summary': 'Creating group \'{0}\' ...'.format(user),
-                'module': Runner(
-                    pattern=box.hostname,
-                    inventory=inventory,
-                    remote_user='root',
-                    module_name='group',
-                    module_args='name={0} state=present'.format(user)
-                )
-            },
-            {
-                'summary': 'Creating user \'{0}\' ...'.format(user),
-                'module': Runner(
-                    pattern=box.hostname,
-                    inventory=inventory,
-                    remote_user='root',
-                    module_name='user',
-                    module_args='state=present shell=/bin/bash generate_ssh_key=yes '
-                                'name={0} home={1} group={0} groups=sudo'.format(user, user_home)
-                )
-            },
-            {
-                'summary': 'Copy authorized_keys from root ...',
-                'module': Runner(
-                    pattern=box.hostname,
-                    inventory=inventory,
-                    remote_user='root',
-                    module_name='command',
-                    module_args="cp /root/.ssh/authorized_keys {0}/.ssh/authorized_keys".format(
-                        user_home)
-                )
-            },
-            {
-                'summary': 'Set permission on authorized_keys ...',
-                'module': Runner(
-                    pattern=box.hostname,
-                    inventory=inventory,
-                    remote_user='root',
-                    module_name='file',
-                    module_args="path={0}/.ssh/authorized_keys mode=600 owner={1} group={1}".format(
-                        user_home, user)
-                )
-            },
-            {
-                'summary': 'Ensuring sudoers no pwd prompting ...',
-                'module': Runner(
-                    pattern=box.hostname,
-                    inventory=inventory,
-                    remote_user='root',
-                    module_name='lineinfile',
-                    module_args="dest=/etc/sudoers state=present regexp=%sudo "
-                                "line='%sudo ALL=(ALL:ALL) NOPASSWD:ALL' validate='visudo -cf %s'"
-                )
-            }
-        ])
-
-
-def gather_facts(box, filter_value):
-    return run_module(
-        Runner(
-            pattern=box.hostname,
+        sudo_user_play = os.path.join(io.prudentia_python_dir(), 'tasks', 'add-sudo-user.yml')
+        return run_play(
+            play_ds=dict(
+                hosts=box.hostname,
+                gather_facts='no',
+                tasks=DataLoader().load_from_file(sudo_user_play)
+            ),
             inventory=generate_inventory(box),
             remote_user=box.get_remote_user(),
             remote_pass=box.get_remote_pwd(),
             transport=box.get_transport(),
-            module_name='setup',
-            module_args='filter=' + filter_value
+            extra_vars={'user': user, 'group': user, 'home': user_home}
         )
+    else:
+        print 'Root user cannot be created!'
+
+
+def gather_facts(box, filter_value):
+    return run_play(
+        play_ds=dict(
+            hosts=box.hostname,
+            gather_facts='no',
+            tasks=[{'setup': 'filter={0}'.format(filter_value)}]
+        ),
+        inventory=generate_inventory(box),
+        remote_user=box.get_remote_user(),
+        remote_pass=box.get_remote_pwd(),
+        transport=box.get_transport()
     )
