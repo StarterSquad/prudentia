@@ -1,15 +1,15 @@
 import logging
 import os
+import pwd
+import random
 from abc import ABCMeta, abstractmethod
 from cmd import Cmd
-import random
-import pwd
 
 from ansible.parsing.dataloader import DataLoader
-
+from ansible.playbook import Playbook
 from prudentia.domain import Environment
-from prudentia.utils import provisioning
 from prudentia.utils import io
+from prudentia.utils import provisioning
 
 
 class SimpleCli(Cmd):
@@ -247,16 +247,18 @@ class SimpleProvider(object):
         self.load_tags(box)
 
     def load_tags(self, box=None):
-        pass
-        # for b in [box] if box else self.boxes():
-        #     if not os.path.exists(b.playbook):
-        #         print 'WARNING: Box \'{0}\' points to a NON existing playbook. ' \
-        #               'Please `reconfigure` or `unregister` the box.\n'.format(b.name)
-        #     else:
-        #         play = self._play_from_file(b.playbook)
-        #         if play:
-        #             (matched_tags, unmatched_tags) = play.compare_tags('')
-        #             self.tags[b.name] = list(unmatched_tags)
+        for b in [box] if box else self.boxes():
+            if not os.path.exists(b.playbook):
+                print 'WARNING: Box \'{0}\' points to a NON existing playbook. ' \
+                      'Please `reconfigure` or `unregister` the box.\n'.format(b.name)
+            else:
+                plays = Playbook.load(b.playbook, loader=self.loader).get_plays()
+                all_tags = set()
+                for p in plays:
+                    for block in p.compile():
+                        for task in block.block:
+                            all_tags.update(task.tags)
+                self.tags[b.name] = list(all_tags)
 
     def remove_box(self, box):
         if box.name in self.tags:
@@ -297,7 +299,7 @@ class SimpleProvider(object):
     def fetch_box_hosts(self, playbook):
         ds = self.loader.load_from_file(playbook)
         if ds:
-            return ds[0]['hosts'] # a playbook is an array of plays we take the first one
+            return ds[0]['hosts']  # a playbook is an array of plays we take the first one
 
     def suggest_name(self, hostname):
         if hostname not in self.env.boxes:
