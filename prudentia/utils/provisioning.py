@@ -6,20 +6,17 @@ import ansible.constants as C
 from ansible.executor.playbook_executor import PlaybookExecutor
 from ansible.executor.task_queue_manager import TaskQueueManager
 from ansible.inventory import Inventory
-from ansible.parsing.dataloader import DataLoader
 from ansible.playbook import Play
 from ansible.vars import VariableManager
 from bunch import Bunch
 from prudentia.utils import io
 
 
-def run_playbook(playbook_file, inventory, vault_password, remote_user=C.DEFAULT_REMOTE_USER,
+def run_playbook(playbook_file, inventory, loader, remote_user=C.DEFAULT_REMOTE_USER,
                  remote_pass=C.DEFAULT_REMOTE_PASS, transport=C.DEFAULT_TRANSPORT,
                  extra_vars=None, only_tags=None):
-    loader = DataLoader()
-    loader.set_vault_password(vault_password)
     variable_manager = VariableManager()
-    variable_manager.extra_vars = extra_vars
+    variable_manager.extra_vars = {} if extra_vars is None else extra_vars
     inventory = Inventory(loader=loader, variable_manager=variable_manager, host_list=inventory)
     variable_manager.set_inventory(inventory)
 
@@ -39,8 +36,7 @@ def run_playbook(playbook_file, inventory, vault_password, remote_user=C.DEFAULT
     return results == 0
 
 
-def run_play(play_ds, inventory, remote_user, remote_pass, transport, extra_vars=None):
-    loader = DataLoader()
+def run_play(play_ds, inventory, loader, remote_user, remote_pass, transport, extra_vars=None):
     variable_manager = VariableManager()
     variable_manager.extra_vars = {} if extra_vars is None else extra_vars
     inventory = Inventory(loader=loader, variable_manager=variable_manager, host_list=inventory)
@@ -112,7 +108,7 @@ def generate_inventory(box):
     return tmp_inventory
 
 
-def create_user(box):
+def create_user(box, loader):
     res = False
 
     user = box.remote_user
@@ -127,9 +123,10 @@ def create_user(box):
             play_ds=dict(
                 hosts=box.hostname,
                 gather_facts='no',
-                tasks=DataLoader().load_from_file(sudo_user_play)
+                tasks=loader.load_from_file(sudo_user_play)
             ),
             inventory=generate_inventory(box),
+            loader=loader,
             remote_user=box.get_remote_user(),
             remote_pass=box.get_remote_pwd(),
             transport=box.get_transport(),
@@ -141,7 +138,7 @@ def create_user(box):
     return res
 
 
-def gather_facts(box, filter_value):
+def gather_facts(box, filter_value, loader):
     return run_play(
         play_ds=dict(
             hosts=box.hostname,
@@ -149,6 +146,7 @@ def gather_facts(box, filter_value):
             tasks=[{'setup': 'filter={0}'.format(filter_value)}]
         ),
         inventory=generate_inventory(box),
+        loader=loader,
         remote_user=box.get_remote_user(),
         remote_pass=box.get_remote_pwd(),
         transport=box.get_transport()

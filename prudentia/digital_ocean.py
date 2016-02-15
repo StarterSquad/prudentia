@@ -165,7 +165,7 @@ class DigitalOceanProvider(FactoryProvider):
         else:
             info = self.manager.show_droplet(ext.id)
             print 'Droplet {0} already exists - status: {1}.'.format(ext.id, info['status'])
-        create_user(box)
+        create_user(box, self.loader)
 
     def start(self, box):
         box_id = box.extra.id
@@ -191,7 +191,7 @@ class DigitalOceanProvider(FactoryProvider):
         print 'Rebuilding droplet %s ...' % ext.id
         self.manager.rebuild_droplet(ext.id, ext.image)
         self._wait_to_be_active(ext.id)
-        create_user(box)
+        create_user(box, self.loader)
 
     def status(self, box):
         print self.manager.show_droplet(box.extra.id)['status']

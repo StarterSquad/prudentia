@@ -8,10 +8,7 @@ import random
 import pwd
 
 from ansible import utils
-# from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
-from ansible.inventory import Inventory
-# from ansible.playbook import PlayBook
-from ansible.playbook.play import Play
+from ansible.parsing.dataloader import DataLoader
 
 from prudentia.domain import Environment
 from prudentia.utils.provisioning import run_playbook, generate_inventory, gather_facts
@@ -194,7 +191,7 @@ class SimpleProvider(object):
 
     def __init__(self, name, general_type=None, box_extra_type=None):
         self.env = Environment(name, general_type, box_extra_type)
-        self.vault_password = False
+        self.loader = DataLoader()
         self.provisioned = False
         self.tags = {}
         self.extra_vars = {'prudentia_dir': io.prudentia_python_dir()}
@@ -223,8 +220,8 @@ class SimpleProvider(object):
             print 'NOTICE: Variable \'{0}\' is already set to this value: \'{1}\' ' \
                   'and it will be overwritten.'.format(var, self.extra_vars[var])
         self.extra_vars[var] = value
-        if utils.VERBOSITY > 0:
-            print "Set \'{0}\' -> {1}\n".format(var, value)
+        # if utils.VERBOSITY > 0:
+        #     print "Set \'{0}\' -> {1}\n".format(var, value)
 
     def unset_var(self, var):
         if not var:
@@ -238,13 +235,13 @@ class SimpleProvider(object):
             print "Unset \'{0}\'\n".format(var)
 
     def set_vault_password(self):
-        pwd = io.input_value('Ansible vault password', hidden=True)
-        self.vault_password = pwd
+        vault_pwd = io.input_value('Ansible vault password', hidden=True)
+        self.loader.set_vault_password(vault_pwd)
 
     def load_vars(self, vars_file):
         if not vars_file:
             vars_file = io.input_path('path of the variables file')
-        vars_dict = utils.parse_yaml_from_file(vars_file, self.vault_password)
+        vars_dict = self.loader.load_from_file(vars_file)
         for key, value in vars_dict.iteritems():
             self.set_var(key, value)
 
@@ -335,12 +332,12 @@ class SimpleProvider(object):
         self.provisioned = run_playbook(
             playbook_file=box.playbook,
             inventory=generate_inventory(box),
+            loader=self.loader,
             remote_user=box.get_remote_user(),
             remote_pass=box.get_remote_pwd(),
             transport=box.get_transport(),
             extra_vars=self.extra_vars,
-            only_tags=only_tags,
-            vault_password=self.vault_password
+            only_tags=only_tags
         )
 
     @staticmethod
@@ -357,6 +354,5 @@ class SimpleProvider(object):
         else:
             print 'Current verbosity: {0}'.format(utils.VERBOSITY)
 
-    @staticmethod
-    def facts(box, regex='*'):
-        gather_facts(box, regex)
+    def facts(self, box, regex='*'):
+        gather_facts(box, regex, self.loader)
