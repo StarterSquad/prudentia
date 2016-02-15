@@ -45,9 +45,10 @@ def run_play(play_ds, inventory, loader, remote_user, remote_pass, transport, ex
     inventory = Inventory(loader=loader, variable_manager=variable_manager, host_list=inventory)
     variable_manager.set_inventory(inventory)
 
-    play = Play().load(play_ds, variable_manager=variable_manager, loader=loader)
+    play = Play.load(play_ds, variable_manager=variable_manager, loader=loader)
 
     tqm = None
+    result = 1
     try:
         tqm = TaskQueueManager(
             inventory=inventory,
@@ -60,6 +61,8 @@ def run_play(play_ds, inventory, loader, remote_user, remote_pass, transport, ex
             run_tree=False,
         )
         result = tqm.run(play)
+    except Exception, ex:
+        io.track_error('cannot run play', ex)
     finally:
         if tqm:
             tqm.cleanup()
@@ -105,7 +108,7 @@ def generate_inventory(box):
             f = open(tmp_inventory, 'w')
             f.write(box.inventory())
         except IOError, ex:
-            io.track_error('cannot write invetory file', ex)
+            io.track_error('cannot write inventory file', ex)
         finally:
             f.close()
     return tmp_inventory
