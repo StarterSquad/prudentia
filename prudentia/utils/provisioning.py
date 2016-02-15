@@ -12,6 +12,9 @@ from bunch import Bunch
 from prudentia.utils import io
 
 
+VERBOSITY = 0
+
+
 def run_playbook(playbook_file, inventory, loader, remote_user=C.DEFAULT_REMOTE_USER,
                  remote_pass=C.DEFAULT_REMOTE_PASS, transport=C.DEFAULT_TRANSPORT,
                  extra_vars=None, only_tags=None):
@@ -83,7 +86,7 @@ def default_options(remote_user, transport, only_tags=None):
     options.become_method = 'sudo'
     options.become_user = 'root'
 
-    options.verbosity = 1
+    options.verbosity = VERBOSITY
     options.check = None
 
     options.module_path = None

@@ -1,4 +1,3 @@
-import json
 import logging
 from os.path import dirname
 import os
@@ -7,11 +6,10 @@ from cmd import Cmd
 import random
 import pwd
 
-from ansible import utils
 from ansible.parsing.dataloader import DataLoader
 
 from prudentia.domain import Environment
-from prudentia.utils.provisioning import run_playbook, generate_inventory, gather_facts
+from prudentia.utils import provisioning
 from prudentia.utils import io
 
 
@@ -220,8 +218,8 @@ class SimpleProvider(object):
             print 'NOTICE: Variable \'{0}\' is already set to this value: \'{1}\' ' \
                   'and it will be overwritten.'.format(var, self.extra_vars[var])
         self.extra_vars[var] = value
-        # if utils.VERBOSITY > 0:
-        #     print "Set \'{0}\' -> {1}\n".format(var, value)
+        if provisioning.VERBOSITY > 0:
+            print "Set \'{0}\' -> {1}\n".format(var, value)
 
     def unset_var(self, var):
         if not var:
@@ -329,9 +327,9 @@ class SimpleProvider(object):
         if len(tags) > 0:
             only_tags = tags
 
-        self.provisioned = run_playbook(
+        self.provisioned = provisioning.run_playbook(
             playbook_file=box.playbook,
-            inventory=generate_inventory(box),
+            inventory=provisioning.generate_inventory(box),
             loader=self.loader,
             remote_user=box.get_remote_user(),
             remote_pass=box.get_remote_pwd(),
@@ -348,11 +346,11 @@ class SimpleProvider(object):
             except ValueError:
                 iv = -1
             if 0 <= iv <= 4:
-                utils.VERBOSITY = iv
+                provisioning.VERBOSITY = iv
             else:
                 print 'Verbosity value \'{0}\' not allowed, should be a number between 0 and 4.'.format(value)
         else:
-            print 'Current verbosity: {0}'.format(utils.VERBOSITY)
+            print 'Current verbosity: {0}'.format(provisioning.VERBOSITY)
 
     def facts(self, box, regex='*'):
-        gather_facts(box, regex, self.loader)
+        provisioning.gather_facts(box, regex, self.loader)
