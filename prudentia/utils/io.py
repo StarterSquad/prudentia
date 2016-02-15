@@ -1,7 +1,8 @@
 import logging
 import os
-from getpass import getpass
 import sys
+from getpass import getpass
+
 
 def prudentia_python_dir():
     cwd = os.path.realpath(__file__)

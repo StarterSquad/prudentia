@@ -18,21 +18,17 @@ def run_playbook(playbook_file, inventory, vault_password, remote_user=C.DEFAULT
                  extra_vars=None, only_tags=None):
     loader = DataLoader()
     loader.set_vault_password(vault_password)
-
     variable_manager = VariableManager()
     variable_manager.extra_vars = extra_vars
-
     inventory = Inventory(loader=loader, variable_manager=variable_manager, host_list=inventory)
     variable_manager.set_inventory(inventory)
-
-    options = default_options(remote_user, transport, only_tags)
 
     pbex = PlaybookExecutor(
         playbooks=[playbook_file],
         inventory=inventory,
         variable_manager=variable_manager,
         loader=loader,
-        options=options,
+        options=default_options(remote_user, transport, only_tags),
         passwords={'conn_pass': remote_pass} if remote_pass else {}
     )
 
@@ -41,22 +37,6 @@ def run_playbook(playbook_file, inventory, vault_password, remote_user=C.DEFAULT
     print "Play run took {0} minutes\n".format((datetime.now() - start).seconds / 60)
 
     return results == 0
-
-
-def generate_inventory(box):
-    if box.ip.startswith("./") or box.ip.startswith("/"):
-        tmp_inventory = box.ip
-    else:
-        tmp_inventory = '/tmp/prudentia-inventory-' + str(randint(1, 999999))
-        f = None
-        try:
-            f = open(tmp_inventory, 'w')
-            f.write(box.inventory())
-        except IOError, ex:
-            io.track_error('cannot write invetory file', ex)
-        finally:
-            f.close()
-    return tmp_inventory
 
 
 def run_play(play_ds, inventory, remote_user, remote_pass, transport, extra_vars=None):
@@ -68,17 +48,14 @@ def run_play(play_ds, inventory, remote_user, remote_pass, transport, extra_vars
 
     play = Play().load(play_ds, variable_manager=variable_manager, loader=loader)
 
-    options = default_options(remote_user, transport)
-    passwords = {'conn_pass': remote_pass} if remote_pass else {}
-
     tqm = None
     try:
         tqm = TaskQueueManager(
             inventory=inventory,
             variable_manager=variable_manager,
             loader=loader,
-            options=options,
-            passwords=passwords,
+            options=default_options(remote_user, transport),
+            passwords={'conn_pass': remote_pass} if remote_pass else {},
             stdout_callback='minimal',
             run_additional_callbacks=C.DEFAULT_LOAD_CALLBACK_PLUGINS,
             run_tree=False,
@@ -119,7 +96,25 @@ def default_options(remote_user, transport, only_tags=None):
     return options
 
 
+def generate_inventory(box):
+    if box.ip.startswith("./") or box.ip.startswith("/"):
+        tmp_inventory = box.ip
+    else:
+        tmp_inventory = '/tmp/prudentia-inventory-' + str(randint(1, 999999))
+        f = None
+        try:
+            f = open(tmp_inventory, 'w')
+            f.write(box.inventory())
+        except IOError, ex:
+            io.track_error('cannot write invetory file', ex)
+        finally:
+            f.close()
+    return tmp_inventory
+
+
 def create_user(box):
+    res = False
+
     user = box.remote_user
     if 'root' not in user:
         if 'jenkins' in user:
@@ -128,7 +123,7 @@ def create_user(box):
             user_home = '/home/' + user
 
         sudo_user_play = os.path.join(io.prudentia_python_dir(), 'tasks', 'add-sudo-user.yml')
-        return run_play(
+        res = run_play(
             play_ds=dict(
                 hosts=box.hostname,
                 gather_facts='no',
@@ -142,6 +137,8 @@ def create_user(box):
         )
     else:
         print 'Root user cannot be created!'
+
+    return res
 
 
 def gather_facts(box, filter_value):
