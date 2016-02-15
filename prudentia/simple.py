@@ -1,5 +1,4 @@
 import logging
-from os.path import dirname
 import os
 from abc import ABCMeta, abstractmethod
 from cmd import Cmd
@@ -247,21 +246,6 @@ class SimpleProvider(object):
         self.env.add(box)
         self.load_tags(box)
 
-    def _play_from_file(self, playbook_file):
-        pass
-        # try:
-        #     playbook = PlayBook(
-        #         playbook=playbook_file,
-        #         inventory=Inventory([]),
-        #         callbacks=DefaultRunnerCallbacks(),
-        #         runner_callbacks=DefaultRunnerCallbacks(),
-        #         stats=AggregateStats(),
-        #         extra_vars=self.extra_vars
-        #     )
-        #     return Play(playbook, playbook.playbook[0], dirname(playbook_file))
-        # except Exception as ex:
-        #     io.track_error('cannot parse playbook {0}'.format(playbook_file), ex)
-
     def load_tags(self, box=None):
         pass
         # for b in [box] if box else self.boxes():
@@ -311,10 +295,9 @@ class SimpleProvider(object):
         print "\nBox %s removed.\n" % box.name
 
     def fetch_box_hosts(self, playbook):
-        pass
-        # play = self._play_from_file(playbook)
-        # if play:
-        #     return play.hosts
+        ds = self.loader.load_from_file(playbook)
+        if ds:
+            return ds[0]['hosts'] # a playbook is an array of plays we take the first one
 
     def suggest_name(self, hostname):
         if hostname not in self.env.boxes:
