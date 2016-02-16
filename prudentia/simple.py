@@ -314,7 +314,7 @@ class SimpleProvider(object):
 
         self.provisioned = provisioning.run_playbook(
             playbook_file=box.playbook,
-            inventory=provisioning.generate_inventory(box),
+            inventory_file=provisioning.generate_inventory(box),
             loader=self.loader,
             remote_user=box.get_remote_user(),
             remote_pass=box.get_remote_pwd(),
@@ -338,4 +338,4 @@ class SimpleProvider(object):
             print 'Current verbosity: {0}'.format(provisioning.VERBOSITY)
 
     def facts(self, box, regex='*'):
-        provisioning.gather_facts(box, regex, self.loader)
+        return provisioning.gather_facts(box, regex, self.loader)

@@ -33,9 +33,8 @@ class LocalProvider(SimpleProvider):
         hostname = self.fetch_box_hosts(playbook)
         return Box(previous_box.name, playbook, hostname, previous_box.ip)
 
-    def provision(self, box, *tags):
-        super(LocalProvider, self).provision(LocalProvider._prepare(box), *tags)
+    def provision(self, box, tags):
+        super(LocalProvider, self).provision(LocalProvider._prepare(box), tags)
 
-    @staticmethod
-    def facts(box, regex='*'):
-        return SimpleProvider.facts(LocalProvider._prepare(box), regex)
+    def facts(self, box, regex='*'):
+        return super(LocalProvider, self).facts(LocalProvider._prepare(box), regex)

@@ -1,31 +1,32 @@
 import os
+import tempfile
 from datetime import datetime
-from random import randint
 
 import ansible.constants as C
+from ansible import inventory
 from ansible.executor.playbook_executor import PlaybookExecutor
 from ansible.executor.task_queue_manager import TaskQueueManager
-from ansible.inventory import Inventory
 from ansible.playbook import Play
 from ansible.vars import VariableManager
 from bunch import Bunch
 from prudentia.utils import io
 
-
 VERBOSITY = 0
 
 
-def run_playbook(playbook_file, inventory, loader, remote_user=C.DEFAULT_REMOTE_USER,
+def run_playbook(playbook_file, inventory_file, loader, remote_user=C.DEFAULT_REMOTE_USER,
                  remote_pass=C.DEFAULT_REMOTE_PASS, transport=C.DEFAULT_TRANSPORT,
                  extra_vars=None, only_tags=None):
     variable_manager = VariableManager()
     variable_manager.extra_vars = {} if extra_vars is None else extra_vars
-    inventory = Inventory(loader=loader, variable_manager=variable_manager, host_list=inventory)
-    variable_manager.set_inventory(inventory)
+
+    inventory.HOSTS_PATTERNS_CACHE = {}  # before each run clean up previous cached hosts
+    inv = inventory.Inventory(loader=loader, variable_manager=variable_manager, host_list=inventory_file)
+    variable_manager.set_inventory(inv)
 
     pbex = PlaybookExecutor(
         playbooks=[playbook_file],
-        inventory=inventory,
+        inventory=inv,
         variable_manager=variable_manager,
         loader=loader,
         options=default_options(remote_user, transport, only_tags),
@@ -39,11 +40,13 @@ def run_playbook(playbook_file, inventory, loader, remote_user=C.DEFAULT_REMOTE_
     return results == 0
 
 
-def run_play(play_ds, inventory, loader, remote_user, remote_pass, transport, extra_vars=None):
+def run_play(play_ds, inventory_file, loader, remote_user, remote_pass, transport, extra_vars=None):
     variable_manager = VariableManager()
     variable_manager.extra_vars = {} if extra_vars is None else extra_vars
-    inventory = Inventory(loader=loader, variable_manager=variable_manager, host_list=inventory)
-    variable_manager.set_inventory(inventory)
+
+    inventory.HOSTS_PATTERNS_CACHE = {}  # before each run clean up previous cached hosts
+    inv = inventory.Inventory(loader=loader, variable_manager=variable_manager, host_list=inventory_file)
+    variable_manager.set_inventory(inv)
 
     play = Play.load(play_ds, variable_manager=variable_manager, loader=loader)
 
@@ -51,7 +54,7 @@ def run_play(play_ds, inventory, loader, remote_user, remote_pass, transport, ex
     result = 1
     try:
         tqm = TaskQueueManager(
-            inventory=inventory,
+            inventory=inv,
             variable_manager=variable_manager,
             loader=loader,
             options=default_options(remote_user, transport),
@@ -102,15 +105,13 @@ def generate_inventory(box):
     if box.ip.startswith("./") or box.ip.startswith("/"):
         tmp_inventory = box.ip
     else:
-        tmp_inventory = '/tmp/prudentia-inventory-' + str(randint(1, 999999))
-        f = None
+        fd, tmp_inventory = tempfile.mkstemp(prefix='prudentia-inventory-')
         try:
-            f = open(tmp_inventory, 'w')
-            f.write(box.inventory())
+            os.write(fd, box.inventory())
         except IOError, ex:
             io.track_error('cannot write inventory file', ex)
         finally:
-            f.close()
+            os.close(fd)
     return tmp_inventory
 
 
@@ -131,7 +132,7 @@ def create_user(box, loader):
                 gather_facts='no',
                 tasks=loader.load_from_file(sudo_user_play)
             ),
-            inventory=generate_inventory(box),
+            inventory_file=generate_inventory(box),
             loader=loader,
             remote_user=box.get_remote_user(),
             remote_pass=box.get_remote_pwd(),
@@ -151,7 +152,7 @@ def gather_facts(box, filter_value, loader):
             gather_facts='no',
             tasks=[{'setup': 'filter={0}'.format(filter_value)}]
         ),
-        inventory=generate_inventory(box),
+        inventory_file=generate_inventory(box),
         loader=loader,
         remote_user=box.get_remote_user(),
         remote_pass=box.get_remote_pwd(),
