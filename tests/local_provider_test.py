@@ -12,7 +12,7 @@ class TestLocalProvider(unittest.TestCase):
         self.provider = LocalProvider()
 
     def test_provision_sample_task(self):
-        r_box = Box('local-testbox', self.tests_path + '/prudentia_vars.yml', 'tasks-host', '127.0.0.1')
+        r_box = Box('local-testbox', './prudentia_vars.yml', 'tasks-host', '127.0.0.1')
         self.provider.add_box(r_box)
 
         self.provider.provision(r_box, [])
@@ -38,7 +38,7 @@ class TestLocalProvider(unittest.TestCase):
         self.assertEqual(self.provider.tags.has_key(ne_box.name), False)
 
     def test_gather_facts(self):
-        box = Box('simple-box', './uname.yml', 'hostname', '0.0.0.0')
+        box = Box('simple-box', './uname.yml', 'hostname', './facts_hosts')
         self.assertTrue(self.provider.facts(box, '*mb'))
 
     def test_register(self):
@@ -50,4 +50,22 @@ class TestLocalProvider(unittest.TestCase):
             iv.side_effect = input_side_effect
 
             self.provider.register()
-            self.assertNotEqual(self.provider.get_box('b_name'), None)
+            box = self.provider.get_box('b_name')
+            self.assertNotEqual(box, None)
+            self.assertTrue('uname.yml' in box.playbook)
+
+    def test_reconfigure(self):
+        r_box = Box('reconf-testbox', './uname.yml', 'localbox-host', '127.0.0.1')
+        self.provider.add_box(r_box)
+
+        def input_side_effect(*args):
+            input_values = {'playbook path': './prudentia_vars.yml'}
+            return input_values[args[0]]
+
+        with patch('prudentia.utils.io.input_value') as iv:
+            iv.side_effect = input_side_effect
+
+            self.provider.reconfigure(r_box)
+            box = self.provider.get_box('reconf-testbox')
+            self.assertNotEqual(box, None)
+            self.assertTrue('prudentia_vars.yml' in box.playbook)
