@@ -5,8 +5,7 @@
   # This forces ucf to keep existing grub configuration and don't update it.
   - name: Common setup | Preventing ucf to ask information
     copy: src={{prudentia_dir}}/files/common/ucf.conf dest=/etc/ucf.conf mode=644 backup=yes
-    when: ansible_system == "Linux"
-    when: not testing
+    when: ansible_system == "Linux" and not testing
     sudo: yes
     tags: common
 

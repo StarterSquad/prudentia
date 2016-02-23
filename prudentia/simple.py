@@ -1,21 +1,15 @@
-import json
 import logging
-from os.path import dirname
 import os
+import pwd
+import random
 from abc import ABCMeta, abstractmethod
 from cmd import Cmd
-import random
-import pwd
 
-from ansible import utils
-from ansible.callbacks import DefaultRunnerCallbacks, AggregateStats
-from ansible.inventory import Inventory
-from ansible.playbook import PlayBook
-from ansible.playbook.play import Play
-
+from ansible.parsing.dataloader import DataLoader
+from ansible.playbook import Playbook
 from prudentia.domain import Environment
-from prudentia.utils.provisioning import run_playbook, generate_inventory, gather_facts
 from prudentia.utils import io
+from prudentia.utils import provisioning
 
 
 class SimpleCli(Cmd):
@@ -78,7 +72,7 @@ class SimpleCli(Cmd):
         tokens = line.split(' ')
         box = self.provider.get_box(tokens[0])
         if box:
-            self.provider.provision(box, *tokens[1:])
+            self.provider.provision(box, tokens[1:])
 
     @staticmethod
     def help_unregister():
@@ -178,7 +172,7 @@ class SimpleCli(Cmd):
         tokens = line.split(' ')
         box = self.provider.get_box(tokens[0])
         if box:
-            print self.provider.facts(box, *tokens[1:])
+            self.provider.facts(box, *tokens[1:])
 
     @staticmethod
     def do_EOF(line):
@@ -194,7 +188,7 @@ class SimpleProvider(object):
 
     def __init__(self, name, general_type=None, box_extra_type=None):
         self.env = Environment(name, general_type, box_extra_type)
-        self.vault_password = False
+        self.loader = DataLoader()
         self.provisioned = False
         self.tags = {}
         self.extra_vars = {'prudentia_dir': io.prudentia_python_dir()}
@@ -223,7 +217,7 @@ class SimpleProvider(object):
             print 'NOTICE: Variable \'{0}\' is already set to this value: \'{1}\' ' \
                   'and it will be overwritten.'.format(var, self.extra_vars[var])
         self.extra_vars[var] = value
-        if utils.VERBOSITY > 0:
+        if provisioning.VERBOSITY > 0:
             print "Set \'{0}\' -> {1}\n".format(var, value)
 
     def unset_var(self, var):
@@ -238,13 +232,13 @@ class SimpleProvider(object):
             print "Unset \'{0}\'\n".format(var)
 
     def set_vault_password(self):
-        pwd = io.input_value('Ansible vault password', hidden=True)
-        self.vault_password = pwd
+        vault_pwd = io.input_value('Ansible vault password', hidden=True)
+        self.loader.set_vault_password(vault_pwd)
 
     def load_vars(self, vars_file):
         if not vars_file:
             vars_file = io.input_path('path of the variables file')
-        vars_dict = utils.parse_yaml_from_file(vars_file, self.vault_password)
+        vars_dict = self.loader.load_from_file(vars_file)
         for key, value in vars_dict.iteritems():
             self.set_var(key, value)
 
@@ -252,30 +246,19 @@ class SimpleProvider(object):
         self.env.add(box)
         self.load_tags(box)
 
-    def _play_from_file(self, playbook_file):
-        try:
-            playbook = PlayBook(
-                playbook=playbook_file,
-                inventory=Inventory([]),
-                callbacks=DefaultRunnerCallbacks(),
-                runner_callbacks=DefaultRunnerCallbacks(),
-                stats=AggregateStats(),
-                extra_vars=self.extra_vars
-            )
-            return Play(playbook, playbook.playbook[0], dirname(playbook_file))
-        except Exception as ex:
-            io.track_error('cannot parse playbook {0}'.format(playbook_file), ex)
-
     def load_tags(self, box=None):
         for b in [box] if box else self.boxes():
             if not os.path.exists(b.playbook):
                 print 'WARNING: Box \'{0}\' points to a NON existing playbook. ' \
                       'Please `reconfigure` or `unregister` the box.\n'.format(b.name)
             else:
-                play = self._play_from_file(b.playbook)
-                if play:
-                    (matched_tags, unmatched_tags) = play.compare_tags('')
-                    self.tags[b.name] = list(unmatched_tags)
+                plays = Playbook.load(b.playbook, loader=self.loader).get_plays()
+                all_tags = set()
+                for p in plays:
+                    for block in p.compile():
+                        for task in block.block:
+                            all_tags.update(task.tags)
+                self.tags[b.name] = list(all_tags)
 
     def remove_box(self, box):
         if box.name in self.tags:
@@ -314,9 +297,9 @@ class SimpleProvider(object):
         print "\nBox %s removed.\n" % box.name
 
     def fetch_box_hosts(self, playbook):
-        play = self._play_from_file(playbook)
-        if play:
-            return play.hosts
+        ds = self.loader.load_from_file(playbook)
+        if ds:
+            return ds[0]['hosts']  # a playbook is an array of plays we take the first one
 
     def suggest_name(self, hostname):
         if hostname not in self.env.boxes:
@@ -324,20 +307,20 @@ class SimpleProvider(object):
         else:
             return hostname + '-' + str(random.randint(0, 100))
 
-    def provision(self, box, *tags):
+    def provision(self, box, tags):
         only_tags = None
-        if tags is not ():
+        if len(tags) > 0:
             only_tags = tags
 
-        self.provisioned = run_playbook(
+        self.provisioned = provisioning.run_playbook(
             playbook_file=box.playbook,
-            inventory=generate_inventory(box),
+            inventory_file=provisioning.generate_inventory(box),
+            loader=self.loader,
             remote_user=box.get_remote_user(),
             remote_pass=box.get_remote_pwd(),
             transport=box.get_transport(),
             extra_vars=self.extra_vars,
-            only_tags=only_tags,
-            vault_password=self.vault_password
+            only_tags=only_tags
         )
 
     @staticmethod
@@ -348,17 +331,11 @@ class SimpleProvider(object):
             except ValueError:
                 iv = -1
             if 0 <= iv <= 4:
-                utils.VERBOSITY = iv
+                provisioning.VERBOSITY = iv
             else:
                 print 'Verbosity value \'{0}\' not allowed, should be a number between 0 and 4.'.format(value)
         else:
-            print 'Current verbosity: {0}'.format(utils.VERBOSITY)
+            print 'Current verbosity: {0}'.format(provisioning.VERBOSITY)
 
-    @staticmethod
-    def facts(box, regex='*'):
-        (success, result) = gather_facts(box, regex)
-        facts_string = ''
-        if success:
-            res = result['ansible_facts']
-            facts_string = json.dumps(res, sort_keys=True, indent=4, separators=(',', ': '))
-        return facts_string
+    def facts(self, box, regex='*'):
+        return provisioning.gather_facts(box, regex, self.loader)

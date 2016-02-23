@@ -12,15 +12,13 @@
 
   - name: OSQuery | Add apt repository key
     apt_key: id={{osquery_apt_key_id}} keyserver=keyserver.ubuntu.com state=present
-    when: ansible_os_family == "Debian"
-    when: osquery_present|failed
+    when: ansible_os_family == "Debian" and osquery_present|failed
     sudo: yes
     tags: osquery
 
   - name: OSQuery | Add apt repository
     apt_repository: repo="{{osquery_apt_repository}}" state=present
-    when: ansible_os_family == "Debian"
-    when: osquery_present|failed
+    when: ansible_os_family == "Debian" and osquery_present|failed
     sudo: yes
     tags: osquery
 
@@ -30,7 +28,6 @@
       - osquery
       - libcryptsetup-dev
       - gcc-4.9
-    when: ansible_os_family == "Debian"
-    when: osquery_present|failed
+    when: ansible_os_family == "Debian" and osquery_present|failed
     sudo: yes
     tags: osquery
