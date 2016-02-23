@@ -142,7 +142,7 @@ def create_user(box, loader):
             ),
             inventory_file=generate_inventory(box),
             loader=loader,
-            remote_user=box.get_remote_user(),
+            remote_user='root',
             remote_pass=box.get_remote_pwd(),
             transport=box.get_transport(),
             extra_vars={'user': user, 'group': user, 'home': user_home}
