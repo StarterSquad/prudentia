@@ -20,7 +20,8 @@ def run_playbook(playbook_file, inventory_file, loader, remote_user=C.DEFAULT_RE
     variable_manager = VariableManager()
     variable_manager.extra_vars = {} if extra_vars is None else extra_vars
 
-    inventory.HOSTS_PATTERNS_CACHE = {}  # before each run clean up previous cached hosts
+    inventory.HOSTS_PATTERNS_CACHE = {}  # clean up previous cached hosts
+    loader._FILE_CACHE = dict()  # clean up previously read and cached file
     inv = inventory.Inventory(
         loader=loader,
         variable_manager=variable_manager,
@@ -48,7 +49,8 @@ def run_play(play_ds, inventory_file, loader, remote_user, remote_pass, transpor
     variable_manager = VariableManager()
     variable_manager.extra_vars = {} if extra_vars is None else extra_vars
 
-    inventory.HOSTS_PATTERNS_CACHE = {}  # before each run clean up previous cached hosts
+    inventory.HOSTS_PATTERNS_CACHE = {}  # clean up previous cached hosts
+    loader._FILE_CACHE = dict()  # clean up previously read and cached file
     inv = inventory.Inventory(
         loader=loader,
         variable_manager=variable_manager,
