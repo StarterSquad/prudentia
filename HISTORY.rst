@@ -1,6 +1,19 @@
 Release History
 ---------------
 
+2.0 (2016-04-03)
+++++++++++++++++
+
+**Improvements**
+
+- Upgrades to support Ansible 2.
+- Sets user real name when creating sudo user using bundled task.
+- Adds optional parameter root_mail_address to postfix bundled task.
+
+**Bugfixes**
+
+- Fixes timezone bulded task to avoid ntpdate running every minute.
+
 1.0 (2016-02-09)
 ++++++++++++++++
 
