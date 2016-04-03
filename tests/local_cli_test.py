@@ -45,17 +45,17 @@ class TestLocalCli(unittest.TestCase):
         self.assertEqual(os.environ[var_name], var_value)
 
     def test_verbose(self):
-        from ansible import utils
+        from prudentia.utils import provisioning
         self.cli.do_verbose('')
-        self.assertEquals(utils.VERBOSITY, 0)
+        self.assertEquals(provisioning.VERBOSITY, 0)
         self.cli.do_verbose('aaa')
-        self.assertEquals(utils.VERBOSITY, 0)
+        self.assertEquals(provisioning.VERBOSITY, 0)
         self.cli.do_verbose('-1')
-        self.assertEquals(utils.VERBOSITY, 0)
+        self.assertEquals(provisioning.VERBOSITY, 0)
         self.cli.do_verbose('5')
-        self.assertEquals(utils.VERBOSITY, 0)
+        self.assertEquals(provisioning.VERBOSITY, 0)
         self.cli.do_verbose(' 2 ')
-        self.assertEquals(utils.VERBOSITY, 2)
+        self.assertEquals(provisioning.VERBOSITY, 2)
 
     def test_provision_not_existing_box(self):
         self.cli.do_provision('ne-box')

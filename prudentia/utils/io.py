@@ -1,7 +1,8 @@
 import logging
 import os
-from getpass import getpass
 import sys
+from getpass import getpass
+
 
 def prudentia_python_dir():
     cwd = os.path.realpath(__file__)
@@ -123,4 +124,5 @@ def input_choice(topic, default=None, choices=None, prompt_fn=_input, retries=3)
 
 def track_error(msg, e):
     logging.exception(msg)
-    print '\nERROR: {0}\nReason: {1}\n(see {2} for more details)\n'.format(msg, e, os.environ['PRUDENTIA_LOG'])
+    print '\nERROR: {0}\nReason: {1}\n(see {2} for more details)\n'.format(
+        msg, e, os.environ['PRUDENTIA_LOG'])

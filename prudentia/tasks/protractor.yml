@@ -28,8 +28,8 @@
   - name: Protractor and Webdriver | Install
     command: "{{item}}"
     with_items:
-      - npm install -g protractor
-      - webdriver-manager update
+      - "npm install -g protractor"
+      - "webdriver-manager update"
     sudo: yes
     when: ansible_system == "Linux" and protractor_present|failed
     tags: protractor

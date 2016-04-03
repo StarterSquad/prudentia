@@ -14,7 +14,7 @@
 
   - name: Known Hosts | Check host name availability
     shell: "ssh-keygen -f {{known_hosts_file}} -F {{item}}"
-    with_items: known_hosts
+    with_items: '{{known_hosts}}'
     register: known_host_results
     ignore_errors: yes
     when: ansible_system == "Linux"
@@ -22,6 +22,6 @@
 
   - name: Known Hosts | Scan the public key
     shell: "ssh-keyscan -H -T 10 {{item.item}} >> {{known_hosts_file}}"
-    with_items: known_host_results.results
+    with_items: '{{known_host_results.results}}'
     when: ansible_system == "Linux" and item.stdout == ""
     tags: known_hosts

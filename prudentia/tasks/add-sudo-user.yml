@@ -7,7 +7,13 @@
   # Example usage:
   #  - include: "{{prudentia_dir}}/tasks/sudo-user.yml user=prudentia group=prudentia home=/home/prudentia"
 
-  - debug: msg="Creating user {{user}}:{{group}} with home directory {{home}}"
+  - debug: msg="Creating sudo user {{user}}:{{group}} with home directory {{home}}"
+    tags: sudoer
+
+    # The creation of a sudo user is generally executed just after creating an instance
+    # so we wait for the SSH port to become available and we start checking after a little delay
+  - name: Sudo User | Wait for SSH
+    local_action: wait_for host={{inventory_hostname}} port=22 delay=5 timeout=60
     tags: sudoer
 
   - name: Sudo User | Creating group
@@ -15,7 +21,7 @@
     tags: sudoer
 
   - name: Sudo User | Creating user
-    user: name={{user}} home={{home}} state=present shell=/bin/bash generate_ssh_key=yes group={{group}} groups=sudo
+    user: name={{user}} group={{group}} home={{home}} comment={{user}} state=present shell=/bin/bash generate_ssh_key=yes groups=sudo
     tags: sudoer
 
   - name: Sudo User | Check key presence

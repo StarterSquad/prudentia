@@ -5,6 +5,13 @@
   - include: "{{prudentia_dir}}/tasks/sbt_0.13.yml"
     tags: api
 
+  - name: API | Stop
+    service: name={{api_name}} state=stopped
+    sudo: yes
+    tags:
+      - api
+      - update
+
   - name: API | Generate start script
     command: chdir={{install_dir_api}} sbt start-script
     tags:

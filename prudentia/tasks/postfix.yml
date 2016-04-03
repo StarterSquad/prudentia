@@ -1,6 +1,7 @@
 ---
   # Parameters:
-  #  server_name: Server name or IP address to use for postfix
+  #  server_name: Server name or IP address to use for postfix (provided)
+  #  root_mail_address: Where to forward root mail (provided, optional)
 
   - name: Postfix | Check if is installed
     command: test -x /usr/sbin/postfix
@@ -30,6 +31,20 @@
     with_items:
       - postfix
       - mailutils
+    sudo: yes
+    tags:
+      - postfix
+
+  - name: Postfix | Redirect root mails
+    lineinfile: "dest=/etc/aliases line='root: {{root_mail_address}}' insertafter=EOF"
+    when: (root_mail_address is defined) or (root_mail_address != "")
+    sudo: yes
+    tags:
+      - postfix
+
+  - name: Postfix | Run postalias
+    command: "postalias /etc/aliases"
+    when: (root_mail_address is defined) or (root_mail_address != "")
     sudo: yes
     tags:
       - postfix
