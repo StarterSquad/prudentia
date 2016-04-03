@@ -21,7 +21,7 @@
     tags: sudoer
 
   - name: Sudo User | Creating user
-    user: name={{user}} group={{group}} home={{home}} state=present shell=/bin/bash generate_ssh_key=yes groups=sudo
+    user: name={{user}} group={{group}} home={{home}} comment={{user}} state=present shell=/bin/bash generate_ssh_key=yes groups=sudo
     tags: sudoer
 
   - name: Sudo User | Check key presence
