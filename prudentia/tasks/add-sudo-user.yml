@@ -1,13 +1,12 @@
 ---
   # Parameters:
-  # Parameters:
   #  ssh_current_user: Current deployment user where we look for ssh keys to copy (provided)
   #  user: new user name to be created (provided)
   #  group: new user group to be created (provided)
   #  home: new user home to be created
   #
   # Example usage:
-  #  - include: "{{prudentia_dir}}/tasks/sudo-user.yml user=prudentia group=prudentia home=/home/prudentia current_user=root"
+  #  - include: "{{prudentia_dir}}/tasks/sudo-user.yml user=prudentia group=prudentia home=/home/prudentia ssh_current_user=root"
 
   - debug: msg="Creating sudo user {{user}}:{{group}} with home directory {{home}}"
     tags: sudoer
