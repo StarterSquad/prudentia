@@ -8,20 +8,24 @@
 
   - name: SSH | Create .ssh directory
     file: path={{ssh_dir}}/.ssh state=directory mode=700 owner={{ssh_user}} group={{ssh_group}}
-    sudo: yes
-    tags: ssh
+    become: yes
+    tags:
+      - ssh
 
   - name: SSH | Copy private key
     copy: src={{files_dir}}/{{key_name}} dest={{ssh_dir}}/.ssh/{{key_name}} mode=600 owner={{ssh_user}} group={{ssh_group}}
-    sudo: yes
-    tags: ssh
+    become: yes
+    tags:
+      - ssh
 
   - name: SSH | Copy public key
     copy: src={{files_dir}}/{{key_name}}.pub dest={{ssh_dir}}/.ssh/{{key_name}}.pub mode=644 owner={{ssh_user}} group={{ssh_group}}
-    sudo: yes
-    tags: ssh
+    become: yes
+    tags:
+      - ssh
 
   - name: SSH | Touch and set permission of known_hosts
     file: path={{ssh_dir}}/.ssh/known_hosts state=touch mode=644 owner={{ssh_user}} group={{ssh_group}}
-    sudo: yes
-    tags: ssh
+    become: yes
+    tags:
+      - ssh

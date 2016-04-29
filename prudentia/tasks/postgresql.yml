@@ -11,19 +11,22 @@
     when: ansible_system == "Linux"
     register: psql_present
     ignore_errors: yes
-    tags: psql
+    tags:
+      - psql
 
   - name: PostgreSQL | Add apt repository key
     apt_key: id={{postgresql_apt_key_id}} url={{postgresql_apt_key_url}} state=present
     when: ansible_os_family == "Debian" and psql_present|failed
-    sudo: yes
-    tags: psql
+    become: yes
+    tags:
+      - psql
 
   - name: PostgreSQL | Add apt repository
     apt_repository: repo="{{postgresql_apt_repository}}" state=present
     when: ansible_os_family == "Debian" and psql_present|failed
-    sudo: yes
-    tags: psql
+    become: yes
+    tags:
+      - psql
 
   - name: PostgreSQL | Install
     apt: update-cache=yes force=yes state=present pkg={{item}}
@@ -34,5 +37,6 @@
       - postgresql-client-{{postgresql_version}}
       - postgresql-contrib-{{postgresql_version}}
     when: ansible_os_family == "Debian" and psql_present|failed
-    sudo: yes
-    tags: psql
+    become: yes
+    tags:
+      - psql

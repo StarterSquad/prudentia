@@ -1,36 +1,38 @@
 ---
   - include: "{{prudentia_dir}}/tasks/python.yml"
-    tags: api
+    tags:
+      - api
 
   - name: API | Stop
     service: name={{api_name}} state=stopped
-    sudo: yes
+    become: yes
     tags:
       - api
       - update
 
   - name: API | Install python dependencies
     pip: requirements={{install_dir_api}}/requirements.txt state=present
-    sudo: yes
+    become: yes
     tags:
       - api
       - update
 
   - name: API | Install gunicorn
     pip: name=gunicorn state=present
-    sudo: yes
-    tags: api
+    become: yes
+    tags:
+      - api
 
   - name: API | Copy upstart script
     template: src={{root_dir}}/components/templates/api/python-upstart.conf.j2 dest=/etc/init/{{api_name}}.conf backup=yes
-    sudo: yes
+    become: yes
     tags:
       - api
       - update
 
   - name: API | Restart
     service: name={{api_name}} state=restarted
-    sudo: yes
+    become: yes
     tags:
       - api
       - update
