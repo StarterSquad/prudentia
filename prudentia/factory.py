@@ -49,10 +49,11 @@ class FactoryCli(SimpleCli):
         return self.complete_box_names(text, line, begidx, endidx)
 
     def do_phoenix(self, line):
-        box = self.provider.get_box(line)
+        tokens = line.split(' ')
+        box = self.provider.get_box(tokens[0])
         if box:
             self.provider.rebuild(box)
-            self.provider.provision(box)
+            self.provider.provision(box, tokens[1:])
 
     @staticmethod
     def help_stop():
