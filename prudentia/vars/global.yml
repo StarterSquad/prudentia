@@ -60,4 +60,4 @@
 
   mongodb3_version: 3.0
 
-  ssh_current_user: root
+  ssh_seed_user: root
