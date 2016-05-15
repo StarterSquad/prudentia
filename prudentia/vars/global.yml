@@ -59,3 +59,5 @@
   ntp_server_address: "pool.ntp.org ntp.ubuntu.com"
 
   mongodb3_version: 3.0
+
+  ssh_current_user: root

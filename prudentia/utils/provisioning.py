@@ -147,7 +147,7 @@ def create_user(box, loader):
             remote_user='root',
             remote_pass=box.get_remote_pwd(),
             transport=box.get_transport(),
-            extra_vars={'user': user, 'group': user, 'home': user_home}
+            extra_vars={'ssh_seed_user': 'root', 'user': user, 'group': user, 'home': user_home}
         )
     else:
         print 'Root user cannot be created!'
