@@ -1,13 +1,15 @@
 ---
   - include: "{{prudentia_dir}}/tasks/java7.yml"
-    tags: api
+    tags:
+      - api
 
   - include: "{{prudentia_dir}}/tasks/sbt_0.13.yml"
-    tags: api
+    tags:
+      - api
 
   - name: API | Stop
     service: name={{api_name}} state=stopped
-    sudo: yes
+    become: yes
     tags:
       - api
       - update
@@ -32,14 +34,14 @@
 
   - name: API | Copy upstart script
     template: src={{root_dir}}/components/templates/api/scala-upstart.conf.j2 dest=/etc/init/{{api_name}}.conf backup=yes
-    sudo: yes
+    become: yes
     tags:
       - api
       - update
 
   - name: API | Restart
     service: name={{api_name}} state=restarted
-    sudo: yes
+    become: yes
     tags:
       - api
       - update

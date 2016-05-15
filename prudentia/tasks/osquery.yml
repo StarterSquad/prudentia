@@ -8,19 +8,22 @@
     when: ansible_system == "Linux"
     register: osquery_present
     ignore_errors: yes
-    tags: osquery
+    tags:
+      - osquery
 
   - name: OSQuery | Add apt repository key
     apt_key: id={{osquery_apt_key_id}} keyserver=keyserver.ubuntu.com state=present
     when: ansible_os_family == "Debian" and osquery_present|failed
-    sudo: yes
-    tags: osquery
+    become: yes
+    tags:
+      - osquery
 
   - name: OSQuery | Add apt repository
     apt_repository: repo="{{osquery_apt_repository}}" state=present
     when: ansible_os_family == "Debian" and osquery_present|failed
-    sudo: yes
-    tags: osquery
+    become: yes
+    tags:
+      - osquery
 
   - name: OSQuery | Install
     apt: update-cache=yes force=yes state=present pkg={{item}}
@@ -29,5 +32,6 @@
       - libcryptsetup-dev
       - gcc-4.9
     when: ansible_os_family == "Debian" and osquery_present|failed
-    sudo: yes
-    tags: osquery
+    become: yes
+    tags:
+      - osquery

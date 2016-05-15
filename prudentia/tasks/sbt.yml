@@ -6,29 +6,34 @@
   #  sbt_artifact (provided)
 
   - include: "{{prudentia_dir}}/tasks/java.yml"
-    tags: sbt
+    tags:
+      - sbt
 
   - name: SBT | Check if is present
     command: test -x /usr/bin/sbt
     when: ansible_system == "Linux"
     ignore_errors: yes
     register: sbt_present
-    tags: sbt
+    tags:
+      - sbt
 
   - name: SBT | Download
     get_url: url={{sbt_base_url}}/{{sbt_artifact}} dest=/opt/{{sbt_artifact}}
     when: ansible_os_family == "Debian" and sbt_present|failed
-    sudo: yes
-    tags: sbt
+    become: yes
+    tags:
+      - sbt
 
   - name: SBT | Install
     command: dpkg -i /opt/{{sbt_artifact}}
     when: ansible_os_family == "Debian" and sbt_present|failed
-    sudo: yes
-    tags: sbt
+    become: yes
+    tags:
+      - sbt
 
   - name: SBT | Remove installer
     file: path=/opt/{{sbt_artifact}} state=absent
     when: ansible_os_family == "Debian" and sbt_present|failed
-    tags: sbt
-    sudo: yes
+    tags:
+      - sbt
+    become: yes

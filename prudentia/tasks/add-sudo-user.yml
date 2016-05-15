@@ -1,6 +1,6 @@
 ---
   # Parameters:
-  #  ssh_current_user: Current deployment user where we look for ssh keys to copy (provided)
+  #  ssh_current_user: current deployment user where we look for ssh keys to copy (provided)
   #  user: new user name to be created (provided)
   #  group: new user group to be created (provided)
   #  home: new user home to be created
@@ -9,36 +9,45 @@
   #  - include: "{{prudentia_dir}}/tasks/sudo-user.yml user=prudentia group=prudentia home=/home/prudentia ssh_current_user=root"
 
   - debug: msg="Creating sudo user {{user}}:{{group}} with home directory {{home}}"
-    tags: sudoer
+    tags:
+      - sudoer
 
     # The creation of a sudo user is generally executed just after creating an instance
     # so we wait for the SSH port to become available and we start checking after a little delay
   - name: Sudo User | Wait for SSH
     wait_for: port=22 search_regex=OpenSSH delay=5 timeout=60
-    tags: sudoer
+    tags:
+      - sudoer
 
   - name: Sudo User | Creating group
     group: name={{group}} state=present
-    tags: sudoer
+    tags:
+      - sudoer
 
   - name: Sudo User | Creating user
     user: name={{user}} group={{group}} home={{home}} comment={{user}} state=present shell=/bin/bash generate_ssh_key=yes groups=sudo
-    tags: sudoer
+    tags:
+      - sudoer
 
   - name: Sudo User | Check key presence
     stat: path=~{{ssh_current_user}}/.ssh/authorized_keys
     register: check_authorized_keys
+    tags:
+      - sudoer
 
   - name: Sudo User | Copy authorized_keys from root
     command: cp ~{{ssh_current_user}}/.ssh/authorized_keys {{home}}/.ssh/authorized_keys
     when: check_authorized_keys.stat.exists
-    tags: sudoer
+    tags:
+      - sudoer
 
   - name: Sudo User | Set permission on authorized_keys
     file: path={{home}}/.ssh/authorized_keys mode=600 owner={{user}} group={{group}}
     when: check_authorized_keys.stat.exists
-    tags: sudoer
+    tags:
+      - sudoer
 
   - name: Sudo User | Ensuring sudoers no pwd prompting
     lineinfile: dest=/etc/sudoers state=present regexp="%{{user}}" line="%{{user}} ALL=(ALL) NOPASSWD:ALL" validate="visudo -cf %s"
-    tags: sudoer
+    tags:
+      - sudoer
