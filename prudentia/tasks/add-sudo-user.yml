@@ -1,12 +1,12 @@
 ---
   # Parameters:
-  #  ssh_current_user: current deployment user where we look for ssh keys to copy (provided)
-  #  user: new user name to be created (provided)
-  #  group: new user group to be created (provided)
+  #  ssh_seed_user: user from which to copy the authorized ssh keys (provided)
+  #  user: new user name to be created
+  #  group: new user group to be created
   #  home: new user home to be created
   #
   # Example usage:
-  #  - include: "{{prudentia_dir}}/tasks/sudo-user.yml user=prudentia group=prudentia home=/home/prudentia ssh_current_user=root"
+  #  - include: "{{prudentia_dir}}/tasks/sudo-user.yml user=prudentia group=prudentia home=/home/prudentia ssh_seed_user=root"
 
   - debug: msg="Creating sudo user {{user}}:{{group}} with home directory {{home}}"
     tags:
@@ -30,13 +30,13 @@
       - sudoer
 
   - name: Sudo User | Check key presence
-    stat: path=~{{ssh_current_user}}/.ssh/authorized_keys
+    stat: path=~{{ssh_seed_user}}/.ssh/authorized_keys
     register: check_authorized_keys
     tags:
       - sudoer
 
   - name: Sudo User | Copy authorized_keys from root
-    command: cp ~{{ssh_current_user}}/.ssh/authorized_keys {{home}}/.ssh/authorized_keys
+    command: cp ~{{ssh_seed_user}}/.ssh/authorized_keys {{home}}/.ssh/authorized_keys
     when: check_authorized_keys.stat.exists
     tags:
       - sudoer
