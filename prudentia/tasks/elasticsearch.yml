@@ -5,54 +5,64 @@
   #  elasticsearch_config_file
 
   - include: "{{prudentia_dir}}/tasks/java.yml"
-    tags: es
+    tags:
+      - es
 
   - name: ElasticSearch | Install python-pycurl
     apt: pkg=python-pycurl state=installed
-    sudo: yes
-    tags: es
+    become: yes
+    tags:
+      - es
 
   - name: ElasticSearch | Add GPG key to apt keyring
     apt_key: url=http://packages.elasticsearch.org/GPG-KEY-elasticsearch state=present
-    sudo: yes
-    tags: es
+    become: yes
+    tags:
+      - es
 
   - name: ElasticSearch | Add Debian apt repository
     apt_repository: repo="deb http://packages.elasticsearch.org/elasticsearch/{{elasticsearch_version}}/debian stable main" state=present update_cache=yes
-    sudo: yes
-    tags: es
+    become: yes
+    tags:
+      - es
 
   - name: ElasticSearch | Install
     apt: update-cache=yes pkg=elasticsearch state=latest
-    sudo: yes
-    tags: es
+    become: yes
+    tags:
+      - es
 
   - name: ElasticSearch | Create log and data folders
     file: path={{item}} state=directory owner=elasticsearch group=elasticsearch
     with_items:
       - "/var/log/elasticsearch"
       - "/var/data/elasticsearch"
-    sudo: yes
-    tags: es
+    become: yes
+    tags:
+      - es
 
   - name: ElasticSearch | Config
     template: src={{elasticsearch_config_file}} dest=/etc/elasticsearch/elasticsearch.yml
-    sudo: yes
-    tags: es
+    become: yes
+    tags:
+      - es
 
   - name: ElasticSearch | Fix init.d script
     lineinfile: dest=/etc/init.d/elasticsearch regexp="^PID_DIR=.*" line="PID_DIR=\"/var/run\""
-    sudo: yes
-    tags: es
+    become: yes
+    tags:
+      - es
 
   - name: ElasticSearch | Restart
     action: service name=elasticsearch state=restarted
-    sudo: yes
-    tags: es
+    become: yes
+    tags:
+      - es
 
   - name: ElasticSearch | Install plugins
     command: /usr/share/elasticsearch/bin/plugin --install {{item.plugin}} creates=/usr/share/elasticsearch/plugins/{{item.name}}/_site/.gitignore
     with_items: '{{elasticsearch_plugins}}'
     when: elasticsearch_plugins is defined
-    sudo: yes
-    tags: es
+    become: yes
+    tags:
+      - es

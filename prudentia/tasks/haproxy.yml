@@ -7,16 +7,19 @@
     when: ansible_system == "Linux"
     ignore_errors: yes
     register: haproxy_present
-    tags: haproxy
+    tags:
+      - haproxy
 
   - name: HAProxy | Add apt repository
     apt_repository: repo={{haproxy_apt_repository}}
     when: ansible_distribution == "Ubuntu" and haproxy_present|failed
-    tags: haproxy
-    sudo: yes
+    tags:
+      - haproxy
+    become: yes
 
   - name: HAProxy | Install
     apt: update-cache=yes force=yes state=present pkg=haproxy
     when: ansible_distribution == "Ubuntu" and haproxy_present|failed
-    tags: haproxy
-    sudo: yes
+    tags:
+      - haproxy
+    become: yes

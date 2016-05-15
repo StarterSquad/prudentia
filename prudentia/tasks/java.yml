@@ -8,22 +8,26 @@
     when: ansible_system == "Linux"
     ignore_errors: yes
     register: java_present
-    tags: jdk
+    tags:
+      - jdk
 
   - name: Java JDK | Add apt repository
     apt_repository: repo={{java_apt_repository}}
     when: ansible_distribution == "Ubuntu" and java_present|failed
-    tags: jdk
-    sudo: yes
+    tags:
+      - jdk
+    become: yes
 
   - name: Java JDK | Accept the Oracle license before the installation
     shell: echo oracle-java{{java_jdk_version}}-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
     when: ansible_distribution == "Ubuntu" and java_present|failed
-    tags: jdk
-    sudo: yes
+    tags:
+      - jdk
+    become: yes
 
   - name: Java JDK | Install
     apt: update-cache=yes force=yes state=present pkg=oracle-java{{java_jdk_version}}-installer
     when: ansible_distribution == "Ubuntu" and java_present|failed
-    tags: jdk
-    sudo: yes
+    tags:
+      - jdk
+    become: yes

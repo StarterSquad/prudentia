@@ -10,7 +10,8 @@
   - name: Known Hosts | Make sure the known hosts file exists
     file: "path={{known_hosts_file}} state=touch"
     when: ansible_system == "Linux"
-    tags: known_hosts
+    tags:
+      - known_hosts
 
   - name: Known Hosts | Check host name availability
     shell: "ssh-keygen -f {{known_hosts_file}} -F {{item}}"
@@ -18,10 +19,12 @@
     register: known_host_results
     ignore_errors: yes
     when: ansible_system == "Linux"
-    tags: known_hosts
+    tags:
+      - known_hosts
 
   - name: Known Hosts | Scan the public key
     shell: "ssh-keyscan -H -T 10 {{item.item}} >> {{known_hosts_file}}"
     with_items: '{{known_host_results.results}}'
     when: ansible_system == "Linux" and item.stdout == ""
-    tags: known_hosts
+    tags:
+      - known_hosts

@@ -5,15 +5,18 @@
 
   - name: Fail2Ban | Install fail2ban
     apt: pkg=fail2ban state=installed
-    sudo: yes
-    tags: fail2ban
+    become: yes
+    tags:
+      - fail2ban
 
   - name: Fail2Ban | Configure local fail2ban jail
     template: src={{prudentia_dir}}/files/fail2ban/jail.local.j2 dest=/etc/fail2ban/jail.local
-    sudo: yes
-    tags: fail2ban
+    become: yes
+    tags:
+      - fail2ban
 
   - name: Fail2Ban | Reload
     service: name=fail2ban state=reloaded
-    sudo: yes
-    tags: fail2ban
+    become: yes
+    tags:
+      - fail2ban

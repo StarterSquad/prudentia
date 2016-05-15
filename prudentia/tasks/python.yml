@@ -6,11 +6,13 @@
       - python-dev
       - python-pip
     when: ansible_os_family == "Debian"
-    sudo: yes
-    tags: python
+    become: yes
+    tags:
+      - python
 
   - name: Python | Install latest pip
     shell: curl https://bootstrap.pypa.io/get-pip.py | python
     when: ansible_os_family == "Debian"
-    sudo: yes
-    tags: python
+    become: yes
+    tags:
+      - python

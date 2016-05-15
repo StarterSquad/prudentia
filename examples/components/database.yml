@@ -1,10 +1,11 @@
 ---
   - include: "{{prudentia_dir}}/tasks/mysql_5.5.yml"
-    tags: db
+    tags:
+      - db
 
   - name: Database | Create directory
     file: dest={{install_dir_db}} owner={{ansible_user_id}} group={{ansible_user_id}} mode=755 state=directory
-    sudo: yes
+    become: yes
     tags:
       - db
       - update
