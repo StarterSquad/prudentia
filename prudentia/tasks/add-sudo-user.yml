@@ -1,43 +1,53 @@
 ---
   # Parameters:
-  #  user
-  #  group
-  #  home
+  #  ssh_seed_user: user from which to copy the authorized ssh keys (provided)
+  #  user: new user name to be created
+  #  group: new user group to be created
+  #  home: new user home to be created
   #
   # Example usage:
-  #  - include: "{{prudentia_dir}}/tasks/sudo-user.yml user=prudentia group=prudentia home=/home/prudentia"
+  #  - include: "{{prudentia_dir}}/tasks/sudo-user.yml user=prudentia group=prudentia home=/home/prudentia ssh_seed_user=root"
 
   - debug: msg="Creating sudo user {{user}}:{{group}} with home directory {{home}}"
-    tags: sudoer
+    tags:
+      - sudoer
 
     # The creation of a sudo user is generally executed just after creating an instance
     # so we wait for the SSH port to become available and we start checking after a little delay
   - name: Sudo User | Wait for SSH
-    local_action: wait_for host={{inventory_hostname}} port=22 delay=5 timeout=60
-    tags: sudoer
+    wait_for: port=22 search_regex=OpenSSH delay=5 timeout=60
+    tags:
+      - sudoer
 
   - name: Sudo User | Creating group
     group: name={{group}} state=present
-    tags: sudoer
+    tags:
+      - sudoer
 
   - name: Sudo User | Creating user
     user: name={{user}} group={{group}} home={{home}} comment={{user}} state=present shell=/bin/bash generate_ssh_key=yes groups=sudo
-    tags: sudoer
+    tags:
+      - sudoer
 
   - name: Sudo User | Check key presence
-    stat: path=/root/.ssh/authorized_keys
+    stat: path=~{{ssh_seed_user}}/.ssh/authorized_keys
     register: check_authorized_keys
+    tags:
+      - sudoer
 
   - name: Sudo User | Copy authorized_keys from root
-    command: cp /root/.ssh/authorized_keys {{home}}/.ssh/authorized_keys
+    command: cp ~{{ssh_seed_user}}/.ssh/authorized_keys {{home}}/.ssh/authorized_keys
     when: check_authorized_keys.stat.exists
-    tags: sudoer
+    tags:
+      - sudoer
 
   - name: Sudo User | Set permission on authorized_keys
     file: path={{home}}/.ssh/authorized_keys mode=600 owner={{user}} group={{group}}
     when: check_authorized_keys.stat.exists
-    tags: sudoer
+    tags:
+      - sudoer
 
   - name: Sudo User | Ensuring sudoers no pwd prompting
     lineinfile: dest=/etc/sudoers state=present regexp="%{{user}}" line="%{{user}} ALL=(ALL) NOPASSWD:ALL" validate="visudo -cf %s"
-    tags: sudoer
+    tags:
+      - sudoer

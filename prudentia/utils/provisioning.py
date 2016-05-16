@@ -11,6 +11,12 @@ from ansible.vars import VariableManager
 from bunch import Bunch
 from prudentia.utils import io
 
+try:
+    from __main__ import display
+except ImportError:
+    from ansible.utils.display import Display
+    display = Display()
+
 VERBOSITY = 0
 
 
@@ -21,7 +27,7 @@ def run_playbook(playbook_file, inventory_file, loader, remote_user=C.DEFAULT_RE
     variable_manager.extra_vars = {} if extra_vars is None else extra_vars
 
     inventory.HOSTS_PATTERNS_CACHE = {}  # clean up previous cached hosts
-    loader._FILE_CACHE = dict()  # clean up previously read and cached file
+    loader._FILE_CACHE = dict()  # clean up previously read and cached files
     inv = inventory.Inventory(
         loader=loader,
         variable_manager=variable_manager,
@@ -29,12 +35,14 @@ def run_playbook(playbook_file, inventory_file, loader, remote_user=C.DEFAULT_RE
     )
     variable_manager.set_inventory(inv)
 
+    options = default_options(remote_user, transport, only_tags)
+    display.verbosity = options.verbosity
     pbex = PlaybookExecutor(
         playbooks=[playbook_file],
         inventory=inv,
         variable_manager=variable_manager,
         loader=loader,
-        options=default_options(remote_user, transport, only_tags),
+        options=options,
         passwords={'conn_pass': remote_pass} if remote_pass else {}
     )
 
@@ -50,7 +58,7 @@ def run_play(play_ds, inventory_file, loader, remote_user, remote_pass, transpor
     variable_manager.extra_vars = {} if extra_vars is None else extra_vars
 
     inventory.HOSTS_PATTERNS_CACHE = {}  # clean up previous cached hosts
-    loader._FILE_CACHE = dict()  # clean up previously read and cached file
+    loader._FILE_CACHE = dict()  # clean up previously read and cached files
     inv = inventory.Inventory(
         loader=loader,
         variable_manager=variable_manager,
@@ -63,11 +71,13 @@ def run_play(play_ds, inventory_file, loader, remote_user, remote_pass, transpor
     tqm = None
     result = 1
     try:
+        options = default_options(remote_user, transport)
+        display.verbosity = options.verbosity
         tqm = TaskQueueManager(
             inventory=inv,
             variable_manager=variable_manager,
             loader=loader,
-            options=default_options(remote_user, transport),
+            options=options,
             passwords={'conn_pass': remote_pass} if remote_pass else {},
             stdout_callback='minimal',
             run_additional_callbacks=C.DEFAULT_LOAD_CALLBACK_PLUGINS,
@@ -147,7 +157,7 @@ def create_user(box, loader):
             remote_user='root',
             remote_pass=box.get_remote_pwd(),
             transport=box.get_transport(),
-            extra_vars={'user': user, 'group': user, 'home': user_home}
+            extra_vars={'ssh_seed_user': 'root', 'user': user, 'group': user, 'home': user_home}
         )
     else:
         print 'Root user cannot be created!'

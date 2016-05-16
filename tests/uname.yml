@@ -5,6 +5,7 @@
   tasks:
     - name: Uname
       command: uname -a
-      tags: one
+      tags:
+        - one
 
     - include: include.yml

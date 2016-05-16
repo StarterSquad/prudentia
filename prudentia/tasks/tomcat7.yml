@@ -3,14 +3,17 @@
   #  prudentia_dir (provided)
 
   - include: "{{prudentia_dir}}/tasks/java.yml"
-    tags: tomcat
+    tags:
+      - tomcat
 
   - name: Tomcat | Install
     apt: force=yes state=present pkg=tomcat7
-    sudo: yes
-    tags: tomcat
+    become: yes
+    tags:
+      - tomcat
 
   - name: Tomcat | Install APR native library
     apt: force=yes state=present pkg=libtcnative-1
-    sudo: yes
-    tags: tomcat
+    become: yes
+    tags:
+      - tomcat

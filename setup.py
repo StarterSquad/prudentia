@@ -1,22 +1,17 @@
 # !/usr/bin/env python
 
-import sys
-
-from prudentia import __version__, __author__
-
 from codecs import open
 
-try:
-    from setuptools import setup
-except ImportError:
-    print "Prudentia needs setuptools in order to build. " \
-          "Install it using your package manager (usually python-setuptools) or via pip (pip install setuptools)."
-    sys.exit(1)
+from setuptools import setup
+
+from prudentia import __version__, __author__
 
 with open('README.rst', 'r', 'utf-8') as f:
     readme = f.read()
 with open('HISTORY.rst', 'r', 'utf-8') as f:
     history = f.read()
+with open('requirements.txt', 'r', 'utf-8') as f:
+    requires = f.readlines()
 
 setup(
     name='prudentia',
@@ -27,7 +22,7 @@ setup(
     long_description=readme + '\n\n' + history,
     url='https://github.com/StarterSquad/prudentia',
     license='MIT',
-    install_requires=['ansible>2', 'requests[security]', 'dopy>0.2', 'boto', 'hvac', 'six>=1.10', 'bunch'],
+    install_requires=requires,
     packages=['prudentia', 'prudentia.utils'],
     include_package_data=True,
     scripts=['bin/prudentia'],

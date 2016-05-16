@@ -2,12 +2,13 @@
 
 """This is the start script."""
 
-import sys
 import logging
 import os
+import sys
 from os import path
 
 import requests
+from ansible.utils.display import Display
 from prudentia import __version__ as v
 
 
@@ -83,6 +84,9 @@ if __name__ == "__main__":
     init_logging(ud)
     init_readline(ud)
     check_latest()
+
+    # Ansible expects to reuse the display only if it is available under __main__
+    display = Display()
 
     from prudentia import cli
 

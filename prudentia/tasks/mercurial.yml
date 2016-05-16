@@ -2,5 +2,6 @@
   - name: Mercurial | Install
     apt: pkg=mercurial state=present
     when: ansible_os_family == "Debian"
-    tags: mercurial
-    sudo: yes
+    tags:
+      - mercurial
+    become: yes

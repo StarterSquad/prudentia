@@ -10,11 +10,13 @@
   tasks:
     - name: Uname
       command: uname -a
-      tags: uname
+      tags:
+        - uname
 
     - name: Shuffle
       debug: msg={{ item }}
       with_items: "{{ mylist | shuffle }}"
-      tags: shuffle
+      tags:
+        - shuffle
 
     - include: "{{ prudentia_dir }}/tasks/noop.yml"

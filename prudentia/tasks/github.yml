@@ -4,7 +4,9 @@
   #  ssh_dir
 
   - include: "{{prudentia_dir}}/tasks/git.yml"
-    tags: github
+    tags:
+      - github
 
   - include: "{{prudentia_dir}}/tasks/add_known_hosts.yml ssh_dir={{ssh_dir}} known_hosts=github.com"
-    tags: github
+    tags:
+      - github
