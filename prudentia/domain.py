@@ -139,3 +139,8 @@ class Box(object):
             json_obj.get('remote_pwd'),
             extra_type.from_json(json_obj.get('extra')) if extra_type else None
         )
+
+    def __eq__(self, other):
+        return self.name == other.name and self.playbook == other.playbook and \
+               self.hostname == other.hostname and self.ip == other.ip and \
+               self.remote_user == other.remote_user and self.remote_pwd == other.remote_pwd
