@@ -10,6 +10,8 @@ with open('README.rst', 'r', 'utf-8') as f:
     readme = f.read()
 with open('HISTORY.rst', 'r', 'utf-8') as f:
     history = f.read()
+with open('requirements.txt', 'r', 'utf-8') as f:
+    requires = f.readlines()
 
 setup(
     name='prudentia',
@@ -20,16 +22,7 @@ setup(
     long_description=readme + '\n\n' + history,
     url='https://github.com/StarterSquad/prudentia',
     license='MIT',
-    install_requires=[
-        'setuptools',
-        'ansible>2',
-        'requests[security]',
-        'dopy>0.2',
-        'boto',
-        'hvac',
-        'six>=1.10',
-        'bunch'
-    ],
+    install_requires=requires,
     packages=['prudentia', 'prudentia.utils'],
     include_package_data=True,
     scripts=['bin/prudentia'],
