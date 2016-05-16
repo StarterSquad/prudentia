@@ -22,20 +22,20 @@
   - name: Java JRE | Are we running on x64?
     set_fact:
       platform: "x64"
-    when: ansible_architecture == "x86_64" and ansible_os_family == "Debian" and java_present|failed
+    when: ansible_architecture == "x86_64" and ansible_os_family == "Debian"
     tags:
       - jre
 
   - name: Java JRE | Fail if it isn't x64
     fail: msg="Unknown platform architecture (should be x64, got {{ansible_architecture}}"
-    when: (platform is not defined or platform != "x64") and ansible_os_family == "Debian" and java_present|failed
+    when: (platform is not defined or platform != "x64") and ansible_os_family == "Debian"
     tags:
       - jre
 
   - name: Java JRE | Set download URL
     set_fact:
       jre_download_url: "http://download.oracle.com/otn-pub/java/jdk/{{java_jre_version}}-{{java_jre_build}}/server-jre-{{java_jre_version}}-linux-{{platform}}.tar.gz"
-    when: ansible_os_family == "Debian" and java_present|failed
+    when: ansible_os_family == "Debian"
     tags:
       - jre
 
