@@ -63,10 +63,7 @@ class BashCmd(object):
                "\nStd Error: {3}".format(self.cmd_args, self.returncode, self.stdout, self.stderr)
 
     def is_ok(self):
-        if not self.returncode:
-            return True
-        else:
-            return False
+        return bool(not self.returncode)
 
     def output(self):
         return self.stdout

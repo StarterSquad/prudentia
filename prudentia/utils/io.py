@@ -89,10 +89,7 @@ def input_yes_no(topic, default='n', prompt_fn=_input):
     answer = prompt_fn(input_msg).strip()
     if not len(answer):
         answer = default
-    if answer.lower() in ('y', 'yes'):
-        return True
-    else:
-        return False
+    return bool(answer.lower() in ('y', 'yes'))
 
 
 def input_choice(topic, default=None, choices=None, prompt_fn=_input, retries=3):
