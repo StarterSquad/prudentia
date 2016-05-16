@@ -141,6 +141,7 @@ class Box(object):
         )
 
     def __eq__(self, other):
-        return self.name == other.name and self.playbook == other.playbook and \
+        return other is not None and self.name == other.name and \
+               self.playbook == other.playbook and \
                self.hostname == other.hostname and self.ip == other.ip and \
                self.remote_user == other.remote_user and self.remote_pwd == other.remote_pwd
