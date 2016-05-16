@@ -1,2 +1,2 @@
-include LICENSE HISTORY.rst
+include LICENSE HISTORY.rst requirements.txt
 recursive-include prudentia *
