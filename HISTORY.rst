@@ -1,6 +1,20 @@
 Release History
 ---------------
 
+2.1 (2016-05-16)
+++++++++++++++++
+
+**Improvements**
+
+- Replace sudo with become in bundled tasks.
+- Makes phoenix operation accept tags.
+- Parametrise add-sudo-user bundled task to use ssh key of the specified user.
+- Addresses deprecation warning for JRE bundled task.
+
+**Bugfixes**
+
+- Makes sure verbose operation correctly works.
+
 2.0 (2016-04-03)
 ++++++++++++++++
 

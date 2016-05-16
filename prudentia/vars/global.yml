@@ -1,7 +1,7 @@
 ---
   testing: "{{ ansible_user_id == 'vagrant' }}"
 
-  prudentia_version: 2.0
+  prudentia_version: 2.1
 
   sbt_base_url: https://dl.bintray.com/sbt/debian
   sbt_version: 0.13.9
