@@ -54,7 +54,7 @@
       - es
 
   - name: ElasticSearch | Restart
-    action: service name=elasticsearch state=restarted
+    action: service name=elasticsearch state=restarted enabled=yes
     become: yes
     tags:
       - es
