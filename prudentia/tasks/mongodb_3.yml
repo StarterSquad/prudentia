@@ -12,7 +12,7 @@
       - mongodb3
 
   - name: MongoDB 3 | Add GPG key to apt keyring
-    apt_key: id=EA312927 url=keyserver.ubuntu.com
+    apt_key: id=EA312927 keyserver=keyserver.ubuntu.com
     become: yes
     tags:
       - mongodb3
