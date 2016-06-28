@@ -1,6 +1,7 @@
 ---
   # Parameters:
   #  prudentia_dir (provided)
+  #  prudentia_version (provided)
 
   - include: "{{prudentia_dir}}/tasks/python.yml"
     tags:
