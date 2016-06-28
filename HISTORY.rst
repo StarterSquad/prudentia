@@ -1,6 +1,19 @@
 Release History
 ---------------
 
+2.2 (2016-06-28)
+++++++++++++++++
+
+**Improvements**
+
+- Upgrades to support Ansible 2.1.
+
+**Bugfixes**
+
+- Mongodb_3: fetch correct apt key.
+- Elasticsearch: makes daemon automatically startup after server reboot.
+
+
 2.1 (2016-05-16)
 ++++++++++++++++
 

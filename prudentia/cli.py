@@ -4,10 +4,6 @@ import sys
 from os import path
 
 from ansible import __version__ as ansible_ver
-from prudentia.digital_ocean import DigitalOceanCli
-from prudentia.local import LocalCli
-from prudentia.ssh import SshCli
-from prudentia.vagrant import VagrantCli
 from . import __version__ as prudentia_ver
 
 # Setting Ansible config file environment variable as first thing
@@ -17,6 +13,11 @@ os.environ['ANSIBLE_ROLES_PATH'] = path.join(cwd, 'roles') + os.pathsep + '/etc/
 os.environ['ANSIBLE_LOOKUP_PLUGINS'] = path.join(cwd, 'plugins', 'lookup') + \
                                        os.pathsep + '/usr/share/ansible_plugins/lookup_plugins'
 os.environ['ANSIBLE_LIBRARY'] = path.join(cwd, 'modules')
+
+from prudentia.digital_ocean import DigitalOceanCli
+from prudentia.local import LocalCli
+from prudentia.ssh import SshCli
+from prudentia.vagrant import VagrantCli
 
 Providers = {
     'local': LocalCli,
