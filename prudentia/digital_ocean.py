@@ -71,7 +71,7 @@ class DigitalOceanProvider(FactoryProvider):
             all_images = self.manager.all_images()
             print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
             default_image = next((img for img in all_images
-                                  if self.DEFAULT_IMAGE_SLUG in img['slug']), None)
+                                  if img['slug'] and self.DEFAULT_IMAGE_SLUG in img['slug']), None)
             if default_image:
                 image_desc = '{0} - {1} {2}'.format(
                     default_image['id'],
