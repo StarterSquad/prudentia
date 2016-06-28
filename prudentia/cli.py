@@ -1,11 +1,10 @@
 import argparse
 import os
-from os import path
 import sys
+from os import path
 
-from . import __version__ as prudentia_ver
 from ansible import __version__ as ansible_ver
-
+from . import __version__ as prudentia_ver
 
 # Setting Ansible config file environment variable as first thing
 cwd = path.dirname(path.realpath(__file__))
