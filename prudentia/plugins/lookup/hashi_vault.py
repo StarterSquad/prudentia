@@ -14,7 +14,7 @@ if os.getenv('VAULT_TOKEN') is not None:
     ANSIBLE_HASHI_VAULT_TOKEN = os.environ['VAULT_TOKEN']
 
 
-class SaHashiVault:
+class HashiVault:
     def __init__(self, **kwargs):
         try:
             import hvac
@@ -77,7 +77,7 @@ class LookupModule(LookupBase):
                                    % (terms, e.message))
             vault_dict[key] = value
 
-        vault_conn = SaHashiVault(**vault_dict)
+        vault_conn = HashiVault(**vault_dict)
 
         for term in terms:
             key = term.split()[0]
