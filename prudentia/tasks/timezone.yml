@@ -22,7 +22,7 @@
       - timezone
 
   - name: Schedule daily NTP update
-    cron: name="ntp-update" minute="{{ 59 |random }}" hour="{{ 5 |random }}/6" job="/usr/sbin/ntpdate {{ntp_server_address}} > /dev/null"
+    cron: name="ntp-update" minute="{{ 59 |random }}" hour="*/6" job="/usr/sbin/ntpdate {{ntp_server_address}} > /dev/null"
     when: ansible_os_family == "Debian"
     become: yes
     tags:
