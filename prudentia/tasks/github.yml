@@ -3,10 +3,14 @@
   #  prudentia_dir (provided)
   #  ssh_dir
 
+  - set_fact:
+      github_target_ssh_dir: "{{ssh_dir}}"
+
   - include: "{{prudentia_dir}}/tasks/git.yml"
     tags:
       - github
 
-  - include: "{{prudentia_dir}}/tasks/add_known_hosts.yml ssh_dir={{ssh_dir}} known_hosts=github.com"
+  - include: "{{prudentia_dir}}/tasks/add_known_hosts.yml ssh_dir={{github_target_ssh_dir}} known_hosts=github.com"
     tags:
       - github
+
