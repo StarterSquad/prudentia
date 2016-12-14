@@ -1,0 +1,30 @@
+---
+  - name: Yarn | Check if is present
+    command: test -x /usr/bin/yarn
+    when: ansible_os_family == "Debian"
+    ignore_errors: yes
+    register: yarn_present
+    tags:
+      - yarn
+
+  - name: Yarn | Add GPG key to apt keyring
+    shell: curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+    when: ansible_os_family == "Debian" and yarn_present|failed
+    tags:
+      - yarn
+    become: yes
+
+
+  - name: Yarn | Add Debian apt repository
+    apt_repository: repo="deb https://dl.yarnpkg.com/debian/ stable main"
+    when: ansible_os_family == "Debian" and yarn_present|failed
+    tags:
+      - yarn
+    become: yes
+
+  - name: Yarn | Install last stable
+    apt: update-cache=yes force=yes state=present pkg=yarn
+    when: ansible_os_family == "Debian" and yarn_present|failed
+    tags:
+      - yarn
+    become: yes
