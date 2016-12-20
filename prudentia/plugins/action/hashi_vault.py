@@ -1,12 +1,12 @@
-from __future__ import (absolute_import, division, print_function)
+#!/usr/bin/python
+
 import os
 from ansible.errors import AnsibleError
-from ansible.plugins.lookup import LookupBase
+from ansible.plugins.action import ActionBase
 
 __metaclass__ = type
 
 ANSIBLE_HASHI_VAULT_ADDR = 'http://127.0.0.1:8200'
-ANSIBLE_HASHI_VAULT_TOKEN = None
 
 if os.getenv('VAULT_ADDR') is not None:
     ANSIBLE_HASHI_VAULT_ADDR = os.environ['VAULT_ADDR']
@@ -16,7 +16,7 @@ if os.getenv('VAULT_TOKEN') is not None:
 
 
 class HashiVault:
-    def __init__(self, logger, **kwargs):
+    def __init__(self, logger=None, **kwargs):
         try:
             import hvac
         except ImportError:
@@ -27,6 +27,8 @@ class HashiVault:
         self.token = kwargs.get('token', ANSIBLE_HASHI_VAULT_TOKEN)
         if self.token is None:
             raise AnsibleError("No Vault Token specified")
+
+        self.value = kwargs.get('value', None)
 
         # split secret arg, which has format 'secret/hello:value'
         # into secret='secret/hello' and secret_field='value'
@@ -41,7 +43,6 @@ class HashiVault:
         else:
             self.secret_field = 'value'
 
-        logger.warning('%s %s' % (self.url, self.token))
         self.client = hvac.Client(url=self.url, token=self.token)
 
         if self.client.is_authenticated():
@@ -64,31 +65,51 @@ class HashiVault:
 
         return data['data'][self.secret_field]
 
+    def write(self):
+        if self.value is None:
+            raise AnsibleError("Value is required for write operation")
+        return self.client.write(self.secret, value=self.value)
 
-class LookupModule(LookupBase):
-    def run(self, terms, variables, **kwargs):
-        vault_args = terms[0].split(' ')
-        vault_dict = {}
-        ret = []
+    def delete(self):
+        return self.client.delete(self.secret)
 
-        for param in vault_args:
-            try:
-                key, value = param.split('=')
-            except ValueError as e:
-                raise AnsibleError("hashi_vault plugin needs key=value pairs, but received %s %s"
-                                   % (terms, e.message))
-            vault_dict[key] = value
 
-        vault_conn = HashiVault(self._display, **vault_dict)
+class ActionModule(ActionBase):
+    ''' Write operations with hashicorp vault '''
 
-        for term in terms:
-            key = term.split()[0]
-            value = vault_conn.get()
-            ret.append(value)
+    VALID_ARGS = set(['action', 'url', 'token', 'secret', 'value'])
+    VALID_ACTIONS = set(['read', 'write', 'delete'])
 
-        if 'write_to_file' in vault_dict.keys():
-            text_file = open(vault_dict['write_to_file'], "w")
-            text_file.write(value)
-            text_file.close()
+    def run(self, tmp=None, task_vars=None):
+        #  self._display.warning('This is how you can debug')
 
-        return ret
+        module_args = dict()
+        for arg in self._task.args:
+            if arg not in self.VALID_ARGS:
+                return {"failed": True, "msg": "'%s' is not a valid option in hashi_vault" % arg}
+            else:
+                module_args[arg] = self._task.args.get(arg)
+
+        if task_vars is None:
+            task_vars = module_args.deepcopy(module_args)
+
+        result = super(ActionModule, self).run(tmp, task_vars)
+        result['_ansible_verbose_always'] = True
+
+        action = self._task.args.get('action', 'read')
+
+        vault_conn = HashiVault(self._display, **module_args)
+
+        if action == 'read':
+            result['value'] = vault_conn.get()
+            result['changed'] = True
+        elif action == 'write':
+            result['status'] = vault_conn.write()
+            result['changed'] = True
+        elif action == 'delete':
+            result['status'] = vault_conn.delete()
+            result['changed'] = True
+        else:
+            return {"failed": True, "msg": "'%s' is not a valid action in hashi_vault" % action}
+
+        return result

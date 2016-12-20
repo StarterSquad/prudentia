@@ -1,0 +1,33 @@
+---
+  - include: "{{prudentia_dir}}/tasks/nodejs.yml"
+    tags:
+      - yarn
+
+  - name: Yarn | Check if is present
+    command: test -x /usr/bin/yarn
+    when: ansible_os_family == "Debian"
+    ignore_errors: yes
+    register: yarn_present
+    tags:
+      - yarn
+
+  - name: Yarn | Add GPG key to apt keyring
+    apt_key: url=https://dl.yarnpkg.com/debian/pubkey.gpg state=present
+    when: ansible_os_family == "Debian" and yarn_present|failed
+    tags:
+      - yarn
+    become: yes
+
+  - name: Yarn | Add Debian apt repository
+    apt_repository: repo="deb https://dl.yarnpkg.com/debian/ stable main"
+    when: ansible_os_family == "Debian" and yarn_present|failed
+    tags:
+      - yarn
+    become: yes
+
+  - name: Yarn | Install last stable
+    apt: update-cache=yes force=yes state=latest pkg=yarn
+    when: ansible_os_family == "Debian" and yarn_present|failed
+    tags:
+      - yarn
+    become: yes
