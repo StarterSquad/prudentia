@@ -1,0 +1,43 @@
+---
+  - include: "{{prudentia_dir}}/tasks/nginx.yml"
+
+  - name: Nginx | Generate self-signed certificate
+    include: '{{prudentia_dir}}/tasks/ssl-self-certificate.yml fqdn="{{ssl_key_fqdn}}" key="{{ssl_key_name}}" crt="{{ssl_cert_name}}" target_dir="{{ssl_install_path}}"'
+    when: option_ssl and option_ssl_self_signed
+    tags:
+      - nginx
+
+
+  - name: Nginx | Generate nginx dhparam.pem if not exists
+    command: openssl dhparam -out {{ssl_install_path}}/dhparam.pem 4096 creates={{ssl_install_path}}/dhparam.pem
+    when: option_ssl and not option_use_pregenerated_pem
+    sudo: yes
+    tags:
+      - nginx
+
+  - name: Nginx | Temporary - use pregenerated pem
+    copy: src={{pregenerated_pem_path}} dest={{ssl_install_path}}/dhparam.pem
+    when: option_ssl and option_use_pregenerated_pem
+    sudo: yes
+    tags:
+      - nginx
+
+  - name: Nginx | Copy Nginx configuration
+    template: src={{item.config}} dest=/etc/nginx/sites-available/{{item.name}}
+    with_items: nginx_sites
+    sudo: yes
+    tags:
+      - nginx
+
+  - name: Nginx | Enable website
+    command: ln -fs /etc/nginx/sites-available/{{item.name}} /etc/nginx/sites-enabled/{{item.name}}
+    with_items: nginx_sites
+    sudo: yes
+    tags:
+      - nginx
+
+  - name: Proxy | Restart Nginx
+    command: /etc/init.d/nginx restart
+    sudo: yes
+    tags:
+      - nginx

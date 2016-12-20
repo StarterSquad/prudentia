@@ -1,0 +1,31 @@
+# defaults file for sa-nginx-role
+  role_dir: "{{ lookup('pipe','pwd')|dirname }}"
+  ssl_dhparam_size: 1024
+
+  # Check if recipe should prepare nginx for https
+  option_ssl: true
+
+  # Check if you already have pre-generated pem
+  option_use_pregenerated_pem: false
+  pregenerated_pem_path: "{{role_dir}}/files/nginx/dhparam.pem"
+
+  # Check if you need to generate self signed certs
+  option_ssl_self_signed: false
+
+  app_domain: "vagrant.dev"
+  app_host: "*"
+
+  ssl_key_fqdn:  "{{app_host}}.{{app_host}}"
+  ssl_key_name:  app_selfsigned
+  ssl_cert_name: app_selfsigned
+  ssl_install_path: /etc/nginx
+  ssl_files:
+    - "{{ssl_key_name}}.key"
+    - "{{ssl_cert_name}}.crt"
+
+  # enumerate sites to get installed
+  nginx_sites:
+    - {
+        name: "default",
+        config: "{{role_dir}}/templates/nginx/nginx.conf.j2"
+      }
