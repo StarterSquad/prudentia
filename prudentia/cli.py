@@ -9,9 +9,11 @@ from . import __version__ as prudentia_ver
 # Setting Ansible config file environment variable as first thing
 cwd = path.dirname(path.realpath(__file__))
 os.environ['ANSIBLE_CONFIG'] = path.join(cwd, 'ansible.cfg')
-os.environ['ANSIBLE_ROLES_PATH'] = path.join(cwd, 'roles') + os.pathsep + '/etc/ansible/roles'
+os.environ['ANSIBLE_ROLES_PATH'] = path.join(cwd, 'roles') + ':/etc/ansible/roles'
 os.environ['ANSIBLE_LOOKUP_PLUGINS'] = path.join(cwd, 'plugins', 'lookup') + \
-                                       os.pathsep + '/usr/share/ansible_plugins/lookup_plugins'
+                                       ':~/.ansible/plugins/lookup:/usr/share/ansible/plugins/lookup'
+os.environ['ANSIBLE_ACTION_PLUGINS'] = path.join(cwd, 'plugins', 'action') + \
+                                       ':~/.ansible/plugins/action:/usr/share/ansible/plugins/action'
 os.environ['ANSIBLE_LIBRARY'] = path.join(cwd, 'modules')
 
 from prudentia.digital_ocean import DigitalOceanCli
