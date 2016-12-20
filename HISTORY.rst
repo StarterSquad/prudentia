@@ -1,6 +1,21 @@
 Release History
 ---------------
 
+2.3 (2016-12-20)
+++++++++++++++++
+
+**Improvements**
+
+- Adds bundled task: Node Yarn.
+
+**Bugfixes**
+
+- Fixes Digital Ocean image listing.
+- Makes HashiVault lookup and action plugins compatible with Ansible 2.
+- Timezone: Fix hour definition.
+- GitHub: Workaroud for ssh_dir recursive error.
+
+
 2.2 (2016-06-28)
 ++++++++++++++++
 
@@ -39,7 +54,7 @@ Release History
 
 **Bugfixes**
 
-- Fixes timezone bulded task to avoid ntpdate running every minute.
+- Fixes timezone bundled task to avoid ntpdate running every minute.
 
 1.0 (2016-02-09)
 ++++++++++++++++
