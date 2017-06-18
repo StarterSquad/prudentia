@@ -1,64 +1,85 @@
 ---
   # Parameters:
-  #  java_jre_version (provided)
-  #  java_jre_build (provided)
+  #  java_jre_version: JRE version to use (provided)
+  #  java_jre_build:   JRE build number (provided)
+  #  java_jre_hash:    JRE hash used in download URL (provided)
 
-  - name: Java JRE | Get JRE directory name
-    shell: "echo jdk1.{{java_jre_version}} |sed 's/u/.0_/'"
-    register: java_dir
-    when: ansible_os_family == "Debian"
+  - name: JRE | Pre-configuration | Check if we are on 'x86_64'
+    assert:
+      that:
+        - "ansible_architecture == 'x86_64'"
+      msg:
+        - "Unsupported platform architecture '{{ ansible_architecture }}', should be 'x86_64'."
+    tags:
+      - jre
+
+  - name: JRE | Pre-configuration | Set JRE install directory name
+    shell: "echo jdk1.{{ java_jre_version }} |sed 's/u/.0_/'"
+    register: jre_version
+    tags:
+      - jre
+
+  - name: JRE | Pre-configuration | Check if instance exists
+    stat:
+      path: "/usr/lib/jvm/{{ jre_version.stdout }}"
+    register: jre_basedir
+    tags:
+      - jre
+
+  - name: JRE | Pre-configuration | Set 'jre_installed'
+    set_fact:
+      jre_installed: "{{ jre_basedir.stat.exists }}"
+    tags:
+      - jre
+
+  - name: JRE | Pre-configuration | Set download URL
+    set_fact:
+      jre_download_url: "http://download.oracle.com/otn-pub/java/jdk/{{ java_jre_version }}-{{ java_jre_build }}/{{ java_jre_hash }}/server-jre-{{ java_jre_version }}-linux-x64.tar.gz"
+    tags:
+      - jre
+
+  - block:
+    - name: JRE | Install | Create install directory
+      file:
+        path:  "/usr/lib/jvm"
+        owner: "root"
+        group: "root"
+        mode:  "0755"
+        state: directory
+
+    - name: JRE | Install | Download installation archive
+      shell: "wget -O /usr/lib/jvm/{{ jre_version.stdout }}.tgz --no-check-certificate --no-cookies --header \"Cookie: oraclelicense=accept-securebackup-cookie\" {{ jre_download_url }}"
+
+    - name: JRE | Install | Extract archive
+      unarchive:
+        src:        "/usr/lib/jvm/{{ jre_version.stdout }}.tgz"
+        dest:       "/usr/lib/jvm/"
+        remote_src: True
+
+    - name: JRE | Install | Remove installation archive
+      file:
+        path: "/usr/lib/jvm/{{ jre_version.stdout }}.tgz"
+        state: absent
+
+    when: not jre_installed
     become: yes
     tags:
       - jre
 
-  - name: Java JRE | Check if it is present
-    command: test -d /usr/lib/jvm/{{java_dir.stdout}}
-    when: ansible_system == "Linux"
-    ignore_errors: yes
-    register: java_present
-    tags:
-      - jre
-
-  - name: Java JRE | Are we running on x64?
-    set_fact:
-      platform: "x64"
-    when: ansible_architecture == "x86_64" and ansible_os_family == "Debian"
-    tags:
-      - jre
-
-  - name: Java JRE | Fail if it isn't x64
-    fail: msg="Unknown platform architecture (should be x64, got {{ansible_architecture}}"
-    when: (platform is not defined or platform != "x64") and ansible_os_family == "Debian"
-    tags:
-      - jre
-
-  - name: Java JRE | Set download URL
-    set_fact:
-      jre_download_url: "http://download.oracle.com/otn-pub/java/jdk/{{java_jre_version}}-{{java_jre_build}}/server-jre-{{java_jre_version}}-linux-{{platform}}.tar.gz"
-    when: ansible_os_family == "Debian"
-    tags:
-      - jre
-
-  - name: Java JRE | Download and install
-    shell: "{{item}}"
+  - name: JRE | Post-installation | Run 'update-alternatives --install'
+    shell: "update-alternatives --install /usr/bin/{{ item }} {{ item }} /usr/lib/jvm/{{ jre_version.stdout }}/bin/{{ item }} 1"
     with_items:
-      - "mkdir -p /usr/lib/jvm"
-      - "wget -O /usr/lib/jvm/{{java_dir.stdout}}.tgz --no-check-certificate --no-cookies --header \"Cookie: oraclelicense=accept-securebackup-cookie\" {{jre_download_url}}"
-      - "cd /usr/lib/jvm && tar -zxf {{java_dir.stdout}}.tgz"
-      - "rm -f /usr/lib/jvm/{{java_dir.stdout}}.tgz"
-    when: ansible_os_family == "Debian" and java_present|failed
+      - "javac"
+      - "java"
     become: yes
     tags:
       - jre
 
-  - name: Java JRE | Post install updates
-    shell: "{{item}}"
+  - name: JRE | Post-installation | Run 'update-alternatives --set'
+    shell: "update-alternatives --set {{ item }} /usr/lib/jvm/{{ jre_version.stdout }}/bin/{{ item }}"
     with_items:
-      - "update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/{{java_dir.stdout}}/bin/javac 1"
-      - "update-alternatives --install /usr/bin/java java /usr/lib/jvm/{{java_dir.stdout}}/bin/java 1"
-      - "update-alternatives --set javac /usr/lib/jvm/{{java_dir.stdout}}/bin/javac"
-      - "update-alternatives --set java /usr/lib/jvm/{{java_dir.stdout}}/bin/java"
-    when: ansible_os_family == "Debian"
+      - "javac"
+      - "java"
     become: yes
     tags:
       - jre
