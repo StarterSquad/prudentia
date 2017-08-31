@@ -1,6 +1,20 @@
 Release History
 ---------------
 
+2.4 (2017-08-31)
+++++++++++++++++
+
+**Improvements**
+
+- Adds bundled task: MySQL 5.7.
+- Adds bundled task: raw Python2.
+- Use JRE 8u131, use ansible modules where it makes sense, more readable code style.
+
+**Bugfixes**
+
+- Fix issue with passing only tags to Ansible.
+
+
 2.3 (2016-12-20)
 ++++++++++++++++
 
