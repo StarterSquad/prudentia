@@ -11,4 +11,4 @@
         setup:
 
     tags:
-      - always
+      - python2
