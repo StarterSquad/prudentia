@@ -1,0 +1,14 @@
+---
+  - block:
+      - name: Raw Python 2 | Bootstrap | Try to gather facts
+        setup:
+
+    rescue:
+      - name: Raw Python 2 | Bootstrap | Install 'python-minimal'
+        raw: "test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)"
+
+      - name: Raw Python 2 | Bootstrap | Gather facts
+        setup:
+
+    tags:
+      - always
