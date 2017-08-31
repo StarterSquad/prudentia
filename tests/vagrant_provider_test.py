@@ -6,7 +6,7 @@ from prudentia.vagrant import VagrantProvider, VagrantExt
 from prudentia.simple import SimpleProvider
 
 
-class TestLocalProvider(unittest.TestCase):
+class TestVagrantProvider(unittest.TestCase):
     def setUp(self):
         self.tests_path = os.path.dirname(os.path.realpath(__file__))
         self.provider = VagrantProvider()

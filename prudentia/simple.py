@@ -309,10 +309,6 @@ class SimpleProvider(object):
             return hostname + '-' + str(random.randint(0, 100))
 
     def provision(self, box, tags):
-        only_tags = None
-        if len(tags) > 0:
-            only_tags = tags
-
         self.provisioned = provisioning.run_playbook(
             playbook_file=box.playbook,
             inventory_file=provisioning.generate_inventory(box),
@@ -321,7 +317,7 @@ class SimpleProvider(object):
             remote_pass=box.get_remote_pwd(),
             transport=box.get_transport(),
             extra_vars=self.extra_vars,
-            only_tags=only_tags
+            only_tags=tags
         )
 
     @staticmethod

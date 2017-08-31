@@ -94,6 +94,9 @@ def run_play(play_ds, inventory_file, loader, remote_user, remote_pass, transpor
 
 
 def default_options(remote_user, transport, only_tags=None):
+    if only_tags is None:
+        only_tags = []
+
     options = Bunch()
     options.remote_user = remote_user
     options.connection = transport
