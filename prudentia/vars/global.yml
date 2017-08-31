@@ -4,17 +4,17 @@
   prudentia_version: 2.3
 
   sbt_base_url: https://dl.bintray.com/sbt/debian
-  sbt_version: 0.13.9
+  sbt_version: 0.13.16
   sbt_artifact: sbt-{{sbt_version}}.deb
 
-  nvm_version: v0.29.0
-  node_version: v0.12.7
+  nvm_version: v0.33.2
+  node_version: v6.11.2
   node_path: "{{ansible_env.HOME}}/.nvm/versions/node/{{node_version}}"
 
   postgresql_apt_key_id: ACCC4CF8
   postgresql_apt_key_url: "https://www.postgresql.org/media/keys/{{postgresql_apt_key_id}}.asc"
   postgresql_apt_repository: "deb http://apt.postgresql.org/pub/repos/apt/ {{ansible_distribution_release}}-pgdg main"
-  postgresql_version: 9.4
+  postgresql_version: 9.6
 
   osquery_apt_key_id: C9D8B80B
   osquery_apt_repository: "deb [arch=amd64] https://osquery-packages.s3.amazonaws.com/{{ansible_distribution_release}} {{ansible_distribution_release}} main"
