@@ -31,9 +31,9 @@
   java_apt_repository: "ppa:webupd8team/java"
   java_jdk_version: 8
 
-  java_jre_version: "8u131"
-  java_jre_build:   "b11"
-  java_jre_hash:    "d54c1d3a095b4ff2b6607d096fa80163"
+  java_jre_version: "8u151"
+  java_jre_build:   "b12"
+  java_jre_hash:    "e758a0de34e24606bca991d704f6dcbf"
 
   collectd_version: 5.3.0
 
