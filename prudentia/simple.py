@@ -7,7 +7,6 @@ from cmd import Cmd
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.playbook import Playbook
-from ansible.vars import VariableManager
 from prudentia.domain import Environment
 from prudentia.utils import io
 from prudentia.utils import provisioning
@@ -234,7 +233,12 @@ class SimpleProvider(object):
 
     def set_vault_password(self):
         vault_pwd = io.input_value('Ansible vault password', hidden=True)
-        self.loader.set_vault_password(vault_pwd)
+        try:
+            # Ansible 2.4
+            self.loader.set_vault_secrets(vault_pwd)
+        except:
+            # Ansible 2.3
+            self.loader.set_vault_password(vault_pwd)
 
     def load_vars(self, vars_file):
         if not vars_file:
@@ -253,7 +257,7 @@ class SimpleProvider(object):
                 print 'WARNING: Box \'{0}\' points to a NON existing playbook. ' \
                       'Please `reconfigure` or `unregister` the box.\n'.format(b.name)
             else:
-                plays = Playbook.load(b.playbook, variable_manager=VariableManager(), loader=self.loader).get_plays()
+                plays = Playbook.load(b.playbook, variable_manager=provisioning.get_variable_manager(self.loader), loader=self.loader).get_plays()
                 all_tags = set()
                 for p in plays:
                     for block in p.compile():

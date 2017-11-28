@@ -1,6 +1,15 @@
 Release History
 ---------------
 
+2.5 (2017-11-28)
+++++++++++++++++
+
+**Improvements**
+
+- Enable support for Ansible 2.4.x.
+- Update Java JRE version to 8u151.
+
+
 2.4 (2017-08-31)
 ++++++++++++++++
 

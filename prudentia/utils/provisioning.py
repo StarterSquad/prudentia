@@ -3,11 +3,9 @@ import tempfile
 from datetime import datetime
 
 import ansible.constants as C
-from ansible import inventory
 from ansible.executor.playbook_executor import PlaybookExecutor
 from ansible.executor.task_queue_manager import TaskQueueManager
 from ansible.playbook import Play
-from ansible.vars import VariableManager
 from bunch import Bunch
 from prudentia.utils import io
 
@@ -23,16 +21,11 @@ VERBOSITY = 0
 def run_playbook(playbook_file, inventory_file, loader, remote_user=C.DEFAULT_REMOTE_USER,
                  remote_pass=C.DEFAULT_REMOTE_PASS, transport=C.DEFAULT_TRANSPORT,
                  extra_vars=None, only_tags=None):
-    variable_manager = VariableManager()
+    variable_manager = get_variable_manager(loader)
     variable_manager.extra_vars = {} if extra_vars is None else extra_vars
 
-    inventory.HOSTS_PATTERNS_CACHE = {}  # clean up previous cached hosts
     loader._FILE_CACHE = dict()  # clean up previously read and cached files
-    inv = inventory.Inventory(
-        loader=loader,
-        variable_manager=variable_manager,
-        host_list=inventory_file
-    )
+    inv = get_inventory(loader=loader, variable_manager=variable_manager, inventory_file=inventory_file)
     variable_manager.set_inventory(inv)
 
     options = default_options(remote_user, transport, only_tags)
@@ -54,16 +47,11 @@ def run_playbook(playbook_file, inventory_file, loader, remote_user=C.DEFAULT_RE
 
 
 def run_play(play_ds, inventory_file, loader, remote_user, remote_pass, transport, extra_vars=None):
-    variable_manager = VariableManager()
+    variable_manager = get_variable_manager(loader)
     variable_manager.extra_vars = {} if extra_vars is None else extra_vars
 
-    inventory.HOSTS_PATTERNS_CACHE = {}  # clean up previous cached hosts
     loader._FILE_CACHE = dict()  # clean up previously read and cached files
-    inv = inventory.Inventory(
-        loader=loader,
-        variable_manager=variable_manager,
-        host_list=inventory_file
-    )
+    inv = get_inventory(loader=loader, variable_manager=variable_manager, inventory_file=inventory_file)
     variable_manager.set_inventory(inv)
 
     play = Play.load(play_ds, variable_manager=variable_manager, loader=loader)
@@ -93,6 +81,36 @@ def run_play(play_ds, inventory_file, loader, remote_user, remote_pass, transpor
     return result == 0
 
 
+def get_variable_manager(loader):
+    try:
+        # Ansible 2.4
+        from ansible.vars.manager import VariableManager
+        return VariableManager(loader)
+    except:
+        # Ansible 2.3
+        from ansible.vars import VariableManager
+        return VariableManager()
+
+
+def get_inventory(loader, variable_manager, inventory_file):
+    try:
+        # Ansible 2.4
+        from ansible.inventory.manager import InventoryManager
+        return InventoryManager(
+            loader=loader,
+            sources=inventory_file
+        )
+    except:
+        # Ansible 2.3
+        from ansible import inventory
+        inventory.HOSTS_PATTERNS_CACHE = {}  # clean up previous cached hosts
+        return inventory.Inventory(
+            loader=loader,
+            variable_manager=variable_manager,
+            host_list=inventory_file
+        )
+
+
 def default_options(remote_user, transport, only_tags=None):
     if only_tags is None:
         only_tags = []
@@ -119,6 +137,7 @@ def default_options(remote_user, transport, only_tags=None):
 
     options.verbosity = VERBOSITY
     options.check = None
+    options.diff = None
 
     options.module_path = None
     options.forks = 5
