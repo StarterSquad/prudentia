@@ -30,14 +30,14 @@ Prudentia currently offers:
   * local
   * ssh
 
-Currently, all features work with Python 2.6+ and 3.2+.
+Currently, all features work with Python 2.7+ and 3.4+.
 
 *************
 Prerequisites
 *************
 You need at minimum:
 
-* Python 2.6 and pip
+* Python 2.7 and pip
 
 To install on a Linux distribution you need:
 
