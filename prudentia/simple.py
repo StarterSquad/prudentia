@@ -44,14 +44,14 @@ class SimpleCli(Cmd):
 
     @staticmethod
     def help_register():
-        print "Registers a new box.\n"
+        print ("Registers a new box.\n")
 
     def do_register(self, line):
         self.provider.register()
 
     @staticmethod
     def help_reconfigure():
-        print "Reconfigures an existing box.\n"
+        print ("Reconfigures an existing box.\n")
 
     def complete_reconfigure(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
@@ -63,7 +63,7 @@ class SimpleCli(Cmd):
 
     @staticmethod
     def help_provision():
-        print "Starts and provisions the box, it accepts as optional argument a playbook tag.\n"
+        print ("Starts and provisions the box, it accepts as optional argument a playbook tag.\n")
 
     def complete_provision(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
@@ -76,7 +76,7 @@ class SimpleCli(Cmd):
 
     @staticmethod
     def help_unregister():
-        print "Unregisters an existing box.\n"
+        print ("Unregisters an existing box.\n")
 
     def complete_unregister(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
@@ -88,8 +88,8 @@ class SimpleCli(Cmd):
 
     @staticmethod
     def help_set():
-        print "Sets the value of an Ansible extra variable. " \
-              "During provisioning it will forcibly override the one defined in any playbook.\n"
+        print ("Sets the value of an Ansible extra variable. " \
+              "During provisioning it will forcibly override the one defined in any playbook.\n")
 
     def do_set(self, line):
         try:
@@ -103,7 +103,7 @@ class SimpleCli(Cmd):
 
     @staticmethod
     def help_envset():
-        print "Sets the value of an environment variable.\n"
+        print ("Sets the value of an environment variable.\n")
 
     def do_envset(self, line):
         try:
@@ -117,16 +117,16 @@ class SimpleCli(Cmd):
 
     @staticmethod
     def help_unset():
-        print "Unsets an existing Ansible extra variable. " \
+        print ("Unsets an existing Ansible extra variable. " \
               "If this action is invoked without parameter it will show " \
-              "the current set of variables.\n"
+              "the current set of variables.\n")
 
     def do_unset(self, line):
         self.provider.unset_var(line)
 
     @staticmethod
     def help_list():
-        print "Shows a list of current boxes.\n"
+        print ("Shows a list of current boxes.\n")
 
     def do_list(self, line):
         boxes = self.provider.boxes()
@@ -138,24 +138,24 @@ class SimpleCli(Cmd):
 
     @staticmethod
     def help_decrypt():
-        print "Provides the password that will be used to decrypt Ansible vault files. " \
-              "For more information visit http://docs.ansible.com/playbooks_vault.html.\n"
+        print ("Provides the password that will be used to decrypt Ansible vault files. " \
+              "For more information visit http://docs.ansible.com/playbooks_vault.html.\n")
 
     def do_decrypt(self, line):
         self.provider.set_vault_password()
 
     @staticmethod
     def help_vars():
-        print "Loads Ansible extra vars from a .yml or .json file " \
-              "(they will override existing ones).\n"
+        print ("Loads Ansible extra vars from a .yml or .json file " \
+              "(they will override existing ones).\n")
 
     def do_vars(self, line):
         self.provider.load_vars(line.strip())
 
     @staticmethod
     def help_verbose():
-        print "Sets Ansible verbosity. Allowed values are " \
-              "between 0 (only task status) and 4 (full connection info).\n"
+        print ("Sets Ansible verbosity. Allowed values are " \
+              "between 0 (only task status) and 4 (full connection info).\n")
 
     def do_verbose(self, line):
         self.provider.verbose(line.strip())
@@ -176,7 +176,7 @@ class SimpleCli(Cmd):
 
     @staticmethod
     def do_EOF(line):
-        print "\n"
+        print ("\n")
         return True
 
     def emptyline(self, *args, **kwargs):
@@ -218,7 +218,7 @@ class SimpleProvider(object):
                   'and it will be overwritten.'.format(var, self.extra_vars[var])
         self.extra_vars[var] = value
         if provisioning.VERBOSITY > 0:
-            print "Set \'{0}\' -> {1}\n".format(var, value)
+            print ("Set \'{0}\' -> {1}\n".format(var, value))
 
     def unset_var(self, var):
         if not var:
@@ -229,7 +229,7 @@ class SimpleProvider(object):
             self._show_current_vars()
         else:
             self.extra_vars.pop(var, None)
-            print "Unset \'{0}\'\n".format(var)
+            print ("Unset \'{0}\'\n".format(var))
 
     def set_vault_password(self):
         vault_pwd = io.input_value('Ansible vault password', hidden=True)
@@ -275,7 +275,7 @@ class SimpleProvider(object):
             box = self.define_box()
             if box:
                 self.add_box(box)
-                print "\nBox %s added." % box
+                print ("\nBox %s added." % box)
         except Exception as ex:
             io.track_error('cannot add box', ex)
 
@@ -289,7 +289,7 @@ class SimpleProvider(object):
             if box:
                 self.remove_box(previous_box)
                 self.add_box(box)
-                print "\nBox %s reconfigured." % box
+                print ("\nBox %s reconfigured." % box)
         except Exception as ex:
             io.track_error('cannot reconfigure box', ex)
 
@@ -299,7 +299,7 @@ class SimpleProvider(object):
 
     def unregister(self, box):
         self.remove_box(box)
-        print "\nBox %s removed.\n" % box.name
+        print ("\nBox %s removed.\n" % box.name)
 
     def fetch_box_hosts(self, playbook):
         ds = self.loader.load_from_file(playbook)

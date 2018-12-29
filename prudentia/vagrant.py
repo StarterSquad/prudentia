@@ -172,7 +172,7 @@ class VagrantProvider(FactoryProvider):
 
         cmd.execute()
         if not cmd.is_ok():
-            print "ERROR while running: {0}".format(cmd.cmd_args)
+            print ("ERROR while running: {0}".format(cmd.cmd_args))
         else:
             return cmd.output()
 

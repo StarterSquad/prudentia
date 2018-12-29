@@ -109,7 +109,7 @@ def run_playbook(playbook_file, inventory_file, loader, remote_user=C.DEFAULT_RE
 
     start = datetime.now()
     results = pbex.run()
-    print "Play run took {0} minutes\n".format((datetime.now() - start).seconds / 60)
+    print ("Play run took {0} minutes\n".format((datetime.now() - start).seconds / 60))
 
     return results == 0
 

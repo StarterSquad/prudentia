@@ -36,7 +36,7 @@ class BashCmd(object):
                     print (line.strip())
                 self.output_stdout.append(line)
             for line in iter(err.readline, b''):
-                print "ERR - ", line.strip()
+                print ("ERR - ", line.strip())
                 self.output_stderr.append(line)
         finally:
             out.close()
