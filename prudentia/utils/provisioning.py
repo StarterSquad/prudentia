@@ -225,7 +225,7 @@ def generate_inventory(box):
         fd, tmp_inventory = tempfile.mkstemp(prefix='prudentia-inventory-')
         try:
             os.write(fd, box.inventory())
-        except IOError, ex:
+        except IOError as ex:
             io.track_error('cannot write inventory file', ex)
         finally:
             os.close(fd)
