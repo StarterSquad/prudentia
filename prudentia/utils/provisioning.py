@@ -3,8 +3,10 @@ import tempfile
 from datetime import datetime
 
 import ansible.constants as C
+from ansible.errors import AnsibleError
 from ansible.executor.playbook_executor import PlaybookExecutor
 from ansible.executor.task_queue_manager import TaskQueueManager
+from ansible.parsing.vault import get_file_vault_secret
 from ansible.playbook import Play
 from bunch import Bunch
 from prudentia.utils import io
@@ -16,6 +18,62 @@ except ImportError:
     display = Display()
 
 VERBOSITY = 0
+
+def split_vault_id(vault_id):
+    # return (before_@, after_@)
+    # if no @, return whole string as after_
+    if '@' not in vault_id:
+      return (None, vault_id)
+
+    parts = vault_id.split('@', 1)
+    ret = tuple(parts)
+    return ret
+
+
+def build_vault_ids(vault_ids, vault_password_files=None):
+    vault_password_files = vault_password_files or []
+    vault_ids = vault_ids or []
+
+    # convert vault_password_files into vault_ids slugs
+    for password_file in vault_password_files:
+        id_slug = u'%s@%s' % (C.DEFAULT_VAULT_IDENTITY, password_file)
+        vault_ids.append(id_slug)
+    return vault_ids
+
+
+def setup_vault_secrets(loader, vault_ids, vault_password_files=None):
+
+    vault_secrets = []
+
+    vault_password_files = vault_password_files or []
+    if C.DEFAULT_VAULT_PASSWORD_FILE:
+        vault_password_files.append(C.DEFAULT_VAULT_PASSWORD_FILE)
+
+    vault_ids = build_vault_ids(vault_ids,
+                                vault_password_files)
+
+    for vault_id_slug in vault_ids:
+        vault_id_name, vault_id_value = split_vault_id(vault_id_slug)
+        # assuming anything else is a password file
+        display.vvvvv('Reading vault password file: %s' % vault_id_value)
+        # read vault_pass from a file
+        file_vault_secret = get_file_vault_secret(filename=vault_id_value,
+                                                  vault_id=vault_id_name,
+                                                  loader=loader)
+        # an invalid password file will error globally
+        try:
+            file_vault_secret.load()
+        except AnsibleError as exc:
+            display.warning('Error in vault password file loading (%s): %s' % (vault_id_name, exc))
+            raise
+
+        if vault_id_name:
+            vault_secrets.append((vault_id_name, file_vault_secret))
+        else:
+            vault_secrets.append((C.DEFAULT_VAULT_IDENTITY, file_vault_secret))
+        # update loader with as-yet-known vault secrets
+        loader.set_vault_secrets(vault_secrets)
+    return vault_secrets
 
 
 def run_playbook(playbook_file, inventory_file, loader, remote_user=C.DEFAULT_REMOTE_USER,
@@ -29,6 +87,16 @@ def run_playbook(playbook_file, inventory_file, loader, remote_user=C.DEFAULT_RE
     variable_manager.set_inventory(inv)
 
     options = default_options(remote_user, transport, only_tags)
+
+    vault_ids = options.vault_identity_list
+    default_vault_ids = C.DEFAULT_VAULT_IDENTITY_LIST
+    vault_ids = default_vault_ids + vault_ids
+
+    vault_secrets = setup_vault_secrets(loader,
+                                        vault_ids=vault_ids,
+                                        vault_password_files=options.vault_password_files)
+    loader.set_vault_secrets(vault_secrets)
+
     display.verbosity = options.verbosity
     pbex = PlaybookExecutor(
         playbooks=[playbook_file],
@@ -141,6 +209,11 @@ def default_options(remote_user, transport, only_tags=None):
 
     options.module_path = None
     options.forks = 5
+
+    options.vault_identity_list = []
+    options.vault_id_match = C.DEFAULT_VAULT_ID_MATCH
+    options.vault_identity = C.DEFAULT_VAULT_IDENTITY
+    options.vault_password_files = C.DEFAULT_VAULT_PASSWORD_FILE
 
     return options
 
