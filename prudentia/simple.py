@@ -225,7 +225,7 @@ class SimpleProvider(object):
             print ('Please provide a valid variable name to unset.\n')
             self._show_current_vars()
         elif var not in self.extra_vars:
-            print 'WARNING: Variable \'{0}\' is NOT present so cannot be unset.\n'.format(var)
+            print ('WARNING: Variable \'{0}\' is NOT present so cannot be unset.\n'.format(var))
             self._show_current_vars()
         else:
             self.extra_vars.pop(var, None)
