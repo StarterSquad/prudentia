@@ -99,7 +99,7 @@ class SimpleCli(Cmd):
             self.provider.set_var(name, value)
         except ValueError:
             logging.exception('Error in setting variable for the current provider.')
-            print 'Please provide the name of the variable followed by its value.\n'
+            print ('Please provide the name of the variable followed by its value.\n')
 
     @staticmethod
     def help_envset():
@@ -113,7 +113,7 @@ class SimpleCli(Cmd):
             os.environ[name] = value
         except ValueError:
             logging.exception('Error in setting variable for the current provider.')
-            print 'Please provide the name of the variable followed by its value.\n'
+            print ('Please provide the name of the variable followed by its value.\n')
 
     @staticmethod
     def help_unset():
@@ -131,10 +131,10 @@ class SimpleCli(Cmd):
     def do_list(self, line):
         boxes = self.provider.boxes()
         if not len(boxes):
-            print 'No box has been registered yet.\n'
+            print ('No box has been registered yet.\n')
         else:
             for b in boxes:
-                print b
+                print (b)
 
     @staticmethod
     def help_decrypt():
@@ -162,8 +162,8 @@ class SimpleCli(Cmd):
 
     @staticmethod
     def help_facts():
-        print 'Gathers and shows useful information about the box. ' \
-              'Accepts optional parameter to filter shown properties.'
+        print ('Gathers and shows useful information about the box. ' \
+              'Accepts optional parameter to filter shown properties.')
 
     def complete_facts(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
@@ -201,28 +201,28 @@ class SimpleProvider(object):
     def get_box(self, box_name):
         b = self.env.get(box_name)
         if not b:
-            print 'The box \'%s\' you entered does not exists.\n\n' \
-                  'After typing the command press Tab for box suggestions.\n' % box_name
+            print ('The box \'%s\' you entered does not exists.\n\n' \
+                  'After typing the command press Tab for box suggestions.\n' % box_name)
             return None
         else:
             return b
 
     def _show_current_vars(self):
-        print 'Current set variables:\n%s\n' % '\n'.join(
+        print ('Current set variables:\n%s\n' % '\n'.join(
             [n + ' -> ' + str(v) for n, v in self.extra_vars.iteritems()]
-        )
+        ))
 
     def set_var(self, var, value):
         if var in self.extra_vars:
-            print 'NOTICE: Variable \'{0}\' is already set to this value: \'{1}\' ' \
-                  'and it will be overwritten.'.format(var, self.extra_vars[var])
+            print ('NOTICE: Variable \'{0}\' is already set to this value: \'{1}\' ' \
+                  'and it will be overwritten.'.format(var, self.extra_vars[var]))
         self.extra_vars[var] = value
         if provisioning.VERBOSITY > 0:
             print ("Set \'{0}\' -> {1}\n".format(var, value))
 
     def unset_var(self, var):
         if not var:
-            print 'Please provide a valid variable name to unset.\n'
+            print ('Please provide a valid variable name to unset.\n')
             self._show_current_vars()
         elif var not in self.extra_vars:
             print 'WARNING: Variable \'{0}\' is NOT present so cannot be unset.\n'.format(var)
@@ -254,8 +254,8 @@ class SimpleProvider(object):
     def load_tags(self, box=None):
         for b in [box] if box else self.boxes():
             if not os.path.exists(b.playbook):
-                print 'WARNING: Box \'{0}\' points to a NON existing playbook. ' \
-                      'Please `reconfigure` or `unregister` the box.\n'.format(b.name)
+                print ('WARNING: Box \'{0}\' points to a NON existing playbook. ' \
+                      'Please `reconfigure` or `unregister` the box.\n'.format(b.name))
             else:
                 plays = Playbook.load(b.playbook, variable_manager=provisioning.get_variable_manager(self.loader), loader=self.loader).get_plays()
                 all_tags = set()
@@ -334,9 +334,9 @@ class SimpleProvider(object):
             if 0 <= iv <= 4:
                 provisioning.VERBOSITY = iv
             else:
-                print 'Verbosity value \'{0}\' not allowed, should be a number between 0 and 4.'.format(value)
+                print ('Verbosity value \'{0}\' not allowed, should be a number between 0 and 4.'.format(value))
         else:
-            print 'Current verbosity: {0}'.format(provisioning.VERBOSITY)
+            print ('Current verbosity: {0}'.format(provisioning.VERBOSITY))
 
     def facts(self, box, regex='*'):
         return provisioning.gather_facts(box, regex, self.loader)
