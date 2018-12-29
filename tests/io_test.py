@@ -9,8 +9,8 @@ class TestIO(unittest.TestCase):
         self.assertEqual(io.xstr(None), '')
 
     def test_yes(self):
-        self.assertTrue(io.input_yes_no('test topic', prompt_fn=lambda (m): 'y'))
-        self.assertTrue(io.input_yes_no('test topic', prompt_fn=lambda (m): 'yes'))
+        self.assertTrue(io.input_yes_no('test topic', prompt_fn=lambda m: 'y'))
+        self.assertTrue(io.input_yes_no('test topic', prompt_fn=lambda m: 'yes'))
 
     def test_no(self):
         self.assertFalse(io.input_yes_no('test topic', prompt_fn=lambda (m): 'whatever'))

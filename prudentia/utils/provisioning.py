@@ -140,7 +140,7 @@ def run_play(play_ds, inventory_file, loader, remote_user, remote_pass, transpor
             run_tree=False,
         )
         result = tqm.run(play)
-    except Exception, ex:
+    except Exception as ex:
         io.track_error('cannot run play', ex)
     finally:
         if tqm:
