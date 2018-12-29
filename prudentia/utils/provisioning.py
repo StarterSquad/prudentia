@@ -257,7 +257,7 @@ def create_user(box, loader):
             extra_vars={'ssh_seed_user': 'root', 'user': user, 'group': user, 'home': user_home}
         )
     else:
-        print 'Root user cannot be created!'
+        print ('Root user cannot be created!')
 
     return res
 
