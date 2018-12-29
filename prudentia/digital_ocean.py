@@ -31,9 +31,9 @@ class DigitalOceanProvider(FactoryProvider):
         self.manager = DoManager(None, g.api_token, api_version=2)
 
     def _input_general_env_conf(self):
-        print '\nThe DigitalOcean API (v2) token is not configured.'
-        print 'If you don\'t have it please visit ' \
-              'https://cloud.digitalocean.com/settings/applications and generate one.'
+        print ('\nThe DigitalOcean API (v2) token is not configured.')
+        print ('If you don\'t have it please visit ' \
+              'https://cloud.digitalocean.com/settings/applications and generate one.')
         api_token = io.input_value('api token')
         do_general = DOGeneral(api_token)
         self.env.set_general(do_general)
