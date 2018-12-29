@@ -11,6 +11,18 @@ class TestLocalProvider(unittest.TestCase):
         self.tests_path = os.path.dirname(os.path.realpath(__file__))
         self.provider = LocalProvider()
 
+    def test_provision_vaultid_task(self):
+        r_box = Box('local-testbox', './prudentia_vars.yml', 'tasks-host', '127.0.0.1')
+        self.provider.add_box(r_box)
+
+        self.provider.provision(r_box, [])
+        self.assertEqual(self.provider.provisioned, True)
+
+        self.provider.provision(r_box, ['vaultid'])
+        self.assertEqual(self.provider.provisioned, True)
+
+        self.provider.remove_box(r_box)
+
     def test_provision_sample_task(self):
         r_box = Box('local-testbox', './prudentia_vars.yml', 'tasks-host', '127.0.0.1')
         self.provider.add_box(r_box)
