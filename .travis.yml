@@ -9,6 +9,7 @@ before_install:
   - pip install codecov
 install:
   - "pip install -r requirements-dev.txt"
+  - "pip install -U ansible==2.4.1.0"
 script:
   - "./test.sh"
 after_success:
