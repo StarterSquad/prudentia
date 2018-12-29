@@ -17,8 +17,8 @@ def xstr(s):
 
 def first_time_input():
     if first_time_input.show:
-        print '\nPlease enter values for the following settings ' \
-              '(a default value could be suggested in brackets \'[ ]\', press \'Enter\' to use it).'
+        print ('\nPlease enter values for the following settings ' \
+              '(a default value could be suggested in brackets \'[ ]\', press \'Enter\' to use it).')
         first_time_input.show = False
 first_time_input.show = True
 
@@ -73,11 +73,11 @@ def input_path(topic, default_value=None, default_description=None, mandatory=Tr
             input_value(topic, default_value, default_description, mandatory, False, prompt_fn)
         ))
         if not os.path.exists(path):
-            print 'The {0} you entered \'{1}\' does NOT exist.'.format(topic, path)
+            print ('The {0} you entered \'{1}\' does NOT exist.'.format(topic, path))
         elif is_file and not os.path.isfile(path):
-            print 'The {0} you entered \'{1}\' is NOT a file.'.format(topic, path)
+            print ('The {0} you entered \'{1}\' is NOT a file.'.format(topic, path))
         elif not is_file and not os.path.isdir(path):
-            print 'The {0} you entered \'{1}\' is NOT a directory.'.format(topic, path)
+            print ('The {0} you entered \'{1}\' is NOT a directory.'.format(topic, path))
         else:
             return path
         times += 1
@@ -112,7 +112,7 @@ def input_choice(topic, default=None, choices=None, prompt_fn=_input, retries=3)
                 if default:
                     answer = default
             if answer not in choices:
-                print '\nPlease enter one of the following choices: {0}'.format(', '.join(choices))
+                print ('\nPlease enter one of the following choices: {0}'.format(', '.join(choices)))
                 times += 1
             else:
                 return answer
@@ -121,5 +121,5 @@ def input_choice(topic, default=None, choices=None, prompt_fn=_input, retries=3)
 
 def track_error(msg, e):
     logging.exception(msg)
-    print '\nERROR: {0}\nReason: {1}\n(see {2} for more details)\n'.format(
-        msg, e, os.environ['PRUDENTIA_LOG'])
+    print ('\nERROR: {0}\nReason: {1}\n(see {2} for more details)\n'.format(
+        msg, e, os.environ['PRUDENTIA_LOG']))
