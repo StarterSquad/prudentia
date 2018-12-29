@@ -2,14 +2,13 @@ sudo: false
 language: python
 python:
   - "2.7"
-  - "3.5"
+#  - "3.5"
   - "3.6"
 #  - "3.7"
 before_install:
   - pip install codecov
 install:
   - "pip install -r requirements-dev.txt"
-  - "pip install -U ansible==2.6.5"
 script:
   - "./test.sh"
 after_success:
