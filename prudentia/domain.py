@@ -17,7 +17,7 @@ class Environment(object):
         env_path = path.join(envs_path, id_env)
         if not os.path.exists(env_path):
             os.makedirs(env_path)
-            print 'Environment {0} ({1}) created'.format(id_env, env_path)
+            print ('Environment {0} ({1}) created'.format(id_env, env_path))
         self.file = path.join(env_path, file_name)
         self.general_type = general_type
         self.box_extra_type = box_extra_type

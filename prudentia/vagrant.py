@@ -46,11 +46,11 @@ class VagrantProvider(FactoryProvider):
             output=False
         ).splitlines()
         if not vagrant_boxes:
-            print '\nThere are no available Vagrant (base) boxes.'
-            print 'Please search for a suitable one at ' \
-                  'https://atlas.hashicorp.com/boxes/search.'
-            print 'Once you\'ve chosen the <box> add it using the following cmd:' \
-                  ' \'$ vagrant box add <box>\'.\n'
+            print ('\nThere are no available Vagrant (base) boxes.')
+            print ('Please search for a suitable one at ' \
+                  'https://atlas.hashicorp.com/boxes/search.')
+            print ('Once you\'ve chosen the <box> add it using the following cmd:' \
+                  ' \'$ vagrant box add <box>\'.\n')
         else:
             playbook = io.input_path('playbook path')
             hostname = self.fetch_box_hosts(playbook)
@@ -120,9 +120,9 @@ class VagrantProvider(FactoryProvider):
             if self.DEFAULT_UBUNTU_DIST_NAME in img_name:
                 default_trusty_img = img_name
 
-        print '\nAvailable images:'
+        print ('\nAvailable images:')
         for i, p in available_imgs.iteritems():
-            print '{0} ({1})'.format(i, p)
+            print ('{0} ({1})'.format(i, p))
         img = io.input_choice('(base) box', default_trusty_img, choices=available_imgs.keys())
 
         return img, available_imgs[img]
@@ -153,7 +153,7 @@ class VagrantProvider(FactoryProvider):
         output = self._action(action="status", action_args=(box.name,), output=False)
         pattern = r'.*{0}\s*(.*?) \(virtualbox\).*'.format(box.name)
         match = re.match(pattern, output, re.DOTALL)
-        print match.group(1)
+        print (match.group(1))
 
     def _action(self, **kwargs):
         if 'action_args' not in kwargs.keys():
@@ -172,7 +172,7 @@ class VagrantProvider(FactoryProvider):
 
         cmd.execute()
         if not cmd.is_ok():
-            print "ERROR while running: {0}".format(cmd.cmd_args)
+            print ("ERROR while running: {0}".format(cmd.cmd_args))
         else:
             return cmd.output()
 

@@ -33,11 +33,11 @@ class BashCmd(object):
         try:
             for line in iter(out.readline, b''):
                 if self.show_output:
-                    print line.strip()
-                self.output_stdout.append(line)
+                    print (line.strip())
+                self.output_stdout.append(line.decode("utf-8"))
             for line in iter(err.readline, b''):
-                print "ERR - ", line.strip()
-                self.output_stderr.append(line)
+                print ("ERR - ", line.strip())
+                self.output_stderr.append(line.decode("utf-8"))
         finally:
             out.close()
             err.close()

@@ -6,7 +6,7 @@ from prudentia.simple import SimpleCli, SimpleProvider
 class FactoryCli(SimpleCli):
     @staticmethod
     def help_create():
-        print "Creates the box.\n"
+        print ("Creates the box.\n")
 
     def complete_create(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
@@ -18,7 +18,7 @@ class FactoryCli(SimpleCli):
 
     @staticmethod
     def help_start():
-        print "Starts the box.\n"
+        print ("Starts the box.\n")
 
     def complete_start(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
@@ -30,7 +30,7 @@ class FactoryCli(SimpleCli):
 
     @staticmethod
     def help_restart():
-        print "Restarts the box.\n"
+        print ("Restarts the box.\n")
 
     def complete_restart(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
@@ -43,7 +43,7 @@ class FactoryCli(SimpleCli):
 
     @staticmethod
     def help_phoenix():
-        print "Regenerates a box: destroy -> create -> provision.\n"
+        print ("Regenerates a box: destroy -> create -> provision.\n")
 
     def complete_phoenix(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
@@ -57,7 +57,7 @@ class FactoryCli(SimpleCli):
 
     @staticmethod
     def help_stop():
-        print "Stops the box.\n"
+        print ("Stops the box.\n")
 
     def complete_stop(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
@@ -69,7 +69,7 @@ class FactoryCli(SimpleCli):
 
     @staticmethod
     def help_destroy():
-        print "Destroys the box.\n"
+        print ("Destroys the box.\n")
 
     def complete_destroy(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)
@@ -81,7 +81,7 @@ class FactoryCli(SimpleCli):
 
     @staticmethod
     def help_status():
-        print "Check the status of the box.\n"
+        print ("Check the status of the box.\n")
 
     def complete_status(self, text, line, begidx, endidx):
         return self.complete_box_names(text, line, begidx, endidx)

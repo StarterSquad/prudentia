@@ -50,7 +50,7 @@ def run(args):
     chosen_cli = Providers[args.provider]()
     if args.commands:
         for c in args.commands:
-            print "Executing: '{0}'\n".format(c)
+            print ("Executing: '{0}'\n".format(c))
             chosen_cli.onecmd(c)
     else:
         chosen_cli.cmdloop()
