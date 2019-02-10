@@ -222,9 +222,9 @@ def generate_inventory(box):
     if box.ip.startswith("./") or box.ip.startswith("/"):
         tmp_inventory = box.ip
     else:
-        fd, tmp_inventory = tempfile.mkstemp(prefix='prudentia-inventory-', text=True)
+        fd, tmp_inventory = tempfile.mkstemp(prefix='prudentia-inventory-', text=False)
         try:
-            os.write(fd, box.inventory())
+            os.write(fd, str.encode(box.inventory()))
         except IOError as ex:
             io.track_error('cannot write inventory file', ex)
         finally:

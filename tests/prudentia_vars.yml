@@ -26,7 +26,6 @@
       tags:
         - vaultid
 
-
     - name: Uname
       command: uname -a
       tags:
