@@ -19,6 +19,7 @@ except ImportError:
 
 VERBOSITY = 0
 
+
 def split_vault_id(vault_id):
     # return (before_@, after_@)
     # if no @, return whole string as after_
@@ -41,8 +42,7 @@ def build_vault_ids(vault_ids, vault_password_files=None):
     return vault_ids
 
 
-def setup_vault_secrets(loader, vault_ids, vault_password_files=None):
-
+def load_vault_secrets(loader, vault_ids, vault_password_files=None):
     vault_secrets = []
 
     vault_password_files = vault_password_files or []
@@ -71,8 +71,6 @@ def setup_vault_secrets(loader, vault_ids, vault_password_files=None):
             vault_secrets.append((vault_id_name, file_vault_secret))
         else:
             vault_secrets.append((C.DEFAULT_VAULT_IDENTITY, file_vault_secret))
-        # update loader with as-yet-known vault secrets
-        loader.set_vault_secrets(vault_secrets)
     return vault_secrets
 
 
@@ -92,10 +90,13 @@ def run_playbook(playbook_file, inventory_file, loader, remote_user=C.DEFAULT_RE
     default_vault_ids = C.DEFAULT_VAULT_IDENTITY_LIST
     vault_ids = default_vault_ids + vault_ids
 
-    vault_secrets = setup_vault_secrets(loader,
-                                        vault_ids=vault_ids,
-                                        vault_password_files=options.vault_password_files)
-    loader.set_vault_secrets(vault_secrets)
+    loader.set_vault_secrets(
+        load_vault_secrets(
+            loader=loader,
+            vault_ids=vault_ids,
+            vault_password_files=options.vault_password_files
+        )
+    )
 
     display.verbosity = options.verbosity
     pbex = PlaybookExecutor(
