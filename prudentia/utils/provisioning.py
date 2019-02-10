@@ -225,7 +225,7 @@ def generate_inventory(box):
     else:
         fd, tmp_inventory = tempfile.mkstemp(prefix='prudentia-inventory-', text=False)
         try:
-            os.write(fd, str.encode(box.inventory()))
+            os.write(fd, box.inventory().encode("utf-8"))
         except IOError as ex:
             io.track_error('cannot write inventory file', ex)
         finally:
