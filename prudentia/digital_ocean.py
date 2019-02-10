@@ -31,9 +31,9 @@ class DigitalOceanProvider(FactoryProvider):
         self.manager = DoManager(None, g.api_token, api_version=2)
 
     def _input_general_env_conf(self):
-        print '\nThe DigitalOcean API (v2) token is not configured.'
-        print 'If you don\'t have it please visit ' \
-              'https://cloud.digitalocean.com/settings/applications and generate one.'
+        print ('\nThe DigitalOcean API (v2) token is not configured.')
+        print ('If you don\'t have it please visit ' \
+              'https://cloud.digitalocean.com/settings/applications and generate one.')
         api_token = io.input_value('api token')
         do_general = DOGeneral(api_token)
         self.env.set_general(do_general)
@@ -49,15 +49,15 @@ class DigitalOceanProvider(FactoryProvider):
             ext.id = droplet_id
             name = droplet_info['name']
             created = droplet_info['created_at']
-            print '\nFound droplet \'{0}\' (created {1})'.format(name, created)
+            print ('\nFound droplet \'{0}\' (created {1})'.format(name, created))
             ip = io.xstr(droplet_info['ip_address'])
-            print 'IP: %s' % ip
+            print ('IP: %s' % ip)
             ext.image = droplet_info['image']['id']
-            print 'Image: %s' % ext.image
+            print ('Image: %s' % ext.image)
             ext.size = droplet_info['size']['slug']
-            print 'Size: %s' % ext.size
+            print ('Size: %s' % ext.size)
             ext.region = droplet_info['region']['slug']
-            print 'Region: %s\n' % ext.region
+            print ('Region: %s\n' % ext.region)
 
             playbook = io.input_path('playbook path')
             hostname = self.fetch_box_hosts(playbook)
@@ -69,7 +69,7 @@ class DigitalOceanProvider(FactoryProvider):
             user = io.input_value('remote user', self.active_user)
 
             all_images = self.manager.all_images()
-            print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
+            print ('\nAvailable images: \n%s' % self._print_object_id_name(all_images))
             default_image = next((img for img in all_images
                                   if img['slug'] and self.DEFAULT_IMAGE_SLUG in img['slug']), None)
             if default_image:
@@ -84,12 +84,12 @@ class DigitalOceanProvider(FactoryProvider):
 
             all_sizes = self.manager.sizes()
             sizes_slug = [o['slug'] for o in all_sizes]
-            print '\nAvailable sizes: \n%s' % '\n'.join(sizes_slug)
+            print ('\nAvailable sizes: \n%s' % '\n'.join(sizes_slug))
             ext.size = io.input_choice('size', self.DEFAULT_SIZE_SLUG, choices=sizes_slug)
 
             all_regions = self.manager.all_regions()
             regions_slug = [o['slug'] for o in all_regions]
-            print '\nAvailable regions: \n%s' % '\n'.join(regions_slug)
+            print ('\nAvailable regions: \n%s' % '\n'.join(regions_slug))
             ext.region = io.input_choice('region', self.DEFAULT_REGION_SLUG, choices=regions_slug)
 
             ext.keys = self._input_ssh_keys()
@@ -113,7 +113,7 @@ class DigitalOceanProvider(FactoryProvider):
             ext = DOExt()
             ext.id = previous_box.extra.id
             all_images = self.manager.all_images()
-            print '\nAvailable images: \n%s' % self._print_object_id_name(all_images)
+            print ('\nAvailable images: \n%s' % self._print_object_id_name(all_images))
             prev_image = next((img for img in all_images
                                if previous_box.extra.image == img['id']), None)
             if prev_image:
@@ -128,12 +128,12 @@ class DigitalOceanProvider(FactoryProvider):
 
             all_sizes = self.manager.sizes()
             sizes_slug = [o['slug'] for o in all_sizes]
-            print '\nAvailable sizes: \n%s' % '\n'.join(sizes_slug)
+            print ('\nAvailable sizes: \n%s' % '\n'.join(sizes_slug))
             ext.size = io.input_value('size', previous_box.extra.size)
 
             all_regions = self.manager.all_regions()
             regions_slug = [o['slug'] for o in all_regions]
-            print '\nAvailable regions: \n%s' % '\n'.join(regions_slug)
+            print ('\nAvailable regions: \n%s' % '\n'.join(regions_slug))
             ext.region = io.input_value('region', previous_box.extra.region)
 
             ext.keys = self._input_ssh_keys(previous_box.extra.keys)
@@ -151,10 +151,10 @@ class DigitalOceanProvider(FactoryProvider):
         ext = box.extra
         if not ext.id:
             if not ext.keys:
-                print '\nNo valid keys are defined.'
-                print 'Please run `reconfigure {0}` to provide them.'.format(box.name)
+                print ('\nNo valid keys are defined.')
+                print ('Please run `reconfigure {0}` to provide them.'.format(box.name))
                 return False
-            print '\nCreating instance \'{0}\' ...'.format(box.name)
+            print ('\nCreating instance \'{0}\' ...'.format(box.name))
             droplet = self.manager.new_droplet(
                 name=box.name, size_id=ext.size,
                 image_id=ext.image, region_id=ext.region,
@@ -164,18 +164,18 @@ class DigitalOceanProvider(FactoryProvider):
             box.ip = self._wait_to_be_active(box.extra.id)
         else:
             info = self.manager.show_droplet(ext.id)
-            print 'Droplet {0} already exists - status: {1}.'.format(ext.id, info['status'])
+            print ('Droplet {0} already exists - status: {1}.'.format(ext.id, info['status']))
         create_user(box, self.loader)
 
     def start(self, box):
         box_id = box.extra.id
-        print 'Starting droplet %s ...' % box_id
+        print ('Starting droplet %s ...' % box_id)
         self.manager.power_on_droplet(box_id)
         self._wait_to_be_active(box_id)
 
     def stop(self, box):
         box_id = box.extra.id
-        print 'Stopping droplet %s ...' % box_id
+        print ('Stopping droplet %s ...' % box_id)
         self.manager.power_off_droplet(box_id)
 
     def destroy(self, box):
@@ -183,23 +183,23 @@ class DigitalOceanProvider(FactoryProvider):
             box_id = box.extra.id
             box.ip = None
             box.extra.id = None
-            print 'Destroying droplet %s ...' % box_id
+            print ('Destroying droplet %s ...' % box_id)
             self.manager.destroy_droplet(box_id, scrub_data=True)
 
     def rebuild(self, box):
         ext = box.extra
-        print 'Rebuilding droplet %s ...' % ext.id
+        print ('Rebuilding droplet %s ...' % ext.id)
         self.manager.rebuild_droplet(ext.id, ext.image)
         self._wait_to_be_active(ext.id)
         create_user(box, self.loader)
 
     def status(self, box):
-        print self.manager.show_droplet(box.extra.id)['status']
+        print (self.manager.show_droplet(box.extra.id)['status'])
 
     def _wait_to_be_active(self, droplet_id, wait_timeout=300):
         end_time = time.time() + wait_timeout
         while time.time() < end_time:
-            print 'Waiting for droplet %s to be active ...' % droplet_id
+            print ('Waiting for droplet %s to be active ...' % droplet_id)
             time.sleep(min(20, end_time - time.time()))
 
             droplet = self.manager.show_droplet(droplet_id)
@@ -207,14 +207,14 @@ class DigitalOceanProvider(FactoryProvider):
                 droplet_ip_address = droplet['ip_address']
                 if not droplet_ip_address:
                     raise DoError('No ip is found.', droplet_id)
-                print '\nDroplet %s is now active with ip %s\n' % (droplet_id, droplet_ip_address)
+                print ('\nDroplet %s is now active with ip %s\n' % (droplet_id, droplet_ip_address))
                 time.sleep(10)  # Wait for some network latency ...
                 return droplet_ip_address
         raise DoError('Wait for droplet running timeout', droplet_id)
 
     def _input_ssh_keys(self, previous=None):
         all_keys = self.manager.all_ssh_keys()
-        print '\nAvailable keys: \n%s' % self._print_object_id_name(all_keys)
+        print ('\nAvailable keys: \n%s' % self._print_object_id_name(all_keys))
         if not previous:
             default_keys = ','.join([str(k['id']) for k in all_keys])
         else:

@@ -21,12 +21,15 @@ class TestLocalProvider(unittest.TestCase):
         self.provider.provision(r_box, ['uname'])
         self.assertEqual(self.provider.provisioned, True)
 
+        self.provider.provision(r_box, ['vaultid'])
+        self.assertEqual(self.provider.provisioned, True)
+
         self.provider.remove_box(r_box)
 
     def test_should_list_tag(self):
         e_box = Box('simple-box', './uname.yml', 'hostname', '0.0.0.0')
         self.provider.load_tags(e_box)
-        self.assertEqual(self.provider.tags.has_key(e_box.name), True)
+        self.assertEqual(e_box.name in self.provider.tags, True)
         # the tag 'echo' is not returned since Ansible introduced dynamic includes
         # might be fixed in some next 2.x version
         # self.assertEqual(self.provider.tags[e_box.name], ['one', 'echo'])
@@ -35,7 +38,7 @@ class TestLocalProvider(unittest.TestCase):
     def test_should_not_list_tags_if_box_not_exists(self):
         ne_box = Box('simple-box-2', 'xxx.yml', 'ssh-hostname', '0.0.0.0')
         self.provider.load_tags(ne_box)
-        self.assertEqual(self.provider.tags.has_key(ne_box.name), False)
+        self.assertEqual(ne_box.name in self.provider.tags, False)
 
     def test_gather_facts(self):
         box = Box('simple-box', './uname.yml', 'hostname', './facts_hosts')

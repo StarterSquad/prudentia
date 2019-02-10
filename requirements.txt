@@ -4,6 +4,6 @@ bunch>1
 dopy>0.3
 hvac>0.2
 requests[security]>2
-pyOpenSSL==16.2.0
+pyOpenSSL==19.0.0
 setuptools
 six>=1.10

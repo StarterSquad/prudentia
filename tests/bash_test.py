@@ -15,5 +15,5 @@ class TestBash(unittest.TestCase):
     def test_nonexistent_cmd(self):
         cmd = BashCmd("ciwawa")
         cmd.execute()
-        print cmd
+        print (cmd)
         self.assertFalse(cmd.is_ok())
