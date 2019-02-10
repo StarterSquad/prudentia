@@ -1,6 +1,18 @@
 Release History
 ---------------
 
+2.6 (2019-02-10)
+++++++++++++++++
+
+**Improvements**
+
+- Support for picking Ansible vault-ids from default locations.
+
+**Security**
+
+- Upgrade pyOpenSSL.
+
+
 2.5 (2017-11-28)
 ++++++++++++++++
 
