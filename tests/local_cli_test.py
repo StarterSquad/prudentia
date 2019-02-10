@@ -47,15 +47,15 @@ class TestLocalCli(unittest.TestCase):
     def test_verbose(self):
         from prudentia.utils import provisioning
         self.cli.do_verbose('')
-        self.assertEquals(provisioning.VERBOSITY, 0)
+        self.assertEqual(provisioning.VERBOSITY, 0)
         self.cli.do_verbose('aaa')
-        self.assertEquals(provisioning.VERBOSITY, 0)
+        self.assertEqual(provisioning.VERBOSITY, 0)
         self.cli.do_verbose('-1')
-        self.assertEquals(provisioning.VERBOSITY, 0)
+        self.assertEqual(provisioning.VERBOSITY, 0)
         self.cli.do_verbose('5')
-        self.assertEquals(provisioning.VERBOSITY, 0)
+        self.assertEqual(provisioning.VERBOSITY, 0)
         self.cli.do_verbose(' 2 ')
-        self.assertEquals(provisioning.VERBOSITY, 2)
+        self.assertEqual(provisioning.VERBOSITY, 2)
 
     def test_provision_not_existing_box(self):
         self.cli.do_provision('ne-box')
@@ -69,4 +69,4 @@ class TestLocalCli(unittest.TestCase):
         completions = self.cli.complete_box_names('', 'provision box-', 14, 14)
         self.cli.provider.remove_box(b1)
         self.cli.provider.remove_box(b2)
-        self.assertEquals(completions, ['1', '2'])
+        self.assertEqual(set(completions), {'1', '2'})

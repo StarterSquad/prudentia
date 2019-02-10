@@ -244,7 +244,8 @@ class SimpleProvider(object):
         if not vars_file:
             vars_file = io.input_path('path of the variables file')
         vars_dict = self.loader.load_from_file(vars_file)
-        for key, value in vars_dict.iteritems():
+        print(dir(vars_dict))
+        for key, value in vars_dict.items():
             self.set_var(key, value)
 
     def add_box(self, box):
