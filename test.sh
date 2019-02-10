@@ -22,7 +22,7 @@ fi
 
 export PRUDENTIA_USER_DIR=.
 export PRUDENTIA_LOG=
-export ANSIBLE_VAULT_IDENTITY_LIST="@$WORKSPACE/molecule_vault_pass.txt"
+export ANSIBLE_VAULT_IDENTITY_LIST="@$WORKSPACE/tests/molecule_vault_pass.txt"
 rm -rf tests/envs tests/cover
 
 nosetests -c nose.cfg $@
